@@ -14,10 +14,7 @@
 
     <script src="/js/jquery-3.5.1.min.js"></script>
     <script src="/js/bootstrap.bundle.min.js"></script>
-    <script src="/js/bootstrap-table.min.js"></script>
 
-    <script src="/js/jquery.tablesorter.js"></script>
-    <script src="/js/jquery.tablesorter.widgets.js"></script>
 
     <script src="/js/moment-2.30.1.min.js"></script>
 
@@ -25,7 +22,7 @@
     <style>
         html {
             font-size: 12px;
-            background-color: black;
+            background-color: #212529;
         }
 
         @media (max-width: 1680px) {
@@ -54,11 +51,14 @@
     <div class="row gx-1 bg-dark">
         <div class="col">
             <div class="p-1 border bg-danger">
-                <font color="#FFFFFF"><b>Pikud HaOref Alerts</b> (<font color="#FFFFFF" id="pikudHaorefCounter"></font>)</font>
+                <font color="#FFFFFF"><b>Pikud HaOref Alerts</b>
+                    <font style="display: none;" id="counter">(<font color="#FFFFFF" id="pikudHaorefCounter"></font>)</font>
+                </font>
             </div>
 
             <div class="col-20 table-responsive">
-                <table id="pikud_haoref_alerts" class="table-dark">
+                <table class="table table-dark">
+                    <tbody id="pikud_haoref_alerts"></tbody>
 
                 </table>
 
@@ -67,11 +67,18 @@
         </div>
         <div class="col">
             <div class="p-1 border bg-primary">
-                <font color="#FFFFFF"><b>News Updates</b>
+                <font color="#FFFFFF"><b>News Updates</b> -
+                    <select id="rssFeedSelector">
+                        <option value="-">Select RSS Feed To Start</option>
+                        <option value="RSSarutz7">Arutz 7 - Israel National News</option>
+                        <option value="RSSjerusalemPost">Jerusalem Post</option>
+                        <option value="RSSynet">Ynet News</option>
+                    </select>
             </div>
 
             <div class="col-20 table-responsive">
-                <table id="rss_alerts" class="table-dark">
+                <table class="table table-dark">
+                    <tbody id="rss_alerts"></tbody>
 
                 </table>
 
@@ -83,6 +90,23 @@
 
     <script>
 
+        let rssFeedSelected;
+        let rssFeedPollStarted = false;
+
+        $("#rssFeedSelector").on("change", function () {
+            const feed = $("#rssFeedSelector").val()
+
+            if (feed != "-") {
+                $("#rssFeedSelector option[value='-']").remove();
+                rssFeedSelected = feed;
+
+                if (!rssFeedPollStarted) {
+                    rssFeedPollStarted = true;
+                    rssPoll();
+                }
+            }
+        });
+
         async function ajaxHandler(service) {
             let response = "";
 
@@ -91,6 +115,7 @@
                 type: "POST",
                 data: {
                     "service": service,
+                    "rssfeed": rssFeedSelected
                 },
                 async: false,
                 dataType: "json",
@@ -105,6 +130,14 @@
             return response;
         }
 
+        setInterval(() => {
+            $(".alertNewRow").removeClass("table-light");
+            $(".alertNewRow").removeClass("alertNewRow");
+
+            $(".rssNewRow").removeClass("table-light");
+            $(".rssNewRow").removeClass("rssNewRow");
+        }, 5000);
+
         //Pikud HaOref service
 
         fetch('/json/cities.json')
@@ -112,9 +145,10 @@
             .then((data) => {
                 const citiesJSON = data;
 
-                const pikudHaorefInterval = 5000;
+                const pikudHaorefInterval = 7000;
                 const recentlyAlertedCities = {};
                 let pikudHaorefCounter = 0;
+                let pikudHaorefAlert = false;
 
                 function getAlertTypeByCategory(type) {
                     switch (type) {
@@ -174,16 +208,12 @@
 
                     const alert = await ajaxHandler("pikud_haoref");
 
-                    
-
                     if (alert.error) {
                         if (alert.error.indexOf("403 Forbidden") > -1) {
-                            //console.log("ERROR: " + "403 Forbidden - Requires Israeli IP");
-                            const timeStamp = moment().format("MMMM Do YYYY, h:mm:ss a");
-                            $("#pikud_haoref_alerts").prepend("<tr><td>" + timeStamp + " - ERROR: " + "403 Forbidden - Requires Israeli IP</td></tr>");
+                            $("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> 403 Forbidden - Requires Israeli IP</td></tr>");
                         }
                         else {
-                            console.log(alert.error)
+                            $("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> " + alert.error + "</td></tr>");
                         }
                         return;
                     }
@@ -194,8 +224,11 @@
                         const timeStamp = moment().format("MMM Do YYYY, h:mm:ss a");
 
                         if (alertType != "none") {
-                            console.log(alert.cities);
-                            
+                            if (!pikudHaorefAlert) {
+                                pikudHaorefAlert = true;
+                                $("#counter").show();
+                            }
+
                             const cities = extractNewCities(alert.cities);
                             const instructions = alert.instructions;
 
@@ -214,13 +247,12 @@
                                     if (city) {
                                         pikudHaorefCounter++
                                         $("#pikudHaorefCounter").text(pikudHaorefCounter)
-                                        $("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>" + alertTypeText + "</font></td><td><font class='text-warning'>" + timeStamp + "</font></td><td>" + city + " (" + cityOriginal + ")</td></tr>");
+                                        $("#pikud_haoref_alerts").prepend("<tr class='alertNewRow table-light'><td><font class='text-info'>" + alertTypeText + "</font></td><td>" + city + " (" + cityOriginal + ")</td><td><font class='text-warning'>" + timeStamp + "</font></td></tr>");
                                     }
                                 }
                             }
                         }
                     }
-
                 };
 
                 pikudHaorefPoll();
@@ -239,47 +271,46 @@
 
             setTimeout(rssPoll, rssInterval);
 
-            let reversedArray = [];
+            if (rssFeedSelected) {
+                let reversedArray = [];
 
-            const news = await ajaxHandler("rss");
+                const news = await ajaxHandler("rss", rssFeedSelected);
 
-            if (news.error) {
-                console.log(feed.error)
-                return;
-            }
-
-            news.feed.items.forEach((item) => {
-                reversedArray.push({ pubDate: item.pubDate, title: item.title });
-            });
-
-            reversedArray = reversedArray.reverse();
-
-            reversedArray.forEach((item) => {
-
-                const publishDate = moment(item.pubDate).format("MMM Do YYYY, h:mm:ss a");
-                const publishDay = moment(item.pubDate).format("MMM Do YYYY");
-                const currentDay = moment().format("MMM Do YYYY");
-
-                const today = moment();
-                const yesterday = moment(today.startOf("day")).set(
-                    "date",
-                    today.get("date") - 1
-                );
-                const yesterDay = yesterday.format("MMM Do YYYY");
-
-                if (publishDay === currentDay || publishDay === yesterDay) {
-                    if (!newsArray.includes(publishDate + " : " + item.title)) {
-                        newsArray.push(publishDate + " : " + item.title);
-
-                        $("#rss_alerts").prepend("<tr><td>" + item.title + "</td><td><font class='text-warning'>" + publishDate + "</font></td></tr>");
-                    }
+                if (news.error) {
+                    console.log(news.error);
+                    $("#rss_alerts").prepend("<tr><td>" + news.error + "</td></tr>");
+                    return;
                 }
-            });
 
+                news.feed.items.forEach((item) => {
+                    reversedArray.push({ pubDate: item.pubDate, title: item.title });
+                });
 
+                reversedArray = reversedArray.reverse();
+
+                reversedArray.forEach((item) => {
+
+                    const publishDate = moment(item.pubDate).format("MMM Do YYYY, h:mm:ss a");
+                    const publishDay = moment(item.pubDate).format("MMM Do YYYY");
+                    const currentDay = moment().format("MMM Do YYYY");
+
+                    const today = moment();
+                    const yesterday = moment(today.startOf("day")).set(
+                        "date",
+                        today.get("date") - 1
+                    );
+                    const yesterDay = yesterday.format("MMM Do YYYY");
+
+                    if (publishDay === currentDay || publishDay === yesterDay) {
+                        if (!newsArray.includes(publishDate + " : " + item.title)) {
+                            newsArray.push(publishDate + " : " + item.title);
+
+                            $("#rss_alerts").prepend("<tr class='rssNewRow table-light'><td>" + item.title + "</td><td><font class='text-warning'>" + publishDate + "</font></td></tr>");
+                        }
+                    }
+                });
+            }
         };
-
-        rssPoll();
     </script>
 
 

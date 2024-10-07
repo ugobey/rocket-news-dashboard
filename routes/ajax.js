@@ -9,7 +9,6 @@ const errorHandler = sharedFunction.errorHandler;
 const fs = require("fs");
 
 const pikudHaoref = require("pikud-haoref-api");
-const moment = require("moment");
 const Parser = require("rss-parser");
 const parser = new Parser();
 
@@ -37,14 +36,37 @@ router.use("/", function (req, res) {
                     res.end();
                 }, options);
             } else if (getService === "rss") {
-                const feed = await parser.parseURL("https://www.israelnationalnews.com/Rss.aspx?act=.1");
+                const getRSSfeed = req.body.rssfeed;
 
-                res.statusCode = 200;
-                res.write(JSON.stringify({ feed: feed }));
-                res.end();
+                function getFeedURL(feed) {
+                    switch (feed) {
+                        case "RSSarutz7":
+                            return "https://www.israelnationalnews.com/Rss.aspx";
+                        case "RSSjerusalemPost":
+                            return "https://www.jpost.com/Rss/RssFeedsHeadlines.aspx";
+                        case "RSSynet":
+                            return "https://www.ynet.co.il/Integration/StoryRss3082.xml";
+                        default:
+                            return;
+                    }
+                }
+
+                const rssFeed = getFeedURL(getRSSfeed);
+
+                if (rssFeed) {
+                    const feed = await parser.parseURL(rssFeed);
+
+                    res.statusCode = 200;
+                    res.write(JSON.stringify({ feed: feed }));
+                    res.end();
+                } else {
+                    res.statusCode = 200;
+                    res.write(JSON.stringify({ error: "Invalid RSS Service" }));
+                    res.end();
+                }
             } else {
                 res.statusCode = 200;
-                res.write(JSON.stringify({ error: "No Service Selected" }));
+                res.write(JSON.stringify({ error: "No RSS Service Selected" }));
                 res.end();
             }
         })().catch((err) =>

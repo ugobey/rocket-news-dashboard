@@ -1,5 +1,7 @@
 const parameters = process.argv;
 
+const webServerPort = 8080;
+
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
@@ -36,8 +38,8 @@ try {
 
     app.use(express.static(path.join(__dirname, "public")));
 
-    app.listen(80, function () {
-        console.log(`Listening on port 80`);
+    app.listen(webServerPort, function () {
+        console.log(`Listening on port ${webServerPort}`);
     });
 
     //ROUTES

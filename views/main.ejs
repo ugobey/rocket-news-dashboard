@@ -45,8 +45,9 @@
     <div class="row gx-1 bg-dark">
         <div class="col">
             <div class="p-1 border bg-danger">
-                <font color="#FFFFFF"><b>Pikud HaOref Alerts</b>
-                    <font style="display: none;" id="counter">(<font color="#FFFFFF" id="pikudHaorefCounter"></font>)</font>
+                <font color="#FFFFFF"><b>Pikud HaOref</b>
+                    <font style="display: none;" id="counter">Alerts (<font color="#FFFFFF" id="pikudHaorefCounter"></font>)</font>
+                    <font style="display: none;" id="error_counter"> - Errors (<font color="#FFFFFF" id="pikudHaorefErrorCounter"></font>)</font>
                 </font>
             </div>
 
@@ -63,7 +64,6 @@
             <div class="p-1 border bg-primary">
                 <font color="#FFFFFF"><b>News Updates</b> -
                     <select id="rssFeedSelector">
-                        <option value="-">Select RSS Feed To Start</option>
                         <option value="RSSarutz7">Arutz 7 - Israel National News</option>
                         <option value="RSSjerusalemPost">Jerusalem Post</option>
                         <option value="RSSynet">Ynet News</option>
@@ -84,22 +84,15 @@
 
     <script>
 
+        const getSelectOptionValues = [];
+        let selectOptionsValuesCount = 0;
+
+        $("#rssFeedSelector option").each(function () {
+            getSelectOptionValues.push($(this).val())
+        });
+
         let rssFeedSelected;
         let rssFeedPollStarted = false;
-
-        $("#rssFeedSelector").on("change", function () {
-            const feed = $("#rssFeedSelector").val()
-
-            if (feed != "-") {
-                $("#rssFeedSelector option[value='-']").remove();
-                rssFeedSelected = feed;
-
-                if (!rssFeedPollStarted) {
-                    rssFeedPollStarted = true;
-                    rssPoll();
-                }
-            }
-        });
 
         async function ajaxHandler(service) {
             let response = "";
@@ -143,6 +136,9 @@
                 const recentlyAlertedCities = {};
                 let pikudHaorefCounter = 0;
                 let pikudHaorefAlert = false;
+
+                let pikudHaorefErrorCounter = 0;
+                let pikudHaorefError = false;
 
                 function getAlertTypeByCategory(type) {
                     switch (type) {
@@ -203,11 +199,21 @@
                     const alert = await ajaxHandler("pikud_haoref");
 
                     if (alert.error) {
+
+                        pikudHaorefErrorCounter++
+
+                        if (!pikudHaorefError) {
+                            pikudHaorefError = true;
+                            $("#error_counter").show();
+                        }
+
+                        $("#pikudHaorefErrorCounter").text(pikudHaorefErrorCounter);
+
                         if (alert.error.indexOf("403 Forbidden") > -1) {
-                            $("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> 403 Forbidden - Requires Israeli IP</td></tr>");
+                            //$("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> 403 Forbidden - Requires Israeli IP</td></tr>");
                         }
                         else {
-                            $("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> " + alert.error + "</td></tr>");
+                            //$("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> " + alert.error + "</td></tr>");
                         }
                         return;
                     }
@@ -240,7 +246,7 @@
 
                                     if (city) {
                                         pikudHaorefCounter++
-                                        $("#pikudHaorefCounter").text(pikudHaorefCounter)
+                                        $("#pikudHaorefCounter").text(pikudHaorefCounter);
                                         $("#pikud_haoref_alerts").prepend("<tr class='alertNewRow table-light'><td><font class='text-info'>" + alertTypeText + "</font></td><td>" + city + " (" + cityOriginal + ")</td><td><font class='text-warning'>" + timeStamp + "</font></td></tr>");
                                     }
                                 }
@@ -257,11 +263,18 @@
 
 
 
-
         //RSS service
         const newsArray = [];
         const rssInterval = 60000;
         const rssPoll = async function () {
+
+            rssFeedSelected = getSelectOptionValues[selectOptionsValuesCount];
+            $("#rssFeedSelector").val(rssFeedSelected);
+            selectOptionsValuesCount++;
+
+            if (selectOptionsValuesCount === getSelectOptionValues.length) {
+                selectOptionsValuesCount = 0;
+            }
 
             setTimeout(rssPoll, rssInterval);
 
@@ -295,7 +308,7 @@
                     );
                     const yesterDay = yesterday.format("MMM Do YYYY");
 
-                    if (publishDay === currentDay || publishDay === yesterDay) {
+                    if (publishDay === currentDay) {
                         if (!newsArray.includes(publishDate + " : " + item.title)) {
                             newsArray.push(publishDate + " : " + item.title);
 
@@ -305,6 +318,8 @@
                 });
             }
         };
+
+        rssPoll();
     </script>
 
 

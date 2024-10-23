@@ -312,7 +312,7 @@
                         if (!newsArray.includes(publishDate + " : " + item.title)) {
                             newsArray.push(publishDate + " : " + item.title);
 
-                            $("#rss_alerts").prepend("<tr class='rssNewRow table-light'><td>" + item.title + "</td><td><font class='text-warning'>" + publishDate + "</font></td></tr>");
+                            $("#rss_alerts").prepend("<tr class='rssNewRow table-light'><td>" + item.title + "</td><td><font class='text-warning'>" + publishDate + "</font></td><td><font class='text-secondary'>" + rssFeedSelected + "</font></td></tr>");
                         }
                     }
                 });

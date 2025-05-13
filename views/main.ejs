@@ -126,7 +126,6 @@
         }, 5000);
 
         //Pikud HaOref service
-
         fetch('/json/cities.json')
             .then((response) => response.json())
             .then((data) => {
@@ -193,6 +192,9 @@
                     return newCities;
                 }
 
+                let stopAutoScroll = false;
+                let restartAutoScroll;
+
                 const pikudHaorefPoll = async function () {
                     setTimeout(pikudHaorefPoll, pikudHaorefInterval);
 
@@ -232,7 +234,7 @@
                             const cities = extractNewCities(alert.cities);
                             const instructions = alert.instructions;
 
-                            if (cities) {
+                            if (Array.isArray(cities)) {
                                 for (let i = 0; i < cities.length; i++) {
                                     const cityOriginal = cities[i];
                                     let city = cities[i];
@@ -246,9 +248,32 @@
 
                                     if (city) {
                                         pikudHaorefCounter++
+
                                         $("#pikudHaorefCounter").text(pikudHaorefCounter);
                                         $("#pikud_haoref_alerts").prepend("<tr class='alertNewRow table-light'><td><font class='text-info'>" + alertTypeText + "</font></td><td>" + city + " (" + cityOriginal + ")</td><td><font class='text-warning'>" + timeStamp + "</font></td></tr>");
+
+                                        if (!stopAutoScroll) {
+                                            stopAutoScroll = true
+                                        }
                                     }
+                                }
+
+                                if (stopAutoScroll && dataBelowFold) {
+                                    stopAutoScroll = false;
+
+                                    clearInterval(autoScrollPage);
+                                    clearInterval(checkIfReachedBottom);
+
+                                    console.log("stopAutoScroll");
+
+                                    window.scrollTo(0, 1);
+
+                                    clearTimeout(restartAutoScroll);
+                                    restartAutoScroll = setTimeout(() => {
+                                        console.log("Restarting scrollLogic");
+
+                                        startScrollLogic();
+                                    }, 10000);
                                 }
                             }
                         }
@@ -265,7 +290,8 @@
 
         //RSS service
         const newsArray = [];
-        const rssInterval = 60000;
+        const rssInterval = 30000;
+
         const rssPoll = async function () {
 
             rssFeedSelected = getSelectOptionValues[selectOptionsValuesCount];
@@ -313,13 +339,86 @@
                             newsArray.push(publishDate + " : " + item.title);
 
                             $("#rss_alerts").prepend("<tr class='rssNewRow table-light'><td>" + item.title + "</td><td><font class='text-warning'>" + publishDate + "</font></td><td><font class='text-secondary'>" + rssFeedSelected + "</font></td></tr>");
+
+
                         }
                     }
                 });
+
+
             }
         };
 
         rssPoll();
+
+        let dataBelowFold = false;
+
+
+        const checkDocumentHeight = setInterval(function () {
+            if (document.body.scrollHeight > document.documentElement.clientHeight) {
+
+                dataBelowFold = true;
+
+                console.log("Start initial scrollToTop");
+
+                clearInterval(checkDocumentHeight)
+
+                scrollToTop();
+            }
+        }, 1000);
+
+        function scrollToTop() {
+            setTimeout(() => {
+                window.scrollTo(0, 1);
+
+                startScrollLogic();
+            }, 2000);
+        }
+
+        let autoScrollPage;
+        let checkIfReachedBottom;
+
+        function startScrollLogic() {
+            console.log("Start startScrollLogic");
+
+            setTimeout(() => {
+                function scrollToBottom(timedelay = 0) {
+
+                    console.log("Start scrollToBottom");
+
+                    let height = 0;
+                    const minScrollHeight = 1;
+                    let lastDetectedHeight = 0;
+
+                    autoScrollPage = setInterval(function () {
+                        if (height <= document.documentElement.scrollHeight) {
+                            window.scrollBy(0, minScrollHeight);
+                        }
+                        else {
+                            clearInterval(autoScrollPage);
+                        }
+                        height += minScrollHeight;
+
+
+                    }, timedelay);
+
+                    checkIfReachedBottom = setInterval(function () {
+                        if (lastDetectedHeight === window.scrollY) {
+                            console.log("Reached bottom");
+
+                            clearInterval(checkIfReachedBottom);
+                            clearInterval(autoScrollPage);
+
+                            scrollToTop();
+                        } else {
+                            lastDetectedHeight = window.scrollY;
+                        }
+                    }, 1000);
+                }
+
+                scrollToBottom(50);
+            }, 2000);
+        }
     </script>
 
 

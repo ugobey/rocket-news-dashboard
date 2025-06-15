@@ -140,6 +140,8 @@
                 let pikudHaorefError = false;
 
                 function getAlertTypeByCategory(type) {
+                    console.log(type);
+
                     switch (type) {
                         case "missiles":
                             return "Rocket Alert";
@@ -174,7 +176,7 @@
                         case "terroristInfiltrationDrill":
                             return "Drill - Terrorist Infiltration Alert";
                         default:
-                            return "No Alert";
+                            return "Early Warning";
                     }
                 }
 
@@ -223,7 +225,7 @@
                     const alertType = alert.type;
                     if (alertType) {
                         const alertTypeText = getAlertTypeByCategory(alertType);
-                        const timeStamp = moment().format("MMM Do YYYY, h:mm:ss a");
+                        const timeStamp = moment().format("h:mm:ss a");
 
                         if (alertType != "none") {
                             if (!pikudHaorefAlert) {
@@ -264,13 +266,13 @@
                                     clearInterval(autoScrollPage);
                                     clearInterval(checkIfReachedBottom);
 
-                                    console.log("stopAutoScroll");
+                                    //console.log("stopAutoScroll");
 
                                     window.scrollTo(0, 1);
 
                                     clearTimeout(restartAutoScroll);
                                     restartAutoScroll = setTimeout(() => {
-                                        console.log("Restarting scrollLogic");
+                                        //console.log("Restarting scrollLogic");
 
                                         startScrollLogic();
                                     }, 10000);
@@ -322,8 +324,7 @@
                 reversedArray = reversedArray.reverse();
 
                 reversedArray.forEach((item) => {
-
-                    const publishDate = moment(item.pubDate).format("MMM Do YYYY, h:mm:ss a");
+                    const publishDate = moment(item.pubDate).format("h:mm:ss a");
                     const publishDay = moment(item.pubDate).format("MMM Do YYYY");
                     const currentDay = moment().format("MMM Do YYYY");
 
@@ -338,14 +339,10 @@
                         if (!newsArray.includes(publishDate + " : " + item.title)) {
                             newsArray.push(publishDate + " : " + item.title);
 
-                            $("#rss_alerts").prepend("<tr class='rssNewRow table-light'><td>" + item.title + "</td><td><font class='text-warning'>" + publishDate + "</font></td><td><font class='text-secondary'>" + rssFeedSelected + "</font></td></tr>");
-
-
+                            $("#rss_alerts").prepend("<tr class='rssNewRow table-light'><td>" + item.title + "</td><td><font class='text-warning'>" + publishDate + "</font></td><td><font class='text-secondary'>" + rssFeedSelected.replace("RSS", "") + "</font></td></tr>");
                         }
                     }
                 });
-
-
             }
         };
 
@@ -359,7 +356,7 @@
 
                 dataBelowFold = true;
 
-                console.log("Start initial scrollToTop");
+                //console.log("Start initial scrollToTop");
 
                 clearInterval(checkDocumentHeight)
 
@@ -379,12 +376,12 @@
         let checkIfReachedBottom;
 
         function startScrollLogic() {
-            console.log("Start startScrollLogic");
+            //console.log("Start startScrollLogic");
 
             setTimeout(() => {
                 function scrollToBottom(timedelay = 0) {
 
-                    console.log("Start scrollToBottom");
+                    //console.log("Start scrollToBottom");
 
                     let height = 0;
                     const minScrollHeight = 1;
@@ -404,7 +401,7 @@
 
                     checkIfReachedBottom = setInterval(function () {
                         if (lastDetectedHeight === window.scrollY) {
-                            console.log("Reached bottom");
+                            //console.log("Reached bottom");
 
                             clearInterval(checkIfReachedBottom);
                             clearInterval(autoScrollPage);
@@ -416,8 +413,8 @@
                     }, 1000);
                 }
 
-                scrollToBottom(50);
-            }, 2000);
+                scrollToBottom(100);
+            }, 10000);
         }
     </script>
 

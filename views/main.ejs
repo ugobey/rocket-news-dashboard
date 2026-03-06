@@ -143,6 +143,8 @@
                     console.log(type);
 
                     switch (type) {
+                        case "newsFlash":
+                            return "Early Warning";
                         case "missiles":
                             return "Rocket Alert";
                         case "general":
@@ -176,7 +178,7 @@
                         case "terroristInfiltrationDrill":
                             return "Drill - Terrorist Infiltration Alert";
                         default:
-                            return "Early Warning";
+                            return "Unknown Alert";
                     }
                 }
 

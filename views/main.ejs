@@ -225,62 +225,63 @@
                     }
 
                     const alertType = alert.type;
-                    if (alertType) {
+
+                    if (alertType && alertType != "none" && alertType != "newsFlash") {
                         const alertTypeText = getAlertTypeByCategory(alertType);
                         const timeStamp = moment().format("h:mm:ss a");
 
-                        if (alertType != "none") {
-                            if (!pikudHaorefAlert) {
-                                pikudHaorefAlert = true;
-                                $("#counter").show();
+
+                        if (!pikudHaorefAlert) {
+                            pikudHaorefAlert = true;
+                            $("#counter").show();
+                        }
+
+                        const cities = extractNewCities(alert.cities);
+                        const instructions = alert.instructions;
+
+                        if (Array.isArray(cities)) {
+                            for (let i = 0; i < cities.length; i++) {
+                                const cityOriginal = cities[i];
+                                let city = cities[i];
+
+                                for (let c = 0; c < citiesJSON.length; c++) {
+                                    if (citiesJSON[c].value === city) {
+                                        city = citiesJSON[c].name_en;
+                                        break;
+                                    }
+                                }
+
+                                if (city) {
+                                    pikudHaorefCounter++
+
+                                    $("#pikudHaorefCounter").text(pikudHaorefCounter);
+                                    $("#pikud_haoref_alerts").prepend("<tr class='alertNewRow table-light'><td><font class='text-info'>" + alertTypeText + "</font></td><td>" + city + " (" + cityOriginal + ")</td><td><font class='text-warning'>" + timeStamp + "</font></td></tr>");
+
+                                    if (!stopAutoScroll) {
+                                        stopAutoScroll = true
+                                    }
+                                }
                             }
 
-                            const cities = extractNewCities(alert.cities);
-                            const instructions = alert.instructions;
+                            if (stopAutoScroll && dataBelowFold) {
+                                stopAutoScroll = false;
 
-                            if (Array.isArray(cities)) {
-                                for (let i = 0; i < cities.length; i++) {
-                                    const cityOriginal = cities[i];
-                                    let city = cities[i];
+                                clearInterval(autoScrollPage);
+                                clearInterval(checkIfReachedBottom);
 
-                                    for (let c = 0; c < citiesJSON.length; c++) {
-                                        if (citiesJSON[c].value === city) {
-                                            city = citiesJSON[c].name_en;
-                                            break;
-                                        }
-                                    }
+                                //console.log("stopAutoScroll");
 
-                                    if (city) {
-                                        pikudHaorefCounter++
+                                window.scrollTo(0, 1);
 
-                                        $("#pikudHaorefCounter").text(pikudHaorefCounter);
-                                        $("#pikud_haoref_alerts").prepend("<tr class='alertNewRow table-light'><td><font class='text-info'>" + alertTypeText + "</font></td><td>" + city + " (" + cityOriginal + ")</td><td><font class='text-warning'>" + timeStamp + "</font></td></tr>");
+                                clearTimeout(restartAutoScroll);
+                                restartAutoScroll = setTimeout(() => {
+                                    //console.log("Restarting scrollLogic");
 
-                                        if (!stopAutoScroll) {
-                                            stopAutoScroll = true
-                                        }
-                                    }
-                                }
-
-                                if (stopAutoScroll && dataBelowFold) {
-                                    stopAutoScroll = false;
-
-                                    clearInterval(autoScrollPage);
-                                    clearInterval(checkIfReachedBottom);
-
-                                    //console.log("stopAutoScroll");
-
-                                    window.scrollTo(0, 1);
-
-                                    clearTimeout(restartAutoScroll);
-                                    restartAutoScroll = setTimeout(() => {
-                                        //console.log("Restarting scrollLogic");
-
-                                        //startScrollLogic();
-                                    }, 10000);
-                                }
+                                    //startScrollLogic();
+                                }, 10000);
                             }
                         }
+
                     }
                 };
 

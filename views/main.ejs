@@ -292,7 +292,7 @@
                         }
 
                         if (alert && alert.length) {
-                            //console.log("Alert : ", alert);
+                            //console.log("Alert : ", alert[0]);
                             //console.log(JSON.stringify(alert));
 
                             const alertType = alert[0] && alert[0].type;
@@ -303,6 +303,15 @@
                                 if ($("#earlyWarning").is(":hidden")) {
                                     $("#earlyWarning").show();
                                 }
+
+                                const instructions = alert[0].instructions;
+
+                                //console.log(instructions);
+
+                                if (instructions === "האירוע הסתיים"){
+                                     $("#earlyWarning").hide();
+                                }
+
                             } else if (alertType != "newsFlash") {
 
                                 const alertTypeText = getAlertTypeByCategory(alertType);

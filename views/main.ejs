@@ -43,45 +43,29 @@
 
 
     <div class="row gx-1 bg-dark">
-        <div class="col">
+        <div class="col col-lg-4 col-md-8">
             <div class="p-1 border bg-danger">
                 <font color="#FFFFFF"><b>Pikud HaOref Alerts</b>
                     <font style="display: none;" id="error_counter"> - Errors (<font color="#FFFFFF" id="pikudHaorefErrorCounter"></font>)</font>
                 </font>
             </div>
 
-            <div class="col-20 table-responsive">
-                <table class="table table-sm table-dark">
+            <div class="table-responsive">
+                <table class="table table-sm table-dark table-striped">
                     <tbody id="pikud_haoref_alerts"></tbody>
-
                 </table>
 
             </div>
-
         </div>
-        <div class="col">
-            <div class="p-1 border bg-secondary">
-                <font color="#FFFFFF"><b>News Updates</b> - </font>
-                <select id="rssFeedSelector">
-                    <option value="RSSarutz7">Arutz 7 - Israel National News</option>
-                    <option value="RSSjerusalemPost">Jerusalem Post</option>
-                    <option value="RSSynet">Ynet News</option>
-                </select>
-            </div>
 
-            <div class="col-20 table-responsive" style="max-height: 500px; overflow-y: auto;">
-                <table class="table table-sm table-dark">
-                    <tbody id="rss_alerts"></tbody>
 
-                </table>
 
-            </div>
-
+        <div class="col col-lg-4 col-md-8">
             <div class="p-1 border bg-success">
                 <font color="#FFFFFF"><b>Alerts Summary</b></font>
             </div>
 
-            <div class="col-20 table-responsive">
+            <div class="table-responsive">
                 <table class="table table-sm table-dark">
                     <tbody id="alerts_summary">
 
@@ -120,13 +104,30 @@
                 <font color="#FFFFFF"><b>Alerted Cities Counter</b></font>
             </div>
 
-            <div class="col-20 table-responsive">
+            <div class="table-responsive">
                 <table class="table table-sm table-dark">
                     <tbody id="alerts_summary">
-
                         <tr id="alerted_cities_summary"></tr>
-
                     </tbody>
+
+                </table>
+
+            </div>
+        </div>
+
+        <div class="col col-lg-4 col-md-8">
+            <div class="p-1 border bg-secondary">
+                <font color="#FFFFFF"><b>News Updates</b> - </font>
+                <select id="rssFeedSelector">
+                    <option value="RSSarutz7">Arutz 7 - Israel National News</option>
+                    <option value="RSSjerusalemPost">Jerusalem Post</option>
+                    <option value="RSSynet">Ynet News</option>
+                </select>
+            </div>
+
+            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                <table class="table table-sm table-dark table-striped">
+                    <tbody id="rss_alerts"></tbody>
 
                 </table>
 
@@ -139,7 +140,6 @@
     <script>
 
         let alertedCities = [];
-        let totalAlertsCounter = 0;
         let missileAlertCounter = 0;
         let droneAlertCounter = 0;
 
@@ -310,10 +310,6 @@
 
                                     if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
 
-                                        totalAlertsCounter++
-                                        $("#totalAlertsCounter").text(totalAlertsCounter);
-
-
                                         if (alertType === "missiles") {
                                             missileAlertCounter++
                                             $("#missileAlertCounter").text(missileAlertCounter);
@@ -322,6 +318,8 @@
                                             droneAlertCounter++
                                             $("#droneAlertCounter").text(droneAlertCounter);
                                         }
+
+                                        $("#totalAlertsCounter").text(missileAlertCounter + droneAlertCounter);
 
                                         function updateAlertedCity(city) {
                                             alertedCities = alertedCities.filter(item => item.city !== city);
@@ -335,7 +333,6 @@
                                         }
 
                                         updateAlertedCity(city);
-
 
                                     }
 

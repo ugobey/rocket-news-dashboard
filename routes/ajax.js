@@ -20,7 +20,7 @@ router.use("/", function (req, res) {
             if (getService === "pikud_haoref") {
                 const options = {};
 
-                pikudHaoref.getActiveAlert(function (err, alert) {
+                pikudHaoref.getActiveAlerts(function (err, alert) {
                     if (err) {
                         errorHandler(service_name, err);
                         fs.appendFileSync("./logs/pikudHaoref_errors.txt", err + "\n\n");

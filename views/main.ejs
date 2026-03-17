@@ -268,6 +268,7 @@
                         setTimeout(pikudHaorefPoll, pikudHaorefInterval);
 
                         const alert = await ajaxHandler("pikud_haoref");
+                        console.log("Alert : ", alert);
                         window.alertsJSON = alert;
 
                         if (alert.error) {
@@ -291,72 +292,74 @@
                             return;
                         }
 
-                        const alertType = alert.type;
+                        if (alert && alert.length) {
+                            const alertType = alert[0] && alert[0].type;
 
-                        console.log("Alert Type : " + alertType);
+                            if (alertType === "newsFlash") {
+                                earlyWarningActive = true;
 
-                        if (alertType === "newsFlash") {
-                            earlyWarningActive = true;
+                                if ($("#earlyWarning").is(":hidden")) {
+                                    $("#earlyWarning").show();
+                                }
+                            } else if (alertType != "newsFlash") {
 
-                            if ($("#earlyWarning").is(":hidden")) {
-                                $("#earlyWarning").show();
-                            }
-                        }
+                                const alertTypeText = getAlertTypeByCategory(alertType);
+                                const timeStamp = moment().format("h:mm:ss a");
 
-                        if (alertType != "none" && alertType != "newsFlash") {
-                            const alertTypeText = getAlertTypeByCategory(alertType);
-                            const timeStamp = moment().format("h:mm:ss a");
+                                console.log(alert.cities)
 
-                            const locations = extractNewLocations(alert.cities);
+                                const locations = extractNewLocations(alert.cities);
 
-                            for (let i = 0; i < locations.length; i++) {
-                                const locationOriginal = locations[i];
-                                let location = locations[i];
+                                for (let i = 0; i < locations.length; i++) {
+                                    const locationOriginal = locations[i];
+                                    let location = locations[i];
 
-                                for (let c = 0; c < locationsJSON.length; c++) {
-                                    if (locationsJSON[c].value === location) {
-                                        location = locationsJSON[c].name_en;
-                                        break;
+                                    for (let c = 0; c < locationsJSON.length; c++) {
+                                        if (locationsJSON[c].hebrew === location) {
+                                            location = locationsJSON[c].english;
+                                            break;
+                                        }
+                                    }
+
+                                    if (location) {
+
+                                        if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
+
+                                            if (alertType === "missiles") {
+                                                missileAlertCounter++
+                                                $("#missileAlertCounter").text(missileAlertCounter);
+                                            }
+                                            else if (alertType === "hostileAircraftIntrusion") {
+                                                droneAlertCounter++
+                                                $("#droneAlertCounter").text(droneAlertCounter);
+                                            }
+
+                                            $("#totalAlertsCounter").text(missileAlertCounter + droneAlertCounter);
+
+                                            updateAlertedLocation(location);
+
+                                        }
+
+                                        $("#pikud_haoref_alerts").prepend("<tr class='alertNewRow table-light'><td><font class='text-info'>" + alertTypeText + "</font></td><td>" + location + " (" + locationOriginal + ")</td><td><font class='text-warning'>" + timeStamp + "</font></td></tr>");
+
                                     }
                                 }
 
-                                if (location) {
+                                if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
+                                    $("#alerted_locations_counter").html("");
 
-                                    if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
+                                    const sortalertedLocations = alertedLocations.toSorted((a, b) => b.counter - a.counter);
 
-                                        if (alertType === "missiles") {
-                                            missileAlertCounter++
-                                            $("#missileAlertCounter").text(missileAlertCounter);
-                                        }
-                                        else if (alertType === "hostileAircraftIntrusion") {
-                                            droneAlertCounter++
-                                            $("#droneAlertCounter").text(droneAlertCounter);
-                                        }
+                                    for (let i = 0; i < sortalertedLocations.length; i++) {
+                                        const location = sortalertedLocations[i].location
+                                        const counter = sortalertedLocations[i].counter;
 
-                                        $("#totalAlertsCounter").text(missileAlertCounter + droneAlertCounter);
-
-                                        updateAlertedLocation(location);
-
+                                        $("#alerted_locations_counter").append("<tr><td><font class='text-info'>" + location + "</font></td><td>" + counter + "</td></tr>");
                                     }
 
-                                    $("#pikud_haoref_alerts").prepend("<tr class='alertNewRow table-light'><td><font class='text-info'>" + alertTypeText + "</font></td><td>" + location + " (" + locationOriginal + ")</td><td><font class='text-warning'>" + timeStamp + "</font></td></tr>");
-
-                                }
-                            }
-
-                            if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
-                                $("#alerted_locations_counter").html("");
-
-                                const sortalertedLocations = alertedLocations.toSorted((a, b) => b.counter - a.counter);
-
-                                for (let i = 0; i < sortalertedLocations.length; i++) {
-                                    const location = sortalertedLocations[i].location
-                                    const counter = sortalertedLocations[i].counter;
-
-                                    $("#alerted_locations_counter").append("<tr><td><font class='text-info'>" + location + "</font></td><td>" + counter + "</td></tr>");
+                                    $("#totalLocationsCounter").text(sortalertedLocations.length);
                                 }
 
-                                $("#totalLocationsCounter").text(sortalertedLocations.length);
                             }
                         }
                     }

@@ -399,38 +399,40 @@
 
                 const news = await ajaxHandler("rss", rssFeedSelected);
 
-                if (news.error) {
-                    console.log(news.error);
-                    $("#rss_alerts").prepend("<tr><td>" + news.error + "</td></tr>");
-                    return;
-                }
-
-                news.feed.items.forEach((item) => {
-                    reversedArray.push({ pubDate: item.pubDate, title: item.title });
-                });
-
-                reversedArray = reversedArray.reverse();
-
-                reversedArray.forEach((item) => {
-                    const publishDate = moment(item.pubDate).format("h:mm:ss a");
-                    const publishDay = moment(item.pubDate).format("MMM Do YYYY");
-                    const currentDay = moment().format("MMM Do YYYY");
-
-                    const today = moment();
-                    const yesterday = moment(today.startOf("day")).set(
-                        "date",
-                        today.get("date") - 1
-                    );
-                    const yesterDay = yesterday.format("MMM Do YYYY");
-
-                    if (publishDay === currentDay) {
-                        if (!newsArray.includes(publishDate + " : " + item.title)) {
-                            newsArray.push(publishDate + " : " + item.title);
-
-                            $("#rss_alerts").prepend("<tr class='rssNewRow table-light'><td>" + item.title + "</td><td><font class='text-warning'>" + publishDate + "</font></td><td><font class='text-secondary'>" + rssFeedSelected.replace("RSS", "") + "</font></td></tr>");
-                        }
+                if (news) {
+                    if (news.error) {
+                        console.log(news.error);
+                        $("#rss_alerts").prepend("<tr><td>" + news.error + "</td></tr>");
+                        return;
                     }
-                });
+
+                    news.feed.items.forEach((item) => {
+                        reversedArray.push({ pubDate: item.pubDate, title: item.title });
+                    });
+
+                    reversedArray = reversedArray.reverse();
+
+                    reversedArray.forEach((item) => {
+                        const publishDate = moment(item.pubDate).format("h:mm:ss a");
+                        const publishDay = moment(item.pubDate).format("MMM Do YYYY");
+                        const currentDay = moment().format("MMM Do YYYY");
+
+                        const today = moment();
+                        const yesterday = moment(today.startOf("day")).set(
+                            "date",
+                            today.get("date") - 1
+                        );
+                        const yesterDay = yesterday.format("MMM Do YYYY");
+
+                        if (publishDay === currentDay) {
+                            if (!newsArray.includes(publishDate + " : " + item.title)) {
+                                newsArray.push(publishDate + " : " + item.title);
+
+                                $("#rss_alerts").prepend("<tr class='rssNewRow table-light'><td>" + item.title + "</td><td><font class='text-warning'>" + publishDate + "</font></td><td><font class='text-secondary'>" + rssFeedSelected.replace("RSS", "") + "</font></td></tr>");
+                            }
+                        }
+                    });
+                }
             }
         };
 

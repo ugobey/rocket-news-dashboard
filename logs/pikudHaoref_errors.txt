@@ -4,3 +4,5 @@ Error: Failed to parse HFC JSON: SyntaxError: Unterminated string in JSON at pos
 
 Error: Failed to parse HFC JSON: SyntaxError: Unterminated string in JSON at position 181818 (line 1 column 181819)
 
+Error: Failed to parse HFC JSON: SyntaxError: Unterminated string in JSON at position 27054 (line 1 column 27055)
+

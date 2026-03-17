@@ -185,7 +185,7 @@
             .then((data) => {
                 const locationsJSON = data;
 
-                const pikudHaorefInterval = 7000;
+                const pikudHaorefInterval = 1000;
                 const recentlyAlertedLocations = {};
 
                 let pikudHaorefErrorCounter = 0;
@@ -268,7 +268,6 @@
                         setTimeout(pikudHaorefPoll, pikudHaorefInterval);
 
                         const alert = await ajaxHandler("pikud_haoref");
-                        console.log("Alert : ", alert);
                         window.alertsJSON = alert;
 
                         if (alert.error) {
@@ -293,6 +292,9 @@
                         }
 
                         if (alert && alert.length) {
+                            //console.log("Alert : ", alert);
+                            //console.log(JSON.stringify(alert));
+
                             const alertType = alert[0] && alert[0].type;
 
                             if (alertType === "newsFlash") {
@@ -306,17 +308,17 @@
                                 const alertTypeText = getAlertTypeByCategory(alertType);
                                 const timeStamp = moment().format("h:mm:ss a");
 
-                                console.log(alert.cities)
+                                //console.log(alert.cities)
 
-                                const locations = extractNewLocations(alert.cities);
+                                const locations = extractNewLocations(alert[0].cities);
 
                                 for (let i = 0; i < locations.length; i++) {
                                     const locationOriginal = locations[i];
                                     let location = locations[i];
 
                                     for (let c = 0; c < locationsJSON.length; c++) {
-                                        if (locationsJSON[c].hebrew === location) {
-                                            location = locationsJSON[c].english;
+                                        if (locationsJSON[c].value === location) {
+                                            location = locationsJSON[c].name_en;
                                             break;
                                         }
                                     }

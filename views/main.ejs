@@ -43,7 +43,7 @@
 
 
     <div class="row gx-1 bg-dark">
-        <div class="col col-lg-4 col-md-8">
+        <div class="col col-lg-3 col-md-6">
             <div class="p-1 border bg-danger">
                 <font color="#FFFFFF"><b>Pikud HaOref Alerts</b>
                     <font style="display: none;" id="error_counter"> - Errors (<font color="#FFFFFF" id="pikudHaorefErrorCounter"></font>)</font>
@@ -58,7 +58,7 @@
             </div>
         </div>
 
-        <div class="col col-lg-4 col-md-8">
+        <div class="col col-lg-3 col-md-6">
             <div class="p-1 border bg-success">
                 <font color="#FFFFFF"><b>Alerts Summary</b></font>
             </div>
@@ -100,8 +100,8 @@
 
             <div class="table-responsive">
                 <table class="table table-sm table-dark">
-                    <tbody id="alerts_summary">
-                        <tr id="alerted_cities_summary"></tr>
+                    <tbody id="alerted_cities_summary">
+
                     </tbody>
 
                 </table>
@@ -109,7 +109,7 @@
             </div>
         </div>
 
-        <div class="col col-sm-2 col-lg-4 col-md-8">
+        <div class="col">
             <div class="p-1 border bg-secondary">
                 <font color="#FFFFFF"><b>News Updates</b> - </font>
                 <select id="rssFeedSelector">
@@ -199,6 +199,8 @@
                             return "Early Warning";
                         case "missiles":
                             return "Rocket Alert";
+                        case "hostileAircraftIntrusion":
+                            return "Drone Alert";
                         case "general":
                             return "General Alert";
                         case "earthQuake":
@@ -207,8 +209,6 @@
                             return "Radiological Alert";
                         case "tsunami":
                             return "Tsunami Alert";
-                        case "hostileAircraftIntrusion":
-                            return "Hostile Aircraft Alert";
                         case "hazardousMaterials":
                             return "Hazardous Materials Alert";
                         case "terroristInfiltration":
@@ -255,13 +255,26 @@
                     }
                 }, 300000);
 
+                function updateAlertedCity(city) {
+                    const index = alertedCities.findIndex(item => item.city === city);
+
+                    if (index !== -1) {
+                        // City exists → increment
+                        alertedCities[index].counter++;
+                    } else {
+                        // City doesn't exist → add with counter 1
+                        alertedCities.push({ city: city, counter: 1 });
+                    }
+                }
+
                 const pikudHaorefPoll = async function () {
                     setTimeout(pikudHaorefPoll, pikudHaorefInterval);
 
                     const alert = await ajaxHandler("pikud_haoref");
 
-                    if (alert.error) {
+                    window.alertsJSON = alert;
 
+                    if (alert.error) {
                         pikudHaorefErrorCounter++
 
                         if (!pikudHaorefError) {
@@ -282,7 +295,7 @@
 
                     const alertType = alert.type;
 
-                    console.log("Alert Type : " + alertType)
+                    console.log("Alert Type : " + alertType);
 
                     if (alertType === "newsFlash") {
                         earlyWarningActive = true;
@@ -297,7 +310,6 @@
                         const timeStamp = moment().format("h:mm:ss a");
 
                         const cities = extractNewCities(alert.cities);
-                        const instructions = alert.instructions;
 
                         if (Array.isArray(cities)) {
                             for (let i = 0; i < cities.length; i++) {
@@ -326,16 +338,7 @@
 
                                         $("#totalAlertsCounter").text(missileAlertCounter + droneAlertCounter);
 
-                                        function updateAlertedCity(city) {
-                                            alertedCities = alertedCities.filter(item => item.city !== city);
 
-                                            const prevCounter = alertedCities.find(item => item.city === city)?.counter ?? 0;
-
-                                            alertedCities.push({
-                                                city: city,
-                                                counter: prevCounter + 1
-                                            });
-                                        }
 
                                         updateAlertedCity(city);
 
@@ -355,7 +358,7 @@
                                     const city = sortalertedCities[i].city
                                     const counter = sortalertedCities[i].counter;
 
-                                    $("#alerted_cities_summary").append("<td><font class='text-warning'>" + city + "</font> : <font>" + counter + "</font></td>");
+                                    $("#alerted_cities_summary").append("<tr><td><font class='text-info'>" + city + "</font></td><td>" + counter + "</td></tr>");
                                 }
                             }
 

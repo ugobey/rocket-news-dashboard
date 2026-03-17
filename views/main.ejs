@@ -58,8 +58,6 @@
             </div>
         </div>
 
-
-
         <div class="col col-lg-4 col-md-8">
             <div class="p-1 border bg-success">
                 <font color="#FFFFFF"><b>Alerts Summary</b></font>
@@ -68,10 +66,15 @@
             <div class="table-responsive">
                 <table class="table table-sm table-dark">
                     <tbody id="alerts_summary">
+                        <tr style="display:none;" id="earlyWarning">
+                            <td>
+                                <font class='text-danger'><b>Early Warning</b></font>
+                            </td>
+                        </tr>
 
                         <tr>
                             <td>
-                                <font class='text-danger'><b>Total Alerts Counter</b></font> : <font id="totalAlertsCounter">0</font>
+                                <font class='text-warning'><b>Total Alerts Counter</b></font> : <font id="totalAlertsCounter">0</font>
                             </td>
                         </tr>
 
@@ -86,17 +89,8 @@
                                 <font class='text-warning'><b>Missile Alert Counter</b></font> : <font id="missileAlertCounter">0</font>
                             </td>
                         </tr>
-
-                        <tr>
-                            <td>
-                                &nbsp;
-                            </td>
-                        </tr>
-
                     </tbody>
-
                 </table>
-
             </div>
 
 
@@ -142,6 +136,7 @@
         let alertedCities = [];
         let missileAlertCounter = 0;
         let droneAlertCounter = 0;
+        let earlyWarningActive = false;
 
         const getSelectOptionValues = [];
         let selectOptionsValuesCount = 0;
@@ -192,7 +187,6 @@
 
                 const pikudHaorefInterval = 7000;
                 const recentlyAlertedCities = {};
-                let pikudHaorefAlert = false;
 
                 let pikudHaorefErrorCounter = 0;
                 let pikudHaorefError = false;
@@ -254,6 +248,13 @@
                     return newCities;
                 }
 
+                setInterval(() => {
+                    if (earlyWarningActive) {
+                        $("#earlyWarning").hide();
+                        earlyWarningActive = false;
+                    }
+                }, 300000);
+
                 const pikudHaorefPoll = async function () {
                     setTimeout(pikudHaorefPoll, pikudHaorefInterval);
 
@@ -281,15 +282,19 @@
 
                     const alertType = alert.type;
 
-                    if (alertType && alertType != "none" && alertType != "newsFlash") {
+                    console.log("Alert Type : " + alertType)
+
+                    if (alertType === "newsFlash") {
+                        earlyWarningActive = true;
+
+                        if ($("#earlyWarning").is(":hidden")) {
+                            $("#earlyWarning").show();
+                        }
+                    }
+
+                    if (alertType != "none" && alertType != "newsFlash") {
                         const alertTypeText = getAlertTypeByCategory(alertType);
                         const timeStamp = moment().format("h:mm:ss a");
-
-
-                        if (!pikudHaorefAlert) {
-                            pikudHaorefAlert = true;
-                            $("#counter").show();
-                        }
 
                         const cities = extractNewCities(alert.cities);
                         const instructions = alert.instructions;
@@ -350,7 +355,7 @@
                                     const city = sortalertedCities[i].city
                                     const counter = sortalertedCities[i].counter;
 
-                                    $("#alerted_cities_summary").html("<td><font class='text-warning'>" + city + "</font> : <font>" + counter + "</font></td>");
+                                    $("#alerted_cities_summary").append("<td><font class='text-warning'>" + city + "</font> : <font>" + counter + "</font></td>");
                                 }
                             }
 

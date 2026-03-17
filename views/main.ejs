@@ -36,12 +36,7 @@
 
 <body>
 
-
-
     <!-- MAIN CONTENT -->
-
-
-
     <div class="row gx-1 bg-dark">
         <div class="col col-lg-3 col-md-6">
             <div class="p-1 border bg-danger">
@@ -50,7 +45,7 @@
                 </font>
             </div>
 
-            <div class="table-responsive">
+            <div class="table-responsive" style="max-height: 1500px; overflow-y: auto;">
                 <table class="table table-sm table-dark table-striped">
                     <tbody id="pikud_haoref_alerts"></tbody>
                 </table>
@@ -69,6 +64,12 @@
                         <tr style="display:none;" id="earlyWarning">
                             <td>
                                 <font class='text-danger'><b>Early Warning</b></font>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <font class='text-warning'><b>Total Locations Counter</b></font> : <font id="totalLocationsCounter">0</font>
                             </td>
                         </tr>
 
@@ -95,12 +96,12 @@
 
 
             <div class="p-1 border bg-primary">
-                <font color="#FFFFFF"><b>Alerted Cities Counter</b></font>
+                <font color="#FFFFFF"><b>Alerted Locations Counter</b></font>
             </div>
 
-            <div class="table-responsive">
+            <div class="table-responsive" style="max-height: 1000px; overflow-y: auto;">
                 <table class="table table-sm table-dark">
-                    <tbody id="alerted_cities_summary">
+                    <tbody id="alerted_locations_counter">
 
                     </tbody>
 
@@ -119,10 +120,9 @@
                 </select>
             </div>
 
-            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+            <div class="table-responsive">
                 <table class="table table-sm table-dark table-striped">
                     <tbody id="rss_alerts"></tbody>
-
                 </table>
 
             </div>
@@ -133,7 +133,7 @@
 
     <script>
 
-        let alertedCities = [];
+        let alertedLocations = [];
         let missileAlertCounter = 0;
         let droneAlertCounter = 0;
         let earlyWarningActive = false;
@@ -183,10 +183,10 @@
         fetch('/json/cities.json')
             .then((response) => response.json())
             .then((data) => {
-                const citiesJSON = data;
+                const locationsJSON = data;
 
                 const pikudHaorefInterval = 7000;
-                const recentlyAlertedCities = {};
+                const recentlyAlertedLocations = {};
 
                 let pikudHaorefErrorCounter = 0;
                 let pikudHaorefError = false;
@@ -232,18 +232,18 @@
                     }
                 }
 
-                function extractNewCities(alertCities) {
-                    const newCities = [];
+                function extractNewLocations(alertLocations) {
+                    const newLocations = [];
                     const now = Math.floor(Date.now() / 1000);
 
-                    for (let city of alertCities) {
-                        if (!recentlyAlertedCities[city] || recentlyAlertedCities[city] < now - 60) {
-                            newCities.push(city);
-                            recentlyAlertedCities[city] = now;
+                    for (let location of alertLocations) {
+                        if (!recentlyAlertedLocations[location] || recentlyAlertedLocations[location] < now - 60) {
+                            newLocations.push(location);
+                            recentlyAlertedLocations[location] = now;
                         }
                     }
 
-                    return newCities;
+                    return newLocations;
                 }
 
                 setInterval(() => {
@@ -253,13 +253,13 @@
                     }
                 }, 300000);
 
-                function updateAlertedCity(city) {
-                    const index = alertedCities.findIndex(item => item.city === city);
+                function updateAlertedLocation(location) {
+                    const index = alertedLocations.findIndex(item => item.location === location);
 
                     if (index !== -1) {
-                        alertedCities[index].counter++;
+                        alertedLocations[index].counter++;
                     } else {
-                        alertedCities.push({ city: city, counter: 1 });
+                        alertedLocations.push({ location: location, counter: 1 });
                     }
                 }
 
@@ -307,20 +307,20 @@
                             const alertTypeText = getAlertTypeByCategory(alertType);
                             const timeStamp = moment().format("h:mm:ss a");
 
-                            const cities = extractNewCities(alert.cities);
+                            const locations = extractNewLocations(alert.cities);
 
-                            for (let i = 0; i < cities.length; i++) {
-                                const cityOriginal = cities[i];
-                                let city = cities[i];
+                            for (let i = 0; i < locations.length; i++) {
+                                const locationOriginal = locations[i];
+                                let location = locations[i];
 
-                                for (let c = 0; c < citiesJSON.length; c++) {
-                                    if (citiesJSON[c].value === city) {
-                                        city = citiesJSON[c].name_en;
+                                for (let c = 0; c < locationsJSON.length; c++) {
+                                    if (locationsJSON[c].value === location) {
+                                        location = locationsJSON[c].name_en;
                                         break;
                                     }
                                 }
 
-                                if (city) {
+                                if (location) {
 
                                     if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
 
@@ -335,28 +335,28 @@
 
                                         $("#totalAlertsCounter").text(missileAlertCounter + droneAlertCounter);
 
-
-
-                                        updateAlertedCity(city);
+                                        updateAlertedLocation(location);
 
                                     }
 
-                                    $("#pikud_haoref_alerts").prepend("<tr class='alertNewRow table-light'><td><font class='text-info'>" + alertTypeText + "</font></td><td>" + city + " (" + cityOriginal + ")</td><td><font class='text-warning'>" + timeStamp + "</font></td></tr>");
+                                    $("#pikud_haoref_alerts").prepend("<tr class='alertNewRow table-light'><td><font class='text-info'>" + alertTypeText + "</font></td><td>" + location + " (" + locationOriginal + ")</td><td><font class='text-warning'>" + timeStamp + "</font></td></tr>");
 
                                 }
                             }
 
                             if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
-                                $("#alerted_cities_summary").html("");
+                                $("#alerted_locations_counter").html("");
 
-                                const sortalertedCities = alertedCities.toSorted((a, b) => b.counter - a.counter);
+                                const sortalertedLocations = alertedLocations.toSorted((a, b) => b.counter - a.counter);
 
-                                for (let i = 0; i < sortalertedCities.length; i++) {
-                                    const city = sortalertedCities[i].city
-                                    const counter = sortalertedCities[i].counter;
+                                for (let i = 0; i < sortalertedLocations.length; i++) {
+                                    const location = sortalertedLocations[i].location
+                                    const counter = sortalertedLocations[i].counter;
 
-                                    $("#alerted_cities_summary").append("<tr><td><font class='text-info'>" + city + "</font></td><td>" + counter + "</td></tr>");
+                                    $("#alerted_locations_counter").append("<tr><td><font class='text-info'>" + location + "</font></td><td>" + counter + "</td></tr>");
                                 }
+
+                                $("#totalLocationsCounter").text(sortalertedLocations.length);
                             }
                         }
                     }

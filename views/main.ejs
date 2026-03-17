@@ -192,8 +192,6 @@
                 let pikudHaorefError = false;
 
                 function getAlertTypeByCategory(type) {
-                    //console.log(type);
-
                     switch (type) {
                         case "newsFlash":
                             return "Early Warning";
@@ -259,59 +257,58 @@
                     const index = alertedCities.findIndex(item => item.city === city);
 
                     if (index !== -1) {
-                        // City exists → increment
                         alertedCities[index].counter++;
                     } else {
-                        // City doesn't exist → add with counter 1
                         alertedCities.push({ city: city, counter: 1 });
                     }
                 }
 
                 const pikudHaorefPoll = async function () {
-                    setTimeout(pikudHaorefPoll, pikudHaorefInterval);
+                    try {
+                        setTimeout(pikudHaorefPoll, pikudHaorefInterval);
 
-                    const alert = await ajaxHandler("pikud_haoref");
+                        const alert = await ajaxHandler("pikud_haoref");
+                        window.alertsJSON = alert;
 
-                    window.alertsJSON = alert;
+                        if (alert.error) {
+                            pikudHaorefErrorCounter++
 
-                    if (alert.error) {
-                        pikudHaorefErrorCounter++
+                            if (!pikudHaorefError) {
+                                pikudHaorefError = true;
+                                $("#error_counter").show();
+                            }
 
-                        if (!pikudHaorefError) {
-                            pikudHaorefError = true;
-                            $("#error_counter").show();
+                            $("#pikudHaorefErrorCounter").text(pikudHaorefErrorCounter);
+
+                            if (alert.error.indexOf("403 Forbidden") > -1) {
+                                //$("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> 403 Forbidden - Requires Israeli IP</td></tr>");
+                                console.log("Pikud HaOref Error: 403 Forbidden - Requires Israeli IP");
+                            }
+                            else {
+                                //$("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> " + alert.error + "</td></tr>");
+                                console.log("Pikud HaOref Error: " + alert.error);
+                            }
+                            return;
                         }
 
-                        $("#pikudHaorefErrorCounter").text(pikudHaorefErrorCounter);
+                        const alertType = alert.type;
 
-                        if (alert.error.indexOf("403 Forbidden") > -1) {
-                            //$("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> 403 Forbidden - Requires Israeli IP</td></tr>");
+                        console.log("Alert Type : " + alertType);
+
+                        if (alertType === "newsFlash") {
+                            earlyWarningActive = true;
+
+                            if ($("#earlyWarning").is(":hidden")) {
+                                $("#earlyWarning").show();
+                            }
                         }
-                        else {
-                            //$("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> " + alert.error + "</td></tr>");
-                        }
-                        return;
-                    }
 
-                    const alertType = alert.type;
+                        if (alertType != "none" && alertType != "newsFlash") {
+                            const alertTypeText = getAlertTypeByCategory(alertType);
+                            const timeStamp = moment().format("h:mm:ss a");
 
-                    console.log("Alert Type : " + alertType);
+                            const cities = extractNewCities(alert.cities);
 
-                    if (alertType === "newsFlash") {
-                        earlyWarningActive = true;
-
-                        if ($("#earlyWarning").is(":hidden")) {
-                            $("#earlyWarning").show();
-                        }
-                    }
-
-                    if (alertType != "none" && alertType != "newsFlash") {
-                        const alertTypeText = getAlertTypeByCategory(alertType);
-                        const timeStamp = moment().format("h:mm:ss a");
-
-                        const cities = extractNewCities(alert.cities);
-
-                        if (Array.isArray(cities)) {
                             for (let i = 0; i < cities.length; i++) {
                                 const cityOriginal = cities[i];
                                 let city = cities[i];
@@ -361,9 +358,10 @@
                                     $("#alerted_cities_summary").append("<tr><td><font class='text-info'>" + city + "</font></td><td>" + counter + "</td></tr>");
                                 }
                             }
-
                         }
-
+                    }
+                    catch (error) {
+                        console.error("Error in Pikud HaOref Polling:", error);
                     }
                 };
 

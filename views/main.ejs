@@ -45,8 +45,7 @@
     <div class="row gx-1 bg-dark">
         <div class="col">
             <div class="p-1 border bg-danger">
-                <font color="#FFFFFF"><b>Pikud HaOref</b>
-                    <font style="display: none;" id="counter">Alerts (<font color="#FFFFFF" id="pikudHaorefCounter"></font>)</font>
+                <font color="#FFFFFF"><b>Pikud HaOref Alerts</b>
                     <font style="display: none;" id="error_counter"> - Errors (<font color="#FFFFFF" id="pikudHaorefErrorCounter"></font>)</font>
                 </font>
             </div>
@@ -61,7 +60,7 @@
 
         </div>
         <div class="col">
-            <div class="p-1 border bg-primary">
+            <div class="p-1 border bg-secondary">
                 <font color="#FFFFFF"><b>News Updates</b> - </font>
                 <select id="rssFeedSelector">
                     <option value="RSSarutz7">Arutz 7 - Israel National News</option>
@@ -70,9 +69,64 @@
                 </select>
             </div>
 
-            <div class="col-20 table-responsive">
+            <div class="col-20 table-responsive" style="max-height: 500px; overflow-y: auto;">
                 <table class="table table-sm table-dark">
                     <tbody id="rss_alerts"></tbody>
+
+                </table>
+
+            </div>
+
+            <div class="p-1 border bg-success">
+                <font color="#FFFFFF"><b>Alerts Summary</b></font>
+            </div>
+
+            <div class="col-20 table-responsive">
+                <table class="table table-sm table-dark">
+                    <tbody id="alerts_summary">
+
+                        <tr>
+                            <td>
+                                <font class='text-danger'><b>Total Alerts Counter</b></font> : <font id="totalAlertsCounter">0</font>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <font class='text-warning'><b>Drone Alert Counter</b></font> : <font id="droneAlertCounter">0</font>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <font class='text-warning'><b>Missile Alert Counter</b></font> : <font id="missileAlertCounter">0</font>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                &nbsp;
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div class="p-1 border bg-primary">
+                <font color="#FFFFFF"><b>Alerted Cities Counter</b></font>
+            </div>
+
+            <div class="col-20 table-responsive">
+                <table class="table table-sm table-dark">
+                    <tbody id="alerts_summary">
+
+                        <tr id="alerted_cities_summary"></tr>
+
+                    </tbody>
 
                 </table>
 
@@ -83,6 +137,11 @@
     <!-- end content -->
 
     <script>
+
+        let alertedCities = [];
+        let totalAlertsCounter = 0;
+        let missileAlertCounter = 0;
+        let droneAlertCounter = 0;
 
         const getSelectOptionValues = [];
         let selectOptionsValuesCount = 0;
@@ -133,7 +192,6 @@
 
                 const pikudHaorefInterval = 7000;
                 const recentlyAlertedCities = {};
-                let pikudHaorefCounter = 0;
                 let pikudHaorefAlert = false;
 
                 let pikudHaorefErrorCounter = 0;
@@ -252,14 +310,56 @@
                                 }
 
                                 if (city) {
-                                    pikudHaorefCounter++
 
-                                    $("#pikudHaorefCounter").text(pikudHaorefCounter);
+                                    if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
+
+                                        totalAlertsCounter++
+                                        $("#totalAlertsCounter").text(totalAlertsCounter);
+
+
+                                        if (alertType === "missiles") {
+                                            missileAlertCounter++
+                                            $("#missileAlertCounter").text(missileAlertCounter);
+                                        }
+                                        else if (alertType === "hostileAircraftIntrusion") {
+                                            droneAlertCounter++
+                                            $("#droneAlertCounter").text(droneAlertCounter);
+                                        }
+
+                                        function updateAlertedCity(city) {
+                                            alertedCities = alertedCities.filter(item => item.city !== city);
+
+                                            const prevCounter = alertedCities.find(item => item.city === city)?.counter ?? 0;
+
+                                            alertedCities.push({
+                                                city: city,
+                                                counter: prevCounter + 1
+                                            });
+                                        }
+
+                                        updateAlertedCity(city);
+
+
+                                    }
+
                                     $("#pikud_haoref_alerts").prepend("<tr class='alertNewRow table-light'><td><font class='text-info'>" + alertTypeText + "</font></td><td>" + city + " (" + cityOriginal + ")</td><td><font class='text-warning'>" + timeStamp + "</font></td></tr>");
 
                                     if (!stopAutoScroll) {
                                         stopAutoScroll = true
                                     }
+                                }
+                            }
+
+                            if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
+                                $("#alerted_cities_summary").html("");
+
+                                const sortalertedCities = alertedCities.toSorted((a, b) => b.counter - a.counter);
+
+                                for (let i = 0; i < sortalertedCities.length; i++) {
+                                    const city = sortalertedCities[i].city
+                                    const counter = sortalertedCities[i].counter;
+
+                                    $("#alerted_cities_summary").html("<td><font class='text-warning'>" + city + "</font> : <font>" + counter + "</font></td>");
                                 }
                             }
 

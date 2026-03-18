@@ -6,3 +6,317 @@ Error: Failed to parse HFC JSON: SyntaxError: Unterminated string in JSON at pos
 
 Error: Failed to parse HFC JSON: SyntaxError: Unterminated string in JSON at position 27054 (line 1 column 27055)
 
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: Error: read ETIMEDOUT
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: Error: read ETIMEDOUT
+

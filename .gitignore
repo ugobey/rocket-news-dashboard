@@ -5,3 +5,4 @@ package-lock.json
 .env
 .vscode
 *.zip
+logs/pikudHaoref_errors.txt

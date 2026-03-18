@@ -3,6 +3,8 @@
 <html>
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
         <%-title%>
     </title>
@@ -14,21 +16,50 @@
     <script src="/js/moment-2.30.1.min.js"></script>
 
     <style>
+        :root {
+            --bs-body-bg: #212529;
+        }
+
         html {
-            font-size: 12px;
+            font-size: 13px;
+        }
+
+        body {
             background-color: #212529;
+            color: #e9ecef;
         }
 
-        @media (max-width: 1680px) {
-            html {
-                font-size: 12px;
+        .section-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .alert-new {
+            animation: highlightFade 5s forwards;
+        }
+
+        @keyframes highlightFade {
+            0% {
+                background-color: #fff3cd;
+            }
+
+            100% {
+                background-color: transparent;
             }
         }
 
-        @media (max-width: 1440px) {
-            html {
-                font-size: 12px;
-            }
+        .table th,
+        .table td {
+            vertical-align: middle;
+        }
+
+        .scrollable {
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .rss-feed {
+            font-size: 0.95rem;
         }
     </style>
 
@@ -37,106 +68,137 @@
 <body>
 
     <!-- MAIN CONTENT -->
-    <div class="row gx-1 bg-dark">
-        <div class="col col-lg-3 col-md-6">
-            <div class="p-1 border bg-danger">
-                <font color="#FFFFFF"><b>Pikud HaOref Alerts</b>
-                    <font style="display: none;" id="error_counter"> - Errors (<font color="#FFFFFF" id="pikudHaorefErrorCounter"></font>)</font>
-                </font>
+    <div class="container-fluid p-2">
+        <div class="row g-2">
+
+            <!-- Pikud HaOref Alerts -->
+            <div class="col-lg-3 col-md-6">
+                <div class="card bg-danger text-white border-0 mb-2">
+                    <div class="card-header section-header">
+                        Pikud HaOref Alerts
+                        <span id="error_counter" class="badge bg-dark ms-2" style="display:none;">
+                            Errors: <span id="pikudHaorefErrorCounter">0</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="card bg-dark border-0">
+                    <table class="table table-sm table-dark table-striped mb-0">
+                        <tbody id="pikud_haoref_alerts"></tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="table-responsive" style="max-height: 2000px; overflow-y: auto;">
-                <table class="table table-sm table-dark table-striped">
-                    <tbody id="pikud_haoref_alerts"></tbody>
-                </table>
+            <!-- Alerts Summary + Alerted Locations -->
+            <div class="col-lg-3 col-md-6">
+                <!-- Summary -->
+                <div class="card bg-success text-white border-0 mb-2">
+                    <div class="card-header section-header">Alerts Summary</div>
+                </div>
+                <div class="card bg-dark border-0 mb-3">
+                    <table class="table table-sm table-dark mb-0">
+                        <tbody id="alerts_summary">
+                            <tr id="earlyWarning" class="text-danger fw-bold" style="display:none;">
+                                <td colspan="2">
+                                    <span class='text-danger'><b>EARLY WARNING!!!</b></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="20%">
+                                    <span class="text-warning">Total Locations</span>
+                                </td>
+                                <td>
+                                    <span id="totalLocationsCounter">0</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="20%">
+                                    <span class="text-warning">Total Alerts</span>
+                                </td>
+                                <td>
+                                    <span id="totalAlertsCounter">0</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="20%">
+                                    <span class="text-warning">Drone Alerts</span>
+                                </td>
+                                <td>
+                                    <span id="droneAlertCounter">0</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="20%">
+                                    <span class="text-warning">Missile Alerts</span>
+                                </td>
+                                <td>
+                                    <span id="missileAlertCounter">0</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-            </div>
-        </div>
-
-        <div class="col col-lg-2 col-md-5">
-            <div class="p-1 border bg-success">
-                <font color="#FFFFFF"><b>Alerts Summary</b></font>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-sm table-dark">
-                    <tbody id="alerts_summary">
-                        <tr style="display:none;" id="earlyWarning">
-                            <td>
-                                <font class='text-danger'><b>Early Warning</b></font>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <font class='text-warning'><b>Total Locations Counter</b></font> : <font id="totalLocationsCounter">0</font>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <font class='text-warning'><b>Total Alerts Counter</b></font> : <font id="totalAlertsCounter">0</font>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <font class='text-warning'><b>Drone Alert Counter</b></font> : <font id="droneAlertCounter">0</font>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <td>
-                                <font class='text-warning'><b>Missile Alert Counter</b></font> : <font id="missileAlertCounter">0</font>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-
-            <div class="p-1 border bg-primary">
-                <font color="#FFFFFF"><b>Alerted Locations Counter</b></font>
-            </div>
-
-            <div class="table-responsive" style="max-height: 2000px; overflow-y: auto;">
-                <table class="table table-sm table-dark table-striped">
-                    <tbody id="alerted_locations_counter">
-
-                    </tbody>
-
-                </table>
-
-            </div>
-        </div>
-
-        <div class="col">
-            <div class="p-1 border bg-secondary">
-                <font color="#FFFFFF"><b>News Updates</b> </font>
-                <select id="rssFeedSelector">
-                </select>
+                <!-- Alerted Locations -->
+                <div class="card bg-primary text-white border-0 mb-2">
+                    <div class="card-header section-header">Alerted Locations Counter</div>
+                </div>
+                <div class="card bg-dark border-0 scrollable">
+                    <table class="table table-sm table-dark table-striped mb-0">
+                        <tbody id="alerted_locations_counter"></tbody>
+                    </table>
+                </div>
             </div>
 
-            <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
-                <table class="table table-sm table-dark table-striped">
-                    <tbody id="rss_alerts"></tbody>
-                </table>
+            <!-- News + Tzofar -->
+            <div class="col">
+                <!-- News -->
+                <div class="card bg-secondary text-white border-0 mb-2">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="section-header">News Updates</span>
+                        <select id="rssFeedSelector" class="form-select form-select-sm w-auto bg-dark text-white border-0"></select>
+                    </div>
+                </div>
+                <div class="card bg-dark border-0 mb-3 rss-feed scrollable" style="max-height: 45vh;">
+                    <table class="table table-sm table-dark table-striped mb-0">
+                        <tbody id="rss_alerts"></tbody>
+                    </table>
+                </div>
 
+                <!-- Tzofar GPS -->
+                <div class="card bg-danger text-white border-0 mb-2">
+                    <div class="card-header section-header">Tzofar GPS Alerts</div>
+                </div>
+                <div class="ratio ratio-16x9">
+                    <iframe src="https://www.tzevaadom.co.il/en/" style="border:none; border-radius: 6px;" title="Tzofar GPS Alerts"></iframe>
+                </div>
             </div>
 
-            <div class="p-1 border bg-danger">
-                <font color="#FFFFFF"><b>Tzofar GPS Alerts</b></font>
-            </div>
-
-            <div class="">
-                <iframe src="https://www.tzevaadom.co.il/en/" style="width:100%; height:1550px; border:none;"></iframe>
-            </div>
         </div>
     </div>
 
+    <!-- Early Warning Modal -->
+    <div class="modal fade" id="earlyWarningModal" tabindex="-1" aria-labelledby="earlyWarningModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-danger text-white border-0">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="earlyWarningModalLabel">Early Warning Alert</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    There is an active early warning due to a ballistic missile launch.<br><br>
+                    This message will disappear automatically when sirens sound.
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- end content -->
 
     <script>
+
+        const earlyWarningModal = new bootstrap.Modal('#earlyWarningModal');
 
         let alertedLocations = [];
         let missileAlertCounter = 0;
@@ -243,6 +305,7 @@
 
                 setInterval(() => {
                     if (earlyWarningActive) {
+                        earlyWarningModal.hide();
                         $("#earlyWarning").hide();
                         earlyWarningActive = false;
                     }
@@ -263,109 +326,117 @@
                         setTimeout(pikudHaorefPoll, pikudHaorefInterval);
 
                         const alert = await ajaxHandler("pikud_haoref");
-                        window.alertsJSON = alert;
 
-                        if (alert.error) {
-                            pikudHaorefErrorCounter++
+                        if (alert) {
 
-                            if (!pikudHaorefError) {
-                                pikudHaorefError = true;
-                                $("#error_counter").show();
-                            }
+                            window.alertsJSON = alert;
 
-                            $("#pikudHaorefErrorCounter").text(pikudHaorefErrorCounter);
+                            if (alert.error) {
+                                pikudHaorefErrorCounter++
 
-                            if (alert.error.indexOf("403 Forbidden") > -1) {
-                                //$("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> 403 Forbidden - Requires Israeli IP</td></tr>");
-                                console.log("Pikud HaOref Error: 403 Forbidden - Requires Israeli IP");
-                            }
-                            else {
-                                //$("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> " + alert.error + "</td></tr>");
-                                console.log("Pikud HaOref Error: " + alert.error);
-                            }
-                            return;
-                        }
-
-                        if (alert && alert.length) {
-                            //console.log("Alert : ", alert[0]);
-                            //console.log(JSON.stringify(alert));
-
-                            const alertType = alert[0] && alert[0].type;
-
-                            if (alertType === "newsFlash") {
-                                earlyWarningActive = true;
-
-                                if ($("#earlyWarning").is(":hidden")) {
-                                    $("#earlyWarning").show();
+                                if (!pikudHaorefError) {
+                                    pikudHaorefError = true;
+                                    $("#error_counter").show();
                                 }
 
-                                const instructions = alert[0].instructions;
+                                $("#pikudHaorefErrorCounter").text(pikudHaorefErrorCounter);
 
-                                //console.log(instructions);
-
-                                if (instructions === "האירוע הסתיים") {
-                                    $("#earlyWarning").hide();
+                                if (alert.error.indexOf("Request failed with status code 403") > -1) {
+                                    $("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> 403 Forbidden - Requires Israeli IP</td></tr>");
+                                    console.log("Pikud HaOref Error: 403 Forbidden - Requires Israeli IP");
                                 }
+                                else {
+                                    $("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> " + alert.error + "</td></tr>");
+                                    console.log("Pikud HaOref Error: " + alert.error);
+                                }
+                                return;
+                            }
 
-                            } else if (alertType != "newsFlash") {
+                            if (alert.length) {
+                                //console.log("Alert : ", alert[0]);
+                                //console.log(JSON.stringify(alert));
 
-                                const alertTypeText = getAlertTypeByCategory(alertType);
-                                const timeStamp = moment().format("h:mm:ss a");
+                                const alertType = alert[0] && alert[0].type;
 
-                                //console.log(alert.cities)
+                                if (alertType === "newsFlash") {
+                                    const instructions = alert[0].instructions;
 
-                                const locations = extractNewLocations(alert[0].cities);
+                                    if (instructions === "האירוע הסתיים") {
+                                        earlyWarningActive = false;
 
-                                for (let i = 0; i < locations.length; i++) {
-                                    const locationOriginal = locations[i];
-                                    let location = locations[i];
+                                        $("#earlyWarning").hide();
+                                        earlyWarningModal.hide();
+                                    } else {
+                                        earlyWarningActive = true;
 
-                                    for (let c = 0; c < locationsJSON.length; c++) {
-                                        if (locationsJSON[c].value === location) {
-                                            location = locationsJSON[c].name_en;
-                                            break;
+                                        if ($("#earlyWarning").is(":hidden")) {
+                                            $("#earlyWarning").show();
+                                            earlyWarningModal.show();
                                         }
                                     }
 
-                                    if (location) {
+                                } else if (alertType != "newsFlash") {
 
-                                        if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
+                                    earlyWarningModal.hide();
 
-                                            if (alertType === "missiles") {
-                                                missileAlertCounter++
-                                                $("#missileAlertCounter").text(missileAlertCounter);
+                                    const alertTypeText = getAlertTypeByCategory(alertType);
+                                    const timeStamp = moment().format("h:mm:ss a");
+
+                                    //console.log(alert.cities)
+
+                                    const locations = extractNewLocations(alert[0].cities);
+
+                                    for (let i = 0; i < locations.length; i++) {
+                                        const locationOriginal = locations[i];
+                                        let location = locations[i];
+
+                                        for (let c = 0; c < locationsJSON.length; c++) {
+                                            if (locationsJSON[c].value === location) {
+                                                location = locationsJSON[c].name_en;
+                                                break;
                                             }
-                                            else if (alertType === "hostileAircraftIntrusion") {
-                                                droneAlertCounter++
-                                                $("#droneAlertCounter").text(droneAlertCounter);
-                                            }
-
-                                            $("#totalAlertsCounter").text(missileAlertCounter + droneAlertCounter);
-
-                                            updateAlertedLocation(location);
-
                                         }
 
-                                        $("#pikud_haoref_alerts").prepend("<tr class='alertNewRow table-light'><td><font class='text-info'>" + alertTypeText + "</font></td><td>" + location + " (" + locationOriginal + ")</td><td><font class='text-warning'>" + timeStamp + "</font></td></tr>");
+                                        if (location) {
 
+                                            if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
+
+                                                if (alertType === "missiles") {
+                                                    missileAlertCounter++
+                                                    $("#missileAlertCounter").text(missileAlertCounter);
+                                                }
+                                                else if (alertType === "hostileAircraftIntrusion") {
+                                                    droneAlertCounter++
+                                                    $("#droneAlertCounter").text(droneAlertCounter);
+                                                }
+
+                                                $("#totalAlertsCounter").text(missileAlertCounter + droneAlertCounter);
+
+                                                updateAlertedLocation(location);
+
+                                            }
+
+                                            $("#pikud_haoref_alerts").prepend("<tr class='alertNewRow table-light'><td><font class='text-info'>" + alertTypeText + "</font></td><td>" + location + " (" + locationOriginal + ")</td><td><font class='text-warning'>" + timeStamp + "</font></td></tr>");
+
+                                        }
                                     }
-                                }
 
-                                if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
-                                    $("#alerted_locations_counter").html("");
+                                    if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
+                                        $("#alerted_locations_counter").html("");
 
-                                    const sortalertedLocations = alertedLocations.toSorted((a, b) => b.counter - a.counter);
+                                        const sortalertedLocations = alertedLocations.toSorted((a, b) => b.counter - a.counter);
 
-                                    for (let i = 0; i < sortalertedLocations.length; i++) {
-                                        const location = sortalertedLocations[i].location
-                                        const counter = sortalertedLocations[i].counter;
+                                        for (let i = 0; i < sortalertedLocations.length; i++) {
+                                            const location = sortalertedLocations[i].location
+                                            const counter = sortalertedLocations[i].counter;
 
-                                        $("#alerted_locations_counter").append("<tr><td><font class='text-info'>" + location + "</font></td><td>" + counter + "</td></tr>");
+                                            $("#alerted_locations_counter").append("<tr><td><font class='text-info'>" + location + "</font></td><td>" + counter + "</td></tr>");
+                                        }
+
+                                        $("#totalLocationsCounter").text(sortalertedLocations.length);
                                     }
 
-                                    $("#totalLocationsCounter").text(sortalertedLocations.length);
                                 }
-
                             }
                         }
                     }
@@ -468,7 +539,6 @@
         rssPoll();
 
     </script>
-
 
 </body>
 

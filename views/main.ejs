@@ -186,7 +186,7 @@
                 </div>
                 <div class="modal-body">
                     There is an active early warning due to a ballistic missile launch.<br><br>
-                    This message will disappear automatically when sirens sound.
+                    This message will disappear automatically when sirens sound or after 5 minutes.
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
@@ -382,8 +382,6 @@
                                     const alertTypeText = getAlertTypeByCategory(alertType);
                                     const timeStamp = moment().format("h:mm:ss a");
 
-                                    //console.log(alert.cities)
-
                                     const locations = extractNewLocations(alert[0].cities);
 
                                     for (let i = 0; i < locations.length; i++) {
@@ -398,7 +396,6 @@
                                         }
 
                                         if (location) {
-
                                             if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
 
                                                 if (alertType === "missiles") {
@@ -411,13 +408,11 @@
                                                 }
 
                                                 $("#totalAlertsCounter").text(missileAlertCounter + droneAlertCounter);
-
                                                 updateAlertedLocation(location);
 
                                             }
 
                                             $("#pikud_haoref_alerts").prepend("<tr class='alertNewRow table-light'><td><font class='text-info'>" + alertTypeText + "</font></td><td>" + location + " (" + locationOriginal + ")</td><td><font class='text-warning'>" + timeStamp + "</font></td></tr>");
-
                                         }
                                     }
 
@@ -462,6 +457,7 @@
 
         const rssFeeds = [
             { codename: "RSSarutz7", realname: "Arutz 7" },
+            { codename: "RSSbnn", realname: "BNN" },
             { codename: "RSSjerusalemPost", realname: "JPost" },
             { codename: "RSSynet", realname: "Ynet" }
         ];

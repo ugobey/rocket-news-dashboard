@@ -46,6 +46,8 @@ router.use("/", function (req, res) {
                             return "https://www.jpost.com/rss/rssfeedsfrontpage.aspx";
                         case "RSSynet":
                             return "https://www.ynet.co.il/Integration/StoryRss3082.xml";
+                        case "RSSbnn":
+                            return "https://www.bernie.news/api/news/rss";
                         default:
                             return;
                     }
@@ -75,7 +77,7 @@ router.use("/", function (req, res) {
                 res.statusCode = 500;
                 res.write(JSON.stringify({ error: err.toString() }));
                 res.end();
-            })
+            }),
         );
     } catch (err) {
         errorHandler(service_name, "Error : " + err);

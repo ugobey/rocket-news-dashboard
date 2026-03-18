@@ -156,7 +156,7 @@
                         <select id="rssFeedSelector" class="form-select form-select-sm w-auto bg-dark text-white border-0"></select>
                     </div>
                 </div>
-                <div class="card bg-dark border-0 mb-3 rss-feed scrollable" style="max-height: 38vh; overflow-y: auto;">
+                <div class="card bg-dark border-0 mb-3 rss-feed scrollable" style="max-height: 22vh; overflow-y: auto;">
                     <table class="table table-sm table-dark table-striped mb-0">
                         <tbody id="rss_alerts"></tbody>
                     </table>
@@ -166,8 +166,8 @@
                 <div class="card bg-danger text-white border-0 mb-2">
                     <div class="card-header section-header">Tzofar GPS Alerts</div>
                 </div>
-                <div class="ratio ratio-16x9">
-                    <iframe src="https://www.tzevaadom.co.il/en/" style="border:none; border-radius: 6px;" title="Tzofar GPS Alerts"></iframe>
+                <div>
+                    <iframe src="https://www.tzevaadom.co.il/en/" style="width:100%; height:1550px; border:none; border-radius: 6px;" title="Tzofar GPS Alerts"></iframe>
                 </div>
             </div>
 
@@ -467,7 +467,7 @@
         let rssFeedSelected;
         let rssFeedPollStarted = false;
         const newsArray = [];
-        const rssInterval = 30000;
+        const rssInterval = 3000;
 
         const rssFeeds = [
             { codename: "RSSarutz7", realname: "Arutz 7" },

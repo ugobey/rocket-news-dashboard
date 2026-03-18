@@ -43,7 +43,7 @@ router.use("/", function (req, res) {
                         case "RSSarutz7":
                             return "https://www.israelnationalnews.com/Rss.aspx";
                         case "RSSjerusalemPost":
-                            return "https://www.jpost.com/Rss/RssFeedsHeadlines.aspx";
+                            return "https://www.jpost.com/rss/rssfeedsfrontpage.aspx";
                         case "RSSynet":
                             return "https://www.ynet.co.il/Integration/StoryRss3082.xml";
                         default:

@@ -112,11 +112,8 @@
 
         <div class="col">
             <div class="p-1 border bg-secondary">
-                <font color="#FFFFFF"><b>News Updates</b> - </font>
+                <font color="#FFFFFF"><b>News Updates</b> </font>
                 <select id="rssFeedSelector">
-                    <option value="RSSarutz7">Arutz 7 - Israel National News</option>
-                    <option value="RSSjerusalemPost">Jerusalem Post</option>
-                    <option value="RSSynet">Ynet News</option>
                 </select>
             </div>
 
@@ -145,16 +142,6 @@
         let missileAlertCounter = 0;
         let droneAlertCounter = 0;
         let earlyWarningActive = false;
-
-        const getSelectOptionValues = [];
-        let selectOptionsValuesCount = 0;
-
-        $("#rssFeedSelector option").each(function () {
-            getSelectOptionValues.push($(this).val())
-        });
-
-        let rssFeedSelected;
-        let rssFeedPollStarted = false;
 
         async function ajaxHandler(service) {
             let response = "";
@@ -394,10 +381,35 @@
             });
 
 
-
         //RSS service
+        const getSelectOptionValues = [];
+        let selectOptionsValuesCount = 0;
+        let rssFeedSelected;
+        let rssFeedPollStarted = false;
         const newsArray = [];
         const rssInterval = 30000;
+
+        const rssFeeds = [
+            { codename: "RSSarutz7", realname: "Arutz 7" },
+            { codename: "RSSjerusalemPost", realname: "JPost" },
+            { codename: "RSSynet", realname: "Ynet" }
+        ];
+
+        for (let i = 0; i < rssFeeds.length; i++) {
+            const codename = rssFeeds[i].codename;
+            const realname = rssFeeds[i].realname;
+
+            $("#rssFeedSelector").append("<option value='" + codename + "'>" + realname + "</option>");
+        };
+
+        $("#rssFeedSelector option").each(function () {
+            getSelectOptionValues.push($(this).val())
+        });
+
+        function getRealName(codename) {
+            const feed = rssFeeds.find(feed => feed.codename === codename);
+            return feed.realname;
+        };
 
         const rssPoll = async function () {
 
@@ -445,7 +457,7 @@
                             if (!newsArray.includes(publishDate + " : " + item.title)) {
                                 newsArray.push(publishDate + " : " + item.title);
 
-                                $("#rss_alerts").prepend("<tr class='rssNewRow table-light'><td width='40%'>" + item.title + "</td><td width='5%'><font class='text-warning'>" + publishDate + "</font></td><td ><font class='text-secondary'>" + rssFeedSelected.replace("RSS", "") + "</font></td></tr>");
+                                $("#rss_alerts").prepend("<tr class='rssNewRow table-light'><td width='7%'><font class='text-warning'>" + publishDate + "</font></td><td width='5%'><font class='text-secondary'>" + getRealName(rssFeedSelected) + "</font></td><td>" + item.title + "</td></tr>");
                             }
                         }
                     });

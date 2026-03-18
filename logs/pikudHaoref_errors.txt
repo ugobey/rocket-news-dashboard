@@ -738,3 +738,21 @@ Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with s
 
 Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
 
+Error: Failed to parse HFC JSON: SyntaxError: Unterminated string in JSON at position 63461 (line 1 column 63462)
+
+Error: Failed to parse HFC JSON: SyntaxError: Unterminated string in JSON at position 63461 (line 1 column 63462)
+
+Error: Failed to parse HFC JSON: SyntaxError: Unterminated string in JSON at position 63461 (line 1 column 63462)
+
+Error: Failed to parse HFC JSON: SyntaxError: Unterminated string in JSON at position 63461 (line 1 column 63462)
+
+Error: Failed to parse HFC JSON: SyntaxError: Unterminated string in JSON at position 63461 (line 1 column 63462)
+
+Error: Failed to parse HFC JSON: SyntaxError: Unterminated string in JSON at position 63461 (line 1 column 63462)
+
+Error: Failed to parse HFC JSON: SyntaxError: Unterminated string in JSON at position 63461 (line 1 column 63462)
+
+Error: Failed to parse HFC JSON: SyntaxError: Unterminated string in JSON at position 63461 (line 1 column 63462)
+
+Error: Failed to parse HFC JSON: SyntaxError: Unterminated string in JSON at position 63461 (line 1 column 63462)
+

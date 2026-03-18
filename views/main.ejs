@@ -357,7 +357,7 @@
                                     console.log("Pikud HaOref Error: 403 Forbidden - Requires Israeli IP");
                                 }
                                 else {
-                                    $("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> " + alert.error + "</td></tr>");
+                                    //$("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> " + alert.error + "</td></tr>");
                                     console.log("Pikud HaOref Error: " + alert.error);
                                 }
                                 return;
@@ -467,7 +467,7 @@
         let rssFeedSelected;
         let rssFeedPollStarted = false;
         const newsArray = [];
-        const rssInterval = 3000;
+        let rssInterval = 30000;
 
         const rssFeeds = [
             { codename: "RSSarutz7", realname: "Arutz 7" },

@@ -320,3 +320,361 @@ Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with s
 
 Error: Failed to retrieve alerts from HFC API: Error: read ETIMEDOUT
 
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: read ETIMEDOUT
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+
+Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
+

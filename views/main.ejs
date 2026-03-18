@@ -53,11 +53,6 @@
             vertical-align: middle;
         }
 
-        .scrollable {
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-
         .rss-feed {
             font-size: 0.95rem;
         }
@@ -145,7 +140,7 @@
                 <div class="card bg-primary text-white border-0 mb-2">
                     <div class="card-header section-header">Alerted Locations Counter</div>
                 </div>
-                <div class="card bg-dark border-0 scrollable">
+                <div class="card bg-dark border-0">
                     <table class="table table-sm table-dark table-striped mb-0">
                         <tbody id="alerted_locations_counter"></tbody>
                     </table>
@@ -161,7 +156,7 @@
                         <select id="rssFeedSelector" class="form-select form-select-sm w-auto bg-dark text-white border-0"></select>
                     </div>
                 </div>
-                <div class="card bg-dark border-0 mb-3 rss-feed scrollable" style="max-height: 45vh;">
+                <div class="card bg-dark border-0 mb-3 rss-feed scrollable" style="max-height: 38vh; overflow-y: auto;">
                     <table class="table table-sm table-dark table-striped mb-0">
                         <tbody id="rss_alerts"></tbody>
                     </table>
@@ -368,10 +363,10 @@
                                 return;
                             }
 
-                           
+
 
                             if (alert.length) {
-                                 console.log(alert[0]);
+                                console.log(alert[0]);
                                 //console.log("Alert : ", alert[0]);
                                 //console.log(JSON.stringify(alert));
 

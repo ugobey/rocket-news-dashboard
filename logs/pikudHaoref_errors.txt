@@ -678,3 +678,63 @@ Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.
 
 Error: Failed to retrieve alerts from HFC API: Error: getaddrinfo ENOTFOUND www.oref.org.il
 
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: Error: read EADDRNOTAVAIL
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+
+Error: Failed to retrieve alerts from HFC API: AxiosError: Request failed with status code 403
+

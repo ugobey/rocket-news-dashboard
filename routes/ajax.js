@@ -12,10 +12,50 @@ const pikudHaoref = require("pikud-haoref-api");
 const Parser = require("rss-parser");
 const parser = new Parser();
 
+const testAlertData = [
+    {
+        type: "missiles",
+        cities: ["בענה", "דיר אל-אסד", "הר חלוץ", "לבון", "נחף", "כסרא סמיע", "מכמנים - כמאנה מערבית", "חוסנייה"],
+        instructions: "ירי רקטות וטילים",
+        id: "134182459160000000",
+    },
+    {
+        type: "hostileAircraftIntrusion",
+        cities: ["שקף", "שרונה", "שער מנשה", "שלומציון"],
+        instructions: "ירי רקטות וטילים",
+        id: "134182459160000000",
+    },
+    {
+        type: "missiles",
+        cities: ["שייח' דנון", "שחר", "שורש"],
+        instructions: "ירי רקטות וטילים",
+        id: "134182459160000000",
+    },
+    {
+        type: "hostileAircraftIntrusion",
+        cities: ["שדמות דבורה", "שדה נחמיה", "שדה יצחק"],
+        instructions: "ירי רקטות וטילים",
+        id: "134182459160000000",
+    },
+    {
+        type: "newsFlash",
+        cities: ["שדמות דבורה", "שדה נחמיה", "שדה יצחק"],
+        instructions: "האירוע הסתיים",
+        id: "134182459160000000",
+    },
+     {
+        type: "newsFlash",
+        cities: ["שדמות דבורה", "שדה נחמיה", "שדה יצחק"],
+        instructions: "",
+        id: "134182459160000000",
+    },
+];
+
 router.use("/", function (req, res) {
     try {
         (async () => {
             const getService = req.body.service;
+            const testmode = req.body.testmode;
 
             if (getService === "pikud_haoref") {
                 const options = {};
@@ -29,6 +69,10 @@ router.use("/", function (req, res) {
                         res.write(JSON.stringify({ error: err.toString() }));
                         res.end();
                         return;
+                    }
+
+                    if (testmode === "true") {
+                        alert = [testAlertData[Math.floor(Math.random() * testAlertData.length)]];
                     }
 
                     res.statusCode = 200;

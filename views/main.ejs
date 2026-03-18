@@ -74,8 +74,11 @@
             <!-- Pikud HaOref Alerts -->
             <div class="col-lg-3 col-md-6">
                 <div class="card bg-danger text-white border-0 mb-2">
-                    <div class="card-header section-header">
-                        Pikud HaOref Alerts
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="section-header">Pikud HaOref Alerts</span>
+
+                        <button id="test_mode" type="button" class="btn btn-primary btn-sm w-auto bg-dark text-white border-0">Test</button>
+
                         <span id="error_counter" class="badge bg-dark ms-2" style="display:none;">
                             Errors: <span id="pikudHaorefErrorCounter">0</span>
                         </span>
@@ -197,14 +200,6 @@
     <!-- end content -->
 
     <script>
-
-        const earlyWarningModal = new bootstrap.Modal('#earlyWarningModal');
-
-        let alertedLocations = [];
-        let missileAlertCounter = 0;
-        let droneAlertCounter = 0;
-        let earlyWarningActive = false;
-
         async function ajaxHandler(service) {
             let response = "";
 
@@ -213,7 +208,8 @@
                 type: "POST",
                 data: {
                     "service": service,
-                    "rssfeed": rssFeedSelected
+                    "rssfeed": rssFeedSelected,
+                    "testmode": testmode
                 },
                 async: false,
                 dataType: "json",
@@ -235,6 +231,26 @@
             $(".rssNewRow").removeClass("table-light");
             $(".rssNewRow").removeClass("rssNewRow");
         }, 5000);
+
+        const earlyWarningModal = new bootstrap.Modal('#earlyWarningModal');
+
+        let alertedLocations = [];
+        let missileAlertCounter = 0;
+        let droneAlertCounter = 0;
+        let earlyWarningActive = false;
+        let testmode = false;
+
+        $("#test_mode").on("click", function () {
+            if (testmode) {
+                testmode = false;
+
+                $("#test_mode").text("Test").removeClass("bg-light text-dark").addClass("bg-dark text-white");
+            } else {
+                testmode = true;
+
+                $("#test_mode").text("Turn Off Test Mode").removeClass("bg-dark text-white").addClass("bg-light text-dark");
+            }
+        });
 
         //Pikud HaOref service
         fetch('/json/cities.json')
@@ -352,7 +368,10 @@
                                 return;
                             }
 
+                           
+
                             if (alert.length) {
+                                 console.log(alert[0]);
                                 //console.log("Alert : ", alert[0]);
                                 //console.log(JSON.stringify(alert));
 
@@ -376,8 +395,8 @@
                                     }
 
                                 } else if (alertType != "newsFlash") {
-
                                     earlyWarningModal.hide();
+                                    $("#earlyWarning").hide();
 
                                     const alertTypeText = getAlertTypeByCategory(alertType);
                                     const timeStamp = moment().format("h:mm:ss a");

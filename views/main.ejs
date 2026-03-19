@@ -290,6 +290,57 @@
             }
         });
 
+        const alertTypeMap = {
+            newsFlash: "Early Warning",
+            missiles: "Rocket Alert",
+            hostileAircraftIntrusion: "Drone Alert",
+            general: "General Alert",
+            earthQuake: "Earthquake Alert",
+            radiologicalEvent: "Radiological Alert",
+            tsunami: "Tsunami Alert",
+            hazardousMaterials: "Hazardous Materials Alert",
+            terroristInfiltration: "Terrorist Infiltration Alert",
+            missilesDrill: "Drill - Rocket Alert",
+            generalDrill: "Drill - General Alert",
+            earthQuakeDrill: "Drill - Earthquake Alert",
+            radiologicalEventDrill: "Drill - Radiological Alert",
+            tsunamiDrill: "Drill - Tsunami Alert",
+            hostileAircraftIntrusionDrill: "Drill - Hostile Aircraft Alert",
+            hazardousMaterialsDrill: "Drill - Hazardous Materials",
+            terroristInfiltrationDrill: "Drill - Terrorist Infiltration Alert"
+        };
+
+        function getAlertTypeByCategory(type) {
+            return alertTypeMap[type] || "Unknown Alert";
+        }
+
+        function extractNewLocations(alertLocations) {
+            const newLocations = [];
+            const now = Math.floor(Date.now() / 1000);
+
+            for (let location of alertLocations) {
+                if (!recentlyAlertedLocations[location] || recentlyAlertedLocations[location] < now - 60) {
+                    newLocations.push(location);
+                    recentlyAlertedLocations[location] = now;
+                }
+            }
+
+            return newLocations;
+        }
+
+        function updateAlertedLocation(location) {
+            const index = alertedLocations.findIndex(item => item.location === location);
+
+            if (index !== -1) {
+                alertedLocations[index].counter++;
+            } else {
+                alertedLocations.push({ location: location, counter: 1 });
+            }
+        }
+
+        const pikudHaorefAlertsMaxRows = 200;
+        const newsUpdatesMaxRows = 100;
+
         //Pikud HaOref service
         fetch('/json/cities.json')
             .then((response) => response.json())
@@ -305,54 +356,6 @@
 
                 let pikudHaorefErrorCounter = 0;
                 let pikudHaorefError = false;
-
-                const alertTypeMap = {
-                    newsFlash: "Early Warning",
-                    missiles: "Rocket Alert",
-                    hostileAircraftIntrusion: "Drone Alert",
-                    general: "General Alert",
-                    earthQuake: "Earthquake Alert",
-                    radiologicalEvent: "Radiological Alert",
-                    tsunami: "Tsunami Alert",
-                    hazardousMaterials: "Hazardous Materials Alert",
-                    terroristInfiltration: "Terrorist Infiltration Alert",
-                    missilesDrill: "Drill - Rocket Alert",
-                    generalDrill: "Drill - General Alert",
-                    earthQuakeDrill: "Drill - Earthquake Alert",
-                    radiologicalEventDrill: "Drill - Radiological Alert",
-                    tsunamiDrill: "Drill - Tsunami Alert",
-                    hostileAircraftIntrusionDrill: "Drill - Hostile Aircraft Alert",
-                    hazardousMaterialsDrill: "Drill - Hazardous Materials",
-                    terroristInfiltrationDrill: "Drill - Terrorist Infiltration Alert"
-                };
-
-                function getAlertTypeByCategory(type) {
-                    return alertTypeMap[type] || "Unknown Alert";
-                }
-
-                function extractNewLocations(alertLocations) {
-                    const newLocations = [];
-                    const now = Math.floor(Date.now() / 1000);
-
-                    for (let location of alertLocations) {
-                        if (!recentlyAlertedLocations[location] || recentlyAlertedLocations[location] < now - 60) {
-                            newLocations.push(location);
-                            recentlyAlertedLocations[location] = now;
-                        }
-                    }
-
-                    return newLocations;
-                }
-
-                function updateAlertedLocation(location) {
-                    const index = alertedLocations.findIndex(item => item.location === location);
-
-                    if (index !== -1) {
-                        alertedLocations[index].counter++;
-                    } else {
-                        alertedLocations.push({ location: location, counter: 1 });
-                    }
-                }
 
                 const pikudHaorefPoll = async function () {
                     try {
@@ -386,7 +389,7 @@
                             }
 
                             if (alert.length) {
-                                console.log(alert[0]);
+                                //console.log(alert[0]);
                                 //console.log("Alert : ", alert[0]);
                                 //console.log(JSON.stringify(alert));
 
@@ -474,6 +477,12 @@
                                                 </tr>
                                             `);
                                         }
+                                    }
+
+                                    const currentRows = $('#pikud_haoref_alerts').find("tr").length;
+                                    if (currentRows > pikudHaorefAlertsMaxRows) {
+                                        const rowsToRemove = currentRows - pikudHaorefAlertsMaxRows;
+                                        $('#pikud_haoref_alerts').find("tr").slice(-rowsToRemove).remove();
                                     }
 
                                     if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
@@ -599,6 +608,12 @@
                             }
                         }
                     });
+
+                    const currentRows = $('#rss_alerts').find("tr").length;
+                    if (currentRows > newsUpdatesMaxRows) {
+                        const rowsToRemove = currentRows - newsUpdatesMaxRows;
+                        $('#rss_alerts').find("tr").slice(-rowsToRemove).remove();
+                    }
                 }
             }
         };

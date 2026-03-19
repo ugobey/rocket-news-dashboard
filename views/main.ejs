@@ -223,7 +223,7 @@
                 </div>
                 <div class="modal-body">
                     There is an active early warning due to a ballistic missile launch.<br><br>
-                    This message will disappear automatically when sirens sound or after 5 minutes.
+                    This message will disappear automatically when sirens sound or the threat is no longer active.
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
@@ -354,13 +354,6 @@
                     return newLocations;
                 }
 
-                setInterval(() => {
-                    if (earlyWarningActive) {
-                        earlyWarningModal.hide();
-                        earlyWarningActive = false;
-                    }
-                }, 300000);
-
                 function updateAlertedLocation(location) {
                     const index = alertedLocations.findIndex(item => item.location === location);
 
@@ -401,7 +394,6 @@
                                 }
                                 return;
                             }
-
 
 
                             if (alert.length) {

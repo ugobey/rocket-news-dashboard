@@ -94,6 +94,7 @@
                     <div class="card bg-dark border-0 mb-2">
                         <table class="table table-sm table-dark mb-0">
                             <tbody id="alerts_summary">
+                                <!-- Total locations -->
                                 <tr>
                                     <td width="20%">
                                         <span class="text-warning">Total Locations</span>
@@ -102,6 +103,7 @@
                                         <span id="totalLocationsCounter">0</span>
                                     </td>
                                 </tr>
+                                <!-- Total alerts -->
                                 <tr>
                                     <td width="20%">
                                         <span class="text-warning">Total Alerts</span>
@@ -110,6 +112,7 @@
                                         <span id="totalAlertsCounter">0</span>
                                     </td>
                                 </tr>
+                                <!-- Total drone alerts -->
                                 <tr>
                                     <td width="20%">
                                         <span class="text-warning">Drone Alerts</span>
@@ -118,6 +121,7 @@
                                         <span id="droneAlertCounter">0</span>
                                     </td>
                                 </tr>
+                                <!-- Total missile alerts -->
                                 <tr>
                                     <td width="20%">
                                         <span class="text-warning">Missile Alerts</span>
@@ -126,6 +130,7 @@
                                         <span id="missileAlertCounter">0</span>
                                     </td>
                                 </tr>
+                                <!-- Total early warnings -->
                                 <tr>
                                     <td width="20%">
                                         <span class="text-warning">Total Early Warnings</span>
@@ -134,28 +139,31 @@
                                         <span id="totalEarlyWarningsCounter">0</span>
                                     </td>
                                 </tr>
+                                <!-- Total errors -->
+                                <tr id="error_counter" style="display:none;">
+                                    <td width="20%">
+                                        <span class="text-danger">Total Errors</span>
+                                    </td>
+                                    <td>
+                                        <span id="pikud_haoref_error_counter">0</span>
+                                    </td>
+                                </tr>
+                                <!-- Last error message -->
+                                <tr id="error_message" style="display:none;">
+                                    <td width="20%">
+                                        <span class="text-danger">Last Error Message</span>
+                                    </td>
+                                    <td>
+                                        <span id="pikud_haoref_error_message"></span>
+                                    </td>
+                                </tr>
+                                <!-- Test alerts -->
                                 <tr>
                                     <td width="20%">
                                         <span class="text-light">Test Alerts</span>
                                     </td>
                                     <td>
                                         <button id="test_mode" type="button" class="btn btn-primary btn-sm w-auto bg-light text-black border-0">Turn on Test Mode</button>
-                                    </td>
-                                </tr>
-                                <tr id="error_counter" style="display:none;">
-                                    <td width="20%">
-                                        <span class="text-danger fw-bold">Total Errors</span>
-                                    </td>
-                                    <td>
-                                        <span id="pikud_haoref_error_counter">0</span>
-                                    </td>
-                                </tr>
-                                <tr id="error_message" style="display:none;">
-                                    <td width="20%">
-                                        <span class="text-danger fw-bold">Last Error Message</span>
-                                    </td>
-                                    <td>
-                                        <span id="pikud_haoref_error_message"></span>
                                     </td>
                                 </tr>
 
@@ -213,17 +221,38 @@
         </div>
     </div>
 
-    <!-- Early Warning Modal -->
-    <div class="modal fade" id="earlyWarningModal" tabindex="-1" aria-labelledby="earlyWarningModalLabel" aria-hidden="true">
+    <!-- Early Warning Modal - Enter -->
+    <div class="modal fade" id="earlyWarningModalEnter" tabindex="-1" aria-labelledby="earlyWarningModalEnterLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-danger text-white border-0">
                 <div class="modal-header border-0">
-                    <h5 class="modal-title" id="earlyWarningModalLabel">Early Warning Alert</h5>
+                    <h5 class="modal-title" id="earlyWarningModalEnterLabel">Early Warning Alert</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    There is an active early warning due to a ballistic missile launch.<br><br>
+                    There is an active early warning due to a ballistic missile launch.
+                    <br><br>
                     This message will disappear automatically when sirens sound or the threat is no longer active.
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Early Warning Modal - Exit -->
+    <div class="modal fade" id="earlyWarningModalExit" tabindex="-1" aria-labelledby="earlyWarningModalExitLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-success text-white border-0">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="earlyWarningModalExitLabel">Early Warning Alert</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    You can now exit the bomb shelter.
+                    <br><br>
+                    This message will disappear automatically after 30 seconds.
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
@@ -266,7 +295,8 @@
             $(".rssNewRow").removeClass("rssNewRow");
         }, 5000);
 
-        const earlyWarningModal = new bootstrap.Modal('#earlyWarningModal');
+        const earlyWarningModalEnter = new bootstrap.Modal('#earlyWarningModalEnter');
+        const earlyWarningModalExit = new bootstrap.Modal('#earlyWarningModalExit');
 
         let alertedLocations = [];
         let missileAlertCounter = 0;
@@ -407,8 +437,23 @@
                                     const instructions = alert[0].instructions;
 
                                     if (instructions === "האירוע הסתיים") {
+                                        if (earlyWarningActive) {
+                                            if (!earlyWarningModalExit._isShown) {
+                                                earlyWarningModalExit.show();
+                                            }
+
+                                            setTimeout(() => {
+                                                if (earlyWarningModalExit._isShown) {
+                                                    earlyWarningModalExit.hide();
+                                                }
+                                            }, 30000);
+                                        }
+
                                         earlyWarningActive = false;
-                                        earlyWarningModal.hide();
+
+                                        if (earlyWarningModalEnter._isShown) {
+                                            earlyWarningModalEnter.hide();
+                                        }
                                     } else {
                                         if (!earlyWarningActive) {
                                             totalEarlyWarningsCounter++
@@ -416,11 +461,26 @@
                                         }
 
                                         earlyWarningActive = true;
-                                        earlyWarningModal.show();
+
+                                        if (earlyWarningModalExit._isShown) {
+                                            earlyWarningModalExit.hide();
+                                        }
+
+                                        if (!earlyWarningModalEnter._isShown) {
+                                            earlyWarningModalEnter.show();
+                                        }
+
                                     }
 
                                 } else if (alertType != "newsFlash") {
-                                    earlyWarningModal.hide();
+
+                                    if (earlyWarningModalEnter._isShown) {
+                                        earlyWarningModalEnter.hide();
+                                    }
+
+                                    if (earlyWarningModalExit._isShown) {
+                                        earlyWarningModalExit.hide();
+                                    }
 
                                     const alertTypeText = getAlertTypeByCategory(alertType);
                                     const timeStamp = moment().format("h:mm:ss a");

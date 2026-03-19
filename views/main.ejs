@@ -195,8 +195,8 @@
                     </div>
                 </div>
                 <div id="tzofarBody" class="collapse show">
-                    <div>
-                        <iframe src="https://www.tzevaadom.co.il/en/" style="width:100%; height:1550px; border:none; border-radius: 6px;" title="Tzofar GPS Alerts"></iframe>
+                    <div class="ratio ratio-16x9">
+                        <iframe src="https://www.tzevaadom.co.il/en/" style="width:100%; border:none; border-radius: 6px;" title="Tzofar GPS Alerts"></iframe>
                     </div>
                 </div>
             </div>
@@ -247,27 +247,25 @@
 
     <script>
         async function ajaxHandler(service) {
-            let response = "";
-
-            $.ajax({
-                url: "/ajax",
-                type: "POST",
-                data: {
-                    "service": service,
-                    "rssfeed": rssFeedSelected,
-                    "testmode": testmode
-                },
-                async: false,
-                dataType: "json",
-                success: function (result) {
-                    response = result;
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    console.log(XMLHttpRequest, textStatus, errorThrown)
-                }
+            return new Promise((resolve) => {
+                $.ajax({
+                    url: "/ajax",
+                    type: "POST",
+                    data: {
+                        "service": service,
+                        "rssfeed": rssFeedSelected,
+                        "testmode": testmode
+                    },
+                    async: true,
+                    dataType: "json",
+                    success: function (result) {
+                        resolve(result);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        console.log(XMLHttpRequest, textStatus, errorThrown)
+                    }
+                });
             });
-
-            return response;
         }
 
         const earlyWarningModalEnter = new bootstrap.Modal('#earlyWarningModalEnter');
@@ -298,51 +296,38 @@
             .then((data) => {
                 const locationsJSON = data;
 
+                const locationMap = Object.fromEntries(
+                    locationsJSON.map(loc => [loc.value, loc.name_en])
+                );
+
                 const pikudHaorefInterval = 1000;
                 const recentlyAlertedLocations = {};
 
                 let pikudHaorefErrorCounter = 0;
                 let pikudHaorefError = false;
 
+                const alertTypeMap = {
+                    newsFlash: "Early Warning",
+                    missiles: "Rocket Alert",
+                    hostileAircraftIntrusion: "Drone Alert",
+                    general: "General Alert",
+                    earthQuake: "Earthquake Alert",
+                    radiologicalEvent: "Radiological Alert",
+                    tsunami: "Tsunami Alert",
+                    hazardousMaterials: "Hazardous Materials Alert",
+                    terroristInfiltration: "Terrorist Infiltration Alert",
+                    missilesDrill: "Drill - Rocket Alert",
+                    generalDrill: "Drill - General Alert",
+                    earthQuakeDrill: "Drill - Earthquake Alert",
+                    radiologicalEventDrill: "Drill - Radiological Alert",
+                    tsunamiDrill: "Drill - Tsunami Alert",
+                    hostileAircraftIntrusionDrill: "Drill - Hostile Aircraft Alert",
+                    hazardousMaterialsDrill: "Drill - Hazardous Materials",
+                    terroristInfiltrationDrill: "Drill - Terrorist Infiltration Alert"
+                };
+
                 function getAlertTypeByCategory(type) {
-                    switch (type) {
-                        case "newsFlash":
-                            return "Early Warning";
-                        case "missiles":
-                            return "Rocket Alert";
-                        case "hostileAircraftIntrusion":
-                            return "Drone Alert";
-                        case "general":
-                            return "General Alert";
-                        case "earthQuake":
-                            return "Earthquake Alert";
-                        case "radiologicalEvent":
-                            return "Radiological Alert";
-                        case "tsunami":
-                            return "Tsunami Alert";
-                        case "hazardousMaterials":
-                            return "Hazardous Materials Alert";
-                        case "terroristInfiltration":
-                            return "Terrorist Infiltration Alert";
-                        case "missilesDrill":
-                            return "Drill - Rocket Alert";
-                        case "generalDrill":
-                            return "Drill  - General Alert";
-                        case "earthQuakeDrill":
-                            return "Drill - Earthquake Alert";
-                        case "radiologicalEventDrill":
-                            return "Drill - Radiological Alert";
-                        case "tsunamiDrill":
-                            return "Drill - Tsunami Alert";
-                        case "hostileAircraftIntrusionDrill":
-                            return "Drill - Hostile Aircraft Alert";
-                        case "hazardousMaterialsDrill":
-                            return "Drill - Hazardous Materials";
-                        case "terroristInfiltrationDrill":
-                            return "Drill - Terrorist Infiltration Alert";
-                        default:
-                            return "Unknown Alert";
-                    }
+                    return alertTypeMap[type] || "Unknown Alert";
                 }
 
                 function extractNewLocations(alertLocations) {
@@ -462,14 +447,7 @@
 
                                     for (let i = 0; i < locations.length; i++) {
                                         const locationOriginal = locations[i];
-                                        let location = locations[i];
-
-                                        for (let c = 0; c < locationsJSON.length; c++) {
-                                            if (locationsJSON[c].value === location) {
-                                                location = locationsJSON[c].name_en;
-                                                break;
-                                            }
-                                        }
+                                        const location = locationMap[locations[i]] || locations[i];
 
                                         if (location) {
                                             if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {

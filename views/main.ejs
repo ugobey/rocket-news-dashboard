@@ -69,20 +69,16 @@
             <!-- Pikud HaOref Alerts -->
             <div class="col-lg-3 col-md-6">
                 <div class="card bg-danger text-white border-0 mb-2">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span class="section-header">Pikud HaOref Alerts</span>
-
-                        <button id="test_mode" type="button" class="btn btn-primary btn-sm w-auto bg-dark text-white border-0">Test</button>
-
-                        <span id="error_counter" class="badge bg-dark ms-2" style="display:none;">
-                            Errors: <span id="pikudHaorefErrorCounter">0</span>
-                        </span>
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#pikudBody" style="cursor: pointer;">
+                        Pikud HaOref Alerts
                     </div>
                 </div>
-                <div class="card bg-dark border-0">
-                    <table class="table table-sm table-dark table-striped mb-0">
-                        <tbody id="pikud_haoref_alerts"></tbody>
-                    </table>
+                <div id="pikudBody" class="collapse show">
+                    <div class="card bg-dark border-0 mb-2">
+                        <table class="table table-sm table-dark table-striped mb-0">
+                            <tbody id="pikud_haoref_alerts"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -90,60 +86,81 @@
             <div class="col-lg-3 col-md-6">
                 <!-- Summary -->
                 <div class="card bg-success text-white border-0 mb-2">
-                    <div class="card-header section-header">Alerts Summary</div>
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#summaryBody" style="cursor: pointer;">
+                        Alerts Summary
+                    </div>
                 </div>
-                <div class="card bg-dark border-0 mb-3">
-                    <table class="table table-sm table-dark mb-0">
-                        <tbody id="alerts_summary">
-                            <tr id="earlyWarning" class="text-danger fw-bold" style="display:none;">
-                                <td colspan="2">
-                                    <span class='text-danger'><b>EARLY WARNING!!!</b></span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td width="20%">
-                                    <span class="text-warning">Total Locations</span>
-                                </td>
-                                <td>
-                                    <span id="totalLocationsCounter">0</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td width="20%">
-                                    <span class="text-warning">Total Alerts</span>
-                                </td>
-                                <td>
-                                    <span id="totalAlertsCounter">0</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td width="20%">
-                                    <span class="text-warning">Drone Alerts</span>
-                                </td>
-                                <td>
-                                    <span id="droneAlertCounter">0</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td width="20%">
-                                    <span class="text-warning">Missile Alerts</span>
-                                </td>
-                                <td>
-                                    <span id="missileAlertCounter">0</span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div id="summaryBody" class="collapse show">
+                    <div class="card bg-dark border-0 mb-2">
+                        <table class="table table-sm table-dark mb-0">
+                            <tbody id="alerts_summary">
+                                <tr id="earlyWarning" class="text-danger fw-bold" style="display:none;">
+                                    <td colspan="2">
+                                        <span class='text-danger'><b>EARLY WARNING!!!</b></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="20%">
+                                        <span class="text-warning">Total Locations</span>
+                                    </td>
+                                    <td>
+                                        <span id="totalLocationsCounter">0</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="20%">
+                                        <span class="text-warning">Total Alerts</span>
+                                    </td>
+                                    <td>
+                                        <span id="totalAlertsCounter">0</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="20%">
+                                        <span class="text-warning">Drone Alerts</span>
+                                    </td>
+                                    <td>
+                                        <span id="droneAlertCounter">0</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="20%">
+                                        <span class="text-warning">Missile Alerts</span>
+                                    </td>
+                                    <td>
+                                        <span id="missileAlertCounter">0</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="20%">
+                                        <span class="text-warning">Test Alerts</span>
+                                    </td>
+                                    <td>
+                                        <button id="test_mode" type="button" class="btn btn-primary btn-sm w-auto bg-light text-black border-0">Turn on Test Mode</button>
+
+                                        <span id="error_counter" class="badge bg-dark ms-2" style="display:none;">
+                                            Errors: <span id="pikudHaorefErrorCounter">0</span>
+                                        </span>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- Alerted Locations -->
                 <div class="card bg-primary text-white border-0 mb-2">
-                    <div class="card-header section-header">Alerted Locations Counter</div>
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#locationsBody" style="cursor: pointer;">
+                        Alerted Locations Counter
+                    </div>
                 </div>
-                <div class="card bg-dark border-0">
-                    <table class="table table-sm table-dark table-striped mb-0">
-                        <tbody id="alerted_locations_counter"></tbody>
-                    </table>
+                <div id="locationsBody" class="collapse show">
+                    <div class="card bg-dark border-0 mb-2">
+                        <table class="table table-sm table-dark table-striped mb-0">
+                            <tbody id="alerted_locations_counter"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -151,23 +168,30 @@
             <div class="col">
                 <!-- News -->
                 <div class="card bg-secondary text-white border-0 mb-2">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span class="section-header">News Updates</span>
-                        <select id="rssFeedSelector" class="form-select form-select-sm w-auto bg-dark text-white border-0"></select>
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#newsBody" style="cursor: pointer;">
+                        News Updates
+                        <select id="rssFeedSelector" class="form-select form-select-sm w-auto bg-dark text-white border-0" style="display: none;"></select>
                     </div>
+
                 </div>
-                <div class="card bg-dark border-0 mb-3 rss-feed scrollable" style="max-height: 22vh; overflow-y: auto;">
-                    <table class="table table-sm table-dark table-striped mb-0">
-                        <tbody id="rss_alerts"></tbody>
-                    </table>
+                <div id="newsBody" class="collapse show">
+                    <div class="card bg-dark border-0 mb-2 rss-feed scrollable" style="max-height: 22vh; overflow-y: auto;">
+                        <table class="table table-sm table-dark table-striped mb-0">
+                            <tbody id="rss_alerts"></tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- Tzofar GPS -->
                 <div class="card bg-danger text-white border-0 mb-2">
-                    <div class="card-header section-header">Tzofar GPS Alerts</div>
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#tzofarBody" style="cursor: pointer;">
+                        Tzofar GPS Alerts
+                    </div>
                 </div>
-                <div>
-                    <iframe src="https://www.tzevaadom.co.il/en/" style="width:100%; height:1550px; border:none; border-radius: 6px;" title="Tzofar GPS Alerts"></iframe>
+                <div id="tzofarBody" class="collapse show">
+                    <div>
+                        <iframe src="https://www.tzevaadom.co.il/en/" style="width:100%; height:1550px; border:none; border-radius: 6px;" title="Tzofar GPS Alerts"></iframe>
+                    </div>
                 </div>
             </div>
 
@@ -239,11 +263,11 @@
             if (testmode) {
                 testmode = false;
 
-                $("#test_mode").text("Test").removeClass("bg-light text-dark").addClass("bg-dark text-white");
+                $("#test_mode").text("Turn on Test Mode");
             } else {
                 testmode = true;
 
-                $("#test_mode").text("Turn Off Test Mode").removeClass("bg-dark text-white").addClass("bg-light text-dark");
+                $("#test_mode").text("Turn off Test Mode");
             }
         });
 

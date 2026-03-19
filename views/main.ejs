@@ -94,11 +94,6 @@
                     <div class="card bg-dark border-0 mb-2">
                         <table class="table table-sm table-dark mb-0">
                             <tbody id="alerts_summary">
-                                <tr id="earlyWarning" class="text-danger fw-bold" style="display:none;">
-                                    <td colspan="2">
-                                        <span class='text-danger'><b>EARLY WARNING!!!</b></span>
-                                    </td>
-                                </tr>
                                 <tr>
                                     <td width="20%">
                                         <span class="text-warning">Total Locations</span>
@@ -133,7 +128,15 @@
                                 </tr>
                                 <tr>
                                     <td width="20%">
-                                        <span class="text-warning">Test Alerts</span>
+                                        <span class="text-warning">Total Early Warnings</span>
+                                    </td>
+                                    <td>
+                                        <span id="totalEarlyWarningsCounter">0</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="20%">
+                                        <span class="text-light">Test Alerts</span>
                                     </td>
                                     <td>
                                         <button id="test_mode" type="button" class="btn btn-primary btn-sm w-auto bg-light text-black border-0">Turn on Test Mode</button>
@@ -268,6 +271,7 @@
         let alertedLocations = [];
         let missileAlertCounter = 0;
         let droneAlertCounter = 0;
+        let totalEarlyWarningsCounter = 0;
         let earlyWarningActive = false;
         let testmode = false;
 
@@ -416,6 +420,9 @@
                                     } else {
                                         earlyWarningActive = true;
                                         earlyWarningModal.show();
+
+                                        totalEarlyWarningsCounter++
+                                        $("#totalEarlyWarningsCounter").text(totalEarlyWarningsCounter);
                                     }
 
                                 } else if (alertType != "newsFlash") {

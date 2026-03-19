@@ -353,7 +353,6 @@
                 setInterval(() => {
                     if (earlyWarningActive) {
                         earlyWarningModal.hide();
-                        $("#earlyWarning").hide();
                         earlyWarningActive = false;
                     }
                 }, 300000);
@@ -413,21 +412,14 @@
 
                                     if (instructions === "האירוע הסתיים") {
                                         earlyWarningActive = false;
-
-                                        $("#earlyWarning").hide();
                                         earlyWarningModal.hide();
                                     } else {
                                         earlyWarningActive = true;
-
-                                        if ($("#earlyWarning").is(":hidden")) {
-                                            $("#earlyWarning").show();
-                                            earlyWarningModal.show();
-                                        }
+                                        earlyWarningModal.show();
                                     }
 
                                 } else if (alertType != "newsFlash") {
                                     earlyWarningModal.hide();
-                                    $("#earlyWarning").hide();
 
                                     const alertTypeText = getAlertTypeByCategory(alertType);
                                     const timeStamp = moment().format("h:mm:ss a");

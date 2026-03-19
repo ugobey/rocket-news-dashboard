@@ -137,10 +137,22 @@
                                     </td>
                                     <td>
                                         <button id="test_mode" type="button" class="btn btn-primary btn-sm w-auto bg-light text-black border-0">Turn on Test Mode</button>
-
-                                        <span id="error_counter" class="badge bg-dark ms-2" style="display:none;">
-                                            Errors: <span id="pikudHaorefErrorCounter">0</span>
-                                        </span>
+                                    </td>
+                                </tr>
+                                <tr id="error_counter" style="display:none;">
+                                    <td width="20%">
+                                        <span class="text-danger fw-bold">Total Errors</span>
+                                    </td>
+                                    <td>
+                                        <span id="pikud_haoref_error_counter">0</span>
+                                    </td>
+                                </tr>
+                                <tr id="error_message" style="display:none;">
+                                    <td width="20%">
+                                        <span class="text-danger fw-bold">Last Error Message</span>
+                                    </td>
+                                    <td>
+                                        <span id="pikud_haoref_error_message"></span>
                                     </td>
                                 </tr>
 
@@ -371,17 +383,17 @@
 
                                 if (!pikudHaorefError) {
                                     pikudHaorefError = true;
-                                    $("#error_counter").show();
+                                    $("#error_counter, #error_message").show();
                                 }
 
-                                $("#pikudHaorefErrorCounter").text(pikudHaorefErrorCounter);
+                                $("#pikud_haoref_error_counter").text(pikudHaorefErrorCounter);
 
                                 if (alert.error.indexOf("Request failed with status code 403") > -1) {
-                                    $("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> 403 Forbidden - Requires Israeli IP</td></tr>");
+                                    $("#pikud_haoref_error_message").text("403 Forbidden - Requires Israeli IP");
                                     console.log("Pikud HaOref Error: 403 Forbidden - Requires Israeli IP");
                                 }
                                 else {
-                                    //$("#pikud_haoref_alerts").prepend("<tr><td><font class='text-danger'>ERROR:</font> " + alert.error + "</td></tr>");
+                                    $("#pikud_haoref_error_message").text(alert.error);
                                     console.log("Pikud HaOref Error: " + alert.error);
                                 }
                                 return;

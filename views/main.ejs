@@ -10,12 +10,15 @@
     </title>
 
     <link href="/css/bootstrap-5.3.3/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     <script src="/js/jquery-3.7.1.min.js"></script>
     <script src="/js/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
     <script src="/js/moment-2.30.1.min.js"></script>
 
     <style>
+        @import 'animate.css';
+
         :root {
             --bs-body-bg: #212529;
         }
@@ -32,10 +35,6 @@
         .section-header {
             font-size: 1.1rem;
             font-weight: 600;
-        }
-
-        .alert-new {
-            animation: highlightFade 5s forwards;
         }
 
         @keyframes highlightFade {
@@ -287,13 +286,6 @@
             return response;
         }
 
-        setInterval(() => {
-            $(".alertNewRow").removeClass("table-light");
-            $(".alertNewRow").removeClass("alertNewRow");
-            $(".rssNewRow").removeClass("table-light");
-            $(".rssNewRow").removeClass("rssNewRow");
-        }, 5000);
-
         const earlyWarningModalEnter = new bootstrap.Modal('#earlyWarningModalEnter');
         const earlyWarningModalExit = new bootstrap.Modal('#earlyWarningModalExit');
 
@@ -512,7 +504,13 @@
 
                                             }
 
-                                            $("#pikud_haoref_alerts").prepend("<tr class='alertNewRow table-light'><td><font class='text-info'>" + alertTypeText + "</font></td><td>" + location + " (" + locationOriginal + ")</td><td><font class='text-warning'>" + timeStamp + "</font></td></tr>");
+                                            $("#pikud_haoref_alerts").prepend(`
+                                                <tr class="animate__animated animate__fadeInDown animate__faster">
+                                                    <td width='15%'><font class='text-warning'>${timeStamp}</font></td>
+                                                    <td width='15%'><font class='text-info'>${alertTypeText}</font></td>
+                                                    <td>${location} (${locationOriginal})</td>
+                                                </tr>
+                                            `);
                                         }
                                     }
 
@@ -525,7 +523,12 @@
                                             const location = sortalertedLocations[i].location
                                             const counter = sortalertedLocations[i].counter;
 
-                                            $("#alerted_locations_counter").append("<tr><td><font class='text-info'>" + location + "</font></td><td>" + counter + "</td></tr>");
+                                            $("#alerted_locations_counter").append(`
+                                                <tr>
+                                                    <td><font class='text-info'>${location}</font></td>
+                                                    <td>${counter}</td>
+                                                </tr>
+                                            `);
                                         }
 
                                         $("#totalLocationsCounter").text(sortalertedLocations.length);
@@ -624,7 +627,13 @@
                             if (!newsArray.includes(publishDate + " : " + item.title)) {
                                 newsArray.push(publishDate + " : " + item.title);
 
-                                $("#rss_alerts").prepend("<tr class='rssNewRow table-light'><td width='7%'><font class='text-warning'>" + publishDate + "</font></td><td width='5%'><font class='text-secondary'>" + getRealName(rssFeedSelected) + "</font></td><td>" + item.title + "</td></tr>");
+                                $("#rss_alerts").prepend(`
+                                    <tr class="animate__animated animate__fadeInDown animate__faster">
+                                        <td width="7%"><font class="text-warning">${publishDate}</font></td>
+                                        <td width="5%"><font class="text-info">${getRealName(rssFeedSelected)}</font></td>
+                                        <td>${item.title}</td>
+                                    </tr>
+                                `);
                             }
                         }
                     });

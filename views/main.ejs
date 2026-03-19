@@ -418,11 +418,13 @@
                                         earlyWarningActive = false;
                                         earlyWarningModal.hide();
                                     } else {
+                                        if (!earlyWarningActive) {
+                                            totalEarlyWarningsCounter++
+                                            $("#totalEarlyWarningsCounter").text(totalEarlyWarningsCounter);
+                                        }
+
                                         earlyWarningActive = true;
                                         earlyWarningModal.show();
-
-                                        totalEarlyWarningsCounter++
-                                        $("#totalEarlyWarningsCounter").text(totalEarlyWarningsCounter);
                                     }
 
                                 } else if (alertType != "newsFlash") {

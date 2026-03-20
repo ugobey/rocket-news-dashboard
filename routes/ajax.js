@@ -27,7 +27,7 @@ const testAlertData = [
     },
     {
         type: "missiles",
-        cities: ["שייח' דנון", "שחר", "שורש"],
+        cities: ["שייח' דנון", "שחר", "שורש", "דוב״ב"],
         instructions: "ירי רקטות וטילים",
         id: "134182459160000000",
     },
@@ -43,7 +43,7 @@ const testAlertData = [
         instructions: "האירוע הסתיים",
         id: "134182459160000000",
     },
-     {
+    {
         type: "newsFlash",
         cities: ["שדמות דבורה", "שדה נחמיה", "שדה יצחק"],
         instructions: "",

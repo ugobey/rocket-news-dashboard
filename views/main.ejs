@@ -77,15 +77,6 @@
                     <div class="card bg-dark border-0 mb-2">
                         <table class="table table-sm table-dark mb-0">
                             <tbody id="alerts_summary">
-                                <!-- Total locations -->
-                                <tr>
-                                    <td width="20%">
-                                        <span class="text-warning">Total Locations</span>
-                                    </td>
-                                    <td>
-                                        <span id="totalLocationsCounter">0</span>
-                                    </td>
-                                </tr>
                                 <!-- Total alerts -->
                                 <tr>
                                     <td width="20%">
@@ -111,6 +102,24 @@
                                     </td>
                                     <td>
                                         <span id="missileAlertCounter">0</span>
+                                    </td>
+                                </tr>
+                                <!-- Total locations -->
+                                <tr>
+                                    <td width="20%">
+                                        <span class="text-warning">Total Locations</span>
+                                    </td>
+                                    <td>
+                                        <span id="totalLocationsCounter">0</span>
+                                    </td>
+                                </tr>
+                                <!-- Total zones -->
+                                <tr>
+                                    <td width="20%">
+                                        <span class="text-warning">Total Zones</span>
+                                    </td>
+                                    <td>
+                                        <span id="totalZonesCounter">0</span>
                                     </td>
                                 </tr>
                                 <!-- Total early warnings -->
@@ -162,9 +171,23 @@
                     </div>
                 </div>
                 <div id="locationsBody" class="collapse show">
-                    <div class="card bg-dark border-0 mb-2">
+                    <div class="card bg-dark border-0 mb-2" style="max-height: 30vh; overflow-y: auto;">
                         <table class="table table-sm table-dark table-striped mb-0">
                             <tbody id="alerted_locations_counter"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Alerted Zones -->
+                <div class="card bg-primary text-white border-0 mb-2">
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#zonesBody" style="cursor: pointer;">
+                        Alerted Zones Counter
+                    </div>
+                </div>
+                <div id="zonesBody" class="collapse show">
+                    <div class="card bg-dark border-0 mb-2">
+                        <table class="table table-sm table-dark table-striped mb-0">
+                            <tbody id="alerted_zones_counter"></tbody>
                         </table>
                     </div>
                 </div>
@@ -272,6 +295,7 @@
         const earlyWarningModalExit = new bootstrap.Modal('#earlyWarningModalExit');
 
         let alertedLocations = [];
+        let alertedZones = [];
         let missileAlertCounter = 0;
         let droneAlertCounter = 0;
         let totalEarlyWarningsCounter = 0;
@@ -341,6 +365,16 @@
             }
         }
 
+        function updateAlertedZone(zone) {
+            const index = alertedZones.findIndex(item => item.zone === zone);
+
+            if (index !== -1) {
+                alertedZones[index].counter++;
+            } else {
+                alertedZones.push({ zone: zone, counter: 1 });
+            }
+        }
+
         //Pikud HaOref service
         fetch('/json/cities.json')
             .then((response) => response.json())
@@ -348,7 +382,14 @@
                 const locationsJSON = data;
 
                 const locationMap = Object.fromEntries(
-                    locationsJSON.map(loc => [loc.value, loc.name_en])
+                    locationsJSON.map(loc => [loc.value, {
+                        name_en: loc.name_en,
+                        zone: loc.zone,
+                        zone_en: loc.zone_en,
+                        lng: loc.lng,
+                        lat: loc.lat,
+                        countdown: loc.countdown
+                    }])
                 );
 
                 let pikudHaorefErrorCounter = 0;
@@ -445,9 +486,13 @@
 
                                     const locations = extractNewLocations(alert[0].cities);
 
+
+
                                     for (let i = 0; i < locations.length; i++) {
                                         const locationOriginal = locations[i];
-                                        const location = locationMap[locations[i]] || locations[i];
+                                        const location = locationMap[locations[i]].name_en || locations[i];
+                                        const zone = locationMap[locations[i]].zone || "Unknown";
+                                        const zone_en = locationMap[locations[i]].zone_en || "Unknown";
 
                                         if (location) {
                                             if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
@@ -463,6 +508,7 @@
 
                                                 $("#totalAlertsCounter").text(missileAlertCounter + droneAlertCounter);
                                                 updateAlertedLocation(location);
+                                                updateAlertedZone(zone_en + "(" + zone + ")");
 
                                             }
 
@@ -477,9 +523,11 @@
                                     }
 
                                     if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
+                                        //Update Alerted Locations Counter
                                         $("#alerted_locations_counter").html("");
 
                                         const sortalertedLocations = alertedLocations.toSorted((a, b) => b.counter - a.counter);
+
 
                                         for (let i = 0; i < sortalertedLocations.length; i++) {
                                             const location = sortalertedLocations[i].location
@@ -494,6 +542,25 @@
                                         }
 
                                         $("#totalLocationsCounter").text(sortalertedLocations.length);
+
+                                        //Update Alerted Zones Counter
+                                        $("#alerted_zones_counter").html("");
+
+                                        const sortalertedZones = alertedZones.toSorted((a, b) => b.counter - a.counter);
+
+                                        for (let i = 0; i < sortalertedZones.length; i++) {
+                                            const zone = sortalertedZones[i].zone
+                                            const counter = sortalertedZones[i].counter;
+
+                                            $("#alerted_zones_counter").append(`
+                                                <tr>
+                                                    <td><font class='text-info'>${zone}</font></td>
+                                                    <td>${counter}</td>
+                                                </tr>
+                                            `);
+                                        }
+
+                                        $("#totalZonesCounter").text(sortalertedZones.length);
                                     }
                                 }
                             }

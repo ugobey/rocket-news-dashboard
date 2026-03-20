@@ -155,7 +155,7 @@
                                         <span class="text-light">Test Alerts</span>
                                     </td>
                                     <td>
-                                        <button id="test_mode" type="button" class="btn btn-primary btn-sm w-auto bg-light text-black border-0">Turn on Test Mode</button>
+                                        <button id="test_mode" type="button" class="btn btn-sm w-auto bg-dark text-white border-0">Turn on Test Mode</button>
                                     </td>
                                 </tr>
 
@@ -310,10 +310,12 @@
                 testmode = false;
 
                 $("#test_mode").text("Turn on Test Mode");
+                $("#test_mode").removeClass("bg-light text-black").addClass("bg-dark text-white");
             } else {
                 testmode = true;
 
                 $("#test_mode").text("Turn off Test Mode");
+                $("#test_mode").removeClass("bg-dark text-white").addClass("bg-light text-black");
             }
         });
 

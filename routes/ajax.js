@@ -38,6 +38,30 @@ const testAlertData = [
         id: "134182459160000000",
     },
     {
+        type: "missiles",
+        cities: ["גאולים", "בת שלמה", "בת הדר", "בקוע"],
+        instructions: "ירי רקטות וטילים",
+        id: "134182459160000000",
+    },
+    {
+        type: "hostileAircraftIntrusion",
+        cities: ["גני יוחנן", "גורן", "גבעת עדה"],
+        instructions: "ירי רקטות וטילים",
+        id: "134182459160000000",
+    },
+    {
+        type: "missiles",
+        cities: ["בן שמן", "בית עריף", "בית ניר", "בית חנניה"],
+        instructions: "ירי רקטות וטילים",
+        id: "134182459160000000",
+    },
+    {
+        type: "hostileAircraftIntrusion",
+        cities: ["בית השיטה", "ביר אלמכסור", "באר שבע - צפון"],
+        instructions: "ירי רקטות וטילים",
+        id: "134182459160000000",
+    },
+    {
         type: "newsFlash",
         cities: ["שדמות דבורה", "שדה נחמיה", "שדה יצחק"],
         instructions: "האירוע הסתיים",

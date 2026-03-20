@@ -526,8 +526,15 @@
                                         //Update Alerted Locations Counter
                                         $("#alerted_locations_counter").html("");
 
-                                        const sortalertedLocations = alertedLocations.toSorted((a, b) => b.counter - a.counter);
+                                        const sortalertedLocations = alertedLocations.toSorted((a, b) => {
+                                            // First compare by counter (descending)
+                                            if (b.counter !== a.counter) {
+                                                return b.counter - a.counter;
+                                            }
 
+                                            // If counters are equal → compare locations alphabetically (ascending)
+                                            return a.location.localeCompare(b.location);
+                                        });
 
                                         for (let i = 0; i < sortalertedLocations.length; i++) {
                                             const location = sortalertedLocations[i].location
@@ -546,7 +553,15 @@
                                         //Update Alerted Zones Counter
                                         $("#alerted_zones_counter").html("");
 
-                                        const sortalertedZones = alertedZones.toSorted((a, b) => b.counter - a.counter);
+                                        const sortalertedZones = alertedZones.toSorted((a, b) => {
+                                            // First compare by counter (descending)
+                                            if (b.counter !== a.counter) {
+                                                return b.counter - a.counter;
+                                            }
+
+                                            // If counters are equal → compare zones alphabetically (ascending)
+                                            return a.zone.localeCompare(b.zone);
+                                        });
 
                                         for (let i = 0; i < sortalertedZones.length; i++) {
                                             const zone = sortalertedZones[i].zone

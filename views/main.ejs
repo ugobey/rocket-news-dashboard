@@ -204,7 +204,7 @@
 
                 </div>
                 <div id="newsBody" class="collapse show">
-                    <div class="card bg-dark border-0 mb-2 rss-feed scrollable" style="max-height: 25vh; overflow-y: auto;">
+                    <div class="card bg-dark border-0 mb-2 rss-feed scrollable" style="max-height: 30vh; overflow-y: auto;">
                         <table class="table table-sm table-dark table-striped mb-0">
                             <tbody id="rss_alerts"></tbody>
                         </table>
@@ -219,7 +219,7 @@
                 </div>
                 <div id="tzofarBody" class="collapse show">
                     <div class="">
-                        <iframe src="https://www.tzevaadom.co.il/en/" style="width:100%; height:1150px; border:none; border-radius: 6px;" title="Tzofar GPS Alerts"></iframe>
+                        <iframe src="https://www.tzevaadom.co.il/en/" style="width:100%; height:1400px; border:none; border-radius: 6px;" title="Tzofar GPS Alerts"></iframe>
                     </div>
                 </div>
             </div>
@@ -517,7 +517,7 @@
                                                 <tr class="animate__animated animate__fadeInDown animate__faster">
                                                     <td width='15%'><font class='text-warning'>${timeStamp}</font></td>
                                                     <td width='15%'><font class='text-info'>${alertTypeText}</font></td>
-                                                    <td>${location} (${locationOriginal})</td>
+                                                    <td>${location} (${zone_en})</td>
                                                 </tr>
                                             `);
                                         }
@@ -600,7 +600,7 @@
         let rssFeedSelected;
         let rssFeedPollStarted = false;
         const newsArray = [];
-        let rssInterval = 30000;
+        let rssInterval = 3000;
 
         const rssFeeds = [
             { codename: "RSSarutz7", realname: "Arutz 7" },

@@ -304,7 +304,15 @@
             if (pikud_haoref_alerts.children.length > 500) {
                 $('#pikud_haoref_alerts tr:last').remove();
             }
-        }, 100);
+        }, 1000);
+
+        setInterval(() => {
+            $(".alertNewRow").removeClass("table-light");
+            $(".alertNewRow").removeClass("alertNewRow");
+
+            $(".rssNewRow").removeClass("table-light");
+            $(".rssNewRow").removeClass("rssNewRow");
+        }, 5000);
 
         async function ajaxHandler(service) {
             return new Promise((resolve) => {
@@ -561,7 +569,7 @@
                                             updateAlertedZone(zone_en);
 
                                             $("#pikud_haoref_alerts").prepend(`
-                                                <tr class="animate__animated animate__fadeInDown animate__faster">
+                                                <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
                                                     <td><font class='text-warning'>${timeStamp}</font></td>
                                                     <td><img src="${alertTypeIcon}" style="width:20px; height:20px;" title="${alertTypeText}"></td>
                                                     <td>${location}</td>
@@ -722,7 +730,7 @@
                                 newsArray.push(guid);
 
                                 $("#rss_alerts").prepend(`
-                                    <tr class="animate__animated animate__fadeInDown animate__faster">
+                                    <tr class="animate__animated animate__fadeInDown animate__faster rssNewRow table-light">
                                         <td width="3%"><font class="text-warning">${publishDate}</font></td>
                                         <td width="4%"><font class="text-info">${getRealName(rssFeedSelected)}</font></td>
                                         <td>${item.title}</td>

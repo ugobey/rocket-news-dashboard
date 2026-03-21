@@ -49,16 +49,27 @@
     <div class="container-fluid p-2">
         <div class="row g-2">
 
-            <!-- Home Front Command Alerts -->
+            <!-- Home Front Command Sirens -->
             <div class="col-lg-3 col-md-6">
                 <div class="card bg-danger text-white border-0 mb-2">
                     <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#pikudBody" style="cursor: pointer;">
-                        Home Front Command Alerts
+                        Home Front Command Sirens
+                        <span id="liveClock" class="bg-danger text-white fs-6 fw-normal">
+                            00:00:00
+                        </span>
                     </div>
                 </div>
                 <div id="pikudBody" class="collapse show">
                     <div class="card bg-dark border-0 mb-2">
-                        <table class="table table-sm table-dark table-striped mb-0">
+                        <table class="table table-sm table-dark mb-0">
+                            <thead>
+                                <tr>
+                                    <th width="10%">Time</th>
+                                    <th width="5%">Type</th>
+                                    <th>Location</th>
+                                    <th>Zone</th>
+                                </tr>
+                            </thead>
                             <tbody id="pikud_haoref_alerts"></tbody>
                         </table>
                     </div>
@@ -66,7 +77,7 @@
             </div>
 
 
-            <div class="col-lg-3 col-md-6">
+            <div class="col-md-2">
                 <!-- Alerts Summary -->
                 <div class="card bg-success text-white border-0 mb-2">
                     <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#summaryBody" style="cursor: pointer;">
@@ -79,70 +90,71 @@
                             <tbody id="alerts_summary">
                                 <!-- Total alerts -->
                                 <tr>
-                                    <td width="20%">
+                                    <td width="95%">
                                         <span class="text-warning">Total Alerts</span>
                                     </td>
                                     <td>
-                                        <span id="totalAlertsCounter">0</span>
+                                        <span id="totalAlertsCounter" type="button" class="btn btn-md w-auto bg-dark text-white border-0">0</span>
                                     </td>
                                 </tr>
                                 <!-- Total drone alerts -->
                                 <tr>
-                                    <td width="20%">
+                                    <td width="95%">
                                         <span class="text-warning">Total Drone Alerts</span>
                                     </td>
                                     <td>
-                                        <span id="droneAlertCounter">0</span>
+                                        <span id="droneAlertCounter" type="button" class="btn btn-md w-auto bg-dark text-white border-0">0</span>
                                     </td>
                                 </tr>
-                                <!-- Total missile alerts -->
+                                <!-- Total rocket alerts -->
                                 <tr>
-                                    <td width="20%">
-                                        <span class="text-warning">Total Missile Alerts</span>
+                                    <td width="95%">
+                                        <span class="text-warning">Total Rocket Alerts</span>
                                     </td>
                                     <td>
-                                        <span id="missileAlertCounter">0</span>
+                                        <span id="rocketAlertCounter" type="button" class="btn btn-md w-auto bg-dark text-white border-0">0</span>
                                     </td>
                                 </tr>
                                 <!-- Total locations -->
                                 <tr>
-                                    <td width="20%">
+                                    <td width="95%">
                                         <span class="text-warning">Total Locations</span>
                                     </td>
                                     <td>
-                                        <span id="totalLocationsCounter">0</span>
+                                        <span id="totalLocationsCounter" type="button" class="btn btn-md w-auto bg-dark text-white border-0">0</span>
                                     </td>
                                 </tr>
                                 <!-- Total zones -->
                                 <tr>
-                                    <td width="20%">
+                                    <td width="95%">
                                         <span class="text-warning">Total Zones</span>
                                     </td>
                                     <td>
-                                        <span id="totalZonesCounter">0</span>
+                                        <span id="totalZonesCounter" type="button" class="btn btn-md w-auto bg-dark text-white border-0">0</span>
                                     </td>
                                 </tr>
                                 <!-- Total early warnings -->
                                 <tr>
-                                    <td width="20%">
+                                    <td width="95%">
                                         <span class="text-warning">Total Early Warnings</span>
                                     </td>
                                     <td>
-                                        <span id="totalEarlyWarningsCounter">0</span>
+                                        <span id="totalEarlyWarningsCounter" type="button" class="btn btn-md w-auto bg-dark text-white border-0">0</span>
                                     </td>
                                 </tr>
                                 <!-- Total errors -->
                                 <tr id="error_counter" style="display:none;">
-                                    <td width="20%">
+                                    <td width="95%">
                                         <span class="text-danger">Total Errors</span>
                                     </td>
                                     <td>
-                                        <span id="pikud_haoref_error_counter">0</span>
+
+                                        <span id="pikud_haoref_error_counter" type="button" class="btn btn-md w-auto bg-dark text-white border-0">0</span>
                                     </td>
                                 </tr>
                                 <!-- Last error message -->
                                 <tr id="error_message" style="display:none;">
-                                    <td width="20%">
+                                    <td width="95%">
                                         <span class="text-danger">Last Error Message</span>
                                     </td>
                                     <td>
@@ -151,11 +163,8 @@
                                 </tr>
                                 <!-- Test alerts -->
                                 <tr>
-                                    <td width="20%">
-                                        <span class="text-light">Test Alerts</span>
-                                    </td>
-                                    <td>
-                                        <button id="test_mode" type="button" class="btn btn-sm w-auto bg-dark text-white border-0">Turn on Test Mode</button>
+                                    <td colspan="2">
+                                        <button id="test_mode" type="button" class="btn btn-md w-auto bg-dark text-white border-0">Turn on Test Mode</button>
                                     </td>
                                 </tr>
 
@@ -171,8 +180,8 @@
                     </div>
                 </div>
                 <div id="locationsBody" class="collapse show">
-                    <div class="card bg-dark border-0 mb-2" style="max-height: 30vh; overflow-y: auto;">
-                        <table class="table table-sm table-dark table-striped mb-0">
+                    <div class="card bg-dark border-0 mb-2" style="max-height: 40vh; overflow-y: auto;">
+                        <table class="table table-sm table-dark mb-0">
                             <tbody id="alerted_locations_counter"></tbody>
                         </table>
                     </div>
@@ -186,26 +195,27 @@
                 </div>
                 <div id="zonesBody" class="collapse show">
                     <div class="card bg-dark border-0 mb-2">
-                        <table class="table table-sm table-dark table-striped mb-0">
+                        <table class="table table-sm table-dark mb-0">
                             <tbody id="alerted_zones_counter"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            
+
             <div class="col">
                 <!-- News Updates -->
                 <div class="card bg-secondary text-white border-0 mb-2">
                     <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#newsBody" style="cursor: pointer;">
                         News Updates
-                        <select id="rssFeedSelector" class="form-select form-select-sm w-auto bg-dark text-white border-0" style="display: none;"></select>
+                        <select id="rssFeedSelector" class="form-select form-select-sm w-auto bg-dark text-white border-0" style="display: none;">
+                        </select>
                     </div>
 
                 </div>
                 <div id="newsBody" class="collapse show">
                     <div class="card bg-dark border-0 mb-2 rss-feed scrollable" style="max-height: 30vh; overflow-y: auto;">
-                        <table class="table table-sm table-dark table-striped mb-0">
+                        <table class="table table-sm table-dark mb-0">
                             <tbody id="rss_alerts"></tbody>
                         </table>
                     </div>
@@ -269,6 +279,33 @@
     <!-- end content -->
 
     <script>
+
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+
+            const timeString = `${h}:${m}:${s}`;
+
+            // Update header clock
+            const clockHeader = document.getElementById('liveClock');
+            if (clockHeader) clockHeader.textContent = timeString;
+
+            // Update body clock (if you uncommented it)
+            const clockBody = document.getElementById('liveClockBody');
+            if (clockBody) clockBody.textContent = timeString;
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        setInterval(() => {
+            if (pikud_haoref_alerts.children.length > 500) {
+                $('#pikud_haoref_alerts tr:last').remove();
+            }
+        }, 100);
+
         async function ajaxHandler(service) {
             return new Promise((resolve) => {
                 $.ajax({
@@ -296,7 +333,7 @@
 
         let alertedLocations = [];
         let alertedZones = [];
-        let missileAlertCounter = 0;
+        let rocketAlertCounter = 0;
         let droneAlertCounter = 0;
         let totalEarlyWarningsCounter = 0;
         let earlyWarningActive = false;
@@ -320,26 +357,37 @@
         });
 
         const alertTypeMap = {
-            newsFlash: "Early Warning",
-            missiles: "Rocket Alert",
-            hostileAircraftIntrusion: "Drone Alert",
-            general: "General Alert",
-            earthQuake: "Earthquake Alert",
-            radiologicalEvent: "Radiological Alert",
-            tsunami: "Tsunami Alert",
-            hazardousMaterials: "Hazardous Materials Alert",
-            terroristInfiltration: "Terrorist Infiltration Alert",
-            missilesDrill: "Drill - Rocket Alert",
-            generalDrill: "Drill - General Alert",
-            earthQuakeDrill: "Drill - Earthquake Alert",
-            radiologicalEventDrill: "Drill - Radiological Alert",
-            tsunamiDrill: "Drill - Tsunami Alert",
-            hostileAircraftIntrusionDrill: "Drill - Hostile Aircraft Alert",
-            hazardousMaterialsDrill: "Drill - Hazardous Materials",
-            terroristInfiltrationDrill: "Drill - Terrorist Infiltration Alert"
+            newsFlash: {
+                text: "Early Warning",
+                icon: "/icons/warning.png"
+            },
+            missiles: {
+                text: "Rocket Alert",
+                icon: "/icons/rocket.png"
+            },
+            hostileAircraftIntrusion: {
+                text: "Drone Alert",
+                icon: "/icons/uav.png"
+            },
+            earthQuake: {
+                text: "Earthquake Alert",
+                icon: "/icons/earthquake.png"
+            },
+            radiologicalEvent: {
+                text: "Radiological Alert",
+                icon: "/icons/radiological.png"
+            },
+            tsunami: {
+                text: "Tsunami Alert",
+                icon: "/icons/tsunami.png"
+            },
+            hazardousMaterials: {
+                text: "Hazardous Materials Alert",
+                icon: "/icons/hazardous.png"
+            }
         };
 
-        function getAlertTypeByCategory(type) {
+        function getAlertDetailsByCategory(type) {
             return alertTypeMap[type] || "Unknown Alert";
         }
 
@@ -483,43 +531,41 @@
                                         earlyWarningModalExit.hide();
                                     }
 
-                                    const alertTypeText = getAlertTypeByCategory(alertType);
-                                    const timeStamp = moment().format("h:mm:ss a");
+                                    const alertTypeDetails = getAlertDetailsByCategory(alertType);
+                                    const alertTypeText = alertTypeDetails.text;
+                                    const alertTypeIcon = alertTypeDetails.icon;
+                                    const timeStamp = moment().format("HH:mm:ss")
 
                                     const locations = extractNewLocations(alert[0].cities);
 
-
-
                                     for (let i = 0; i < locations.length; i++) {
                                         const locationOriginal = locations[i];
-                                        const location = locationMap[locations[i]].name_en || locations[i];
-                                        const zone = locationMap[locations[i]].zone || "Unknown";
-                                        const zone_en = locationMap[locations[i]].zone_en || "Unknown";
+                                        const location = locationMap[locations[i]]?.name_en || locations[i];
+
+                                        const zone = locationMap[locations[i]]?.zone || "Unknown";
+                                        const zone_en = locationMap[locations[i]]?.zone_en || "Unknown";
 
                                         if (location) {
-                                            if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
-
-                                                if (alertType === "missiles") {
-                                                    missileAlertCounter++
-                                                    $("#missileAlertCounter").text(missileAlertCounter);
-                                                }
-                                                else if (alertType === "hostileAircraftIntrusion") {
-                                                    droneAlertCounter++
-                                                    $("#droneAlertCounter").text(droneAlertCounter);
-                                                }
-
-                                                $("#totalAlertsCounter").text(missileAlertCounter + droneAlertCounter);
-                                                
-                                                updateAlertedLocation(location);
-                                                updateAlertedZone(zone_en + " (" + zone + ")");
-
+                                            if (alertType === "missiles") {
+                                                rocketAlertCounter++
+                                                $("#rocketAlertCounter").text(rocketAlertCounter);
                                             }
+                                            else if (alertType === "hostileAircraftIntrusion") {
+                                                droneAlertCounter++
+                                                $("#droneAlertCounter").text(droneAlertCounter);
+                                            }
+
+                                            $("#totalAlertsCounter").text(rocketAlertCounter + droneAlertCounter);
+
+                                            updateAlertedLocation(location);
+                                            updateAlertedZone(zone_en);
 
                                             $("#pikud_haoref_alerts").prepend(`
                                                 <tr class="animate__animated animate__fadeInDown animate__faster">
-                                                    <td width='15%'><font class='text-warning'>${timeStamp}</font></td>
-                                                    <td width='15%'><font class='text-info'>${alertTypeText}</font></td>
-                                                    <td>${location} (${zone_en})</td>
+                                                    <td><font class='text-warning'>${timeStamp}</font></td>
+                                                    <td><img src="${alertTypeIcon}" style="width:20px; height:20px;" title="${alertTypeText}"></td>
+                                                    <td>${location}</td>
+                                                    <td>${zone_en}</td>
                                                 </tr>
                                             `);
                                         }
@@ -545,7 +591,7 @@
 
                                             $("#alerted_locations_counter").append(`
                                                 <tr>
-                                                    <td><font class='text-info'>${location}</font></td>
+                                                    <td width="95%"><font class='text-info'>${location}</font></td>
                                                     <td>${counter}</td>
                                                 </tr>
                                             `);
@@ -572,7 +618,7 @@
 
                                             $("#alerted_zones_counter").append(`
                                                 <tr>
-                                                    <td><font class='text-info'>${zone}</font></td>
+                                                    <td width="95%"><font class='text-info'>${zone}</font></td>
                                                     <td>${counter}</td>
                                                 </tr>
                                             `);
@@ -602,7 +648,7 @@
         let rssFeedSelected;
         let rssFeedPollStarted = false;
         const newsArray = [];
-        let rssInterval = 3000;
+        let rssInterval = 10000;
 
         const rssFeeds = [
             { codename: "RSSarutz7", realname: "Arutz 7" },
@@ -652,13 +698,13 @@
                     }
 
                     news.feed.items.forEach((item) => {
-                        reversedArray.push({ pubDate: item.pubDate, title: item.title });
+                        reversedArray.push({ pubDate: item.pubDate, title: item.title, guid: item.guid });
                     });
 
                     reversedArray = reversedArray.reverse();
 
                     reversedArray.forEach((item) => {
-                        const publishDate = moment(item.pubDate).format("h:mm:ss a");
+                        const publishDate = moment(item.pubDate).format("HH:mm");
                         const publishDay = moment(item.pubDate).format("MMM Do YYYY");
                         const currentDay = moment().format("MMM Do YYYY");
 
@@ -669,14 +715,16 @@
                         );
                         const yesterDay = yesterday.format("MMM Do YYYY");
 
+                        const guid = item.guid;
+
                         if (publishDay === currentDay) {
-                            if (!newsArray.includes(publishDate + " : " + item.title)) {
-                                newsArray.push(publishDate + " : " + item.title);
+                            if (!newsArray.includes(guid)) {
+                                newsArray.push(guid);
 
                                 $("#rss_alerts").prepend(`
                                     <tr class="animate__animated animate__fadeInDown animate__faster">
-                                        <td width="7%"><font class="text-warning">${publishDate}</font></td>
-                                        <td width="5%"><font class="text-info">${getRealName(rssFeedSelected)}</font></td>
+                                        <td width="3%"><font class="text-warning">${publishDate}</font></td>
+                                        <td width="4%"><font class="text-info">${getRealName(rssFeedSelected)}</font></td>
                                         <td>${item.title}</td>
                                     </tr>
                                 `);

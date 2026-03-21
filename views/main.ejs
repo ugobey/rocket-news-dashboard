@@ -180,7 +180,7 @@
                     </div>
                 </div>
                 <div id="locationsBody" class="collapse show">
-                    <div class="card bg-dark border-0 mb-2" style="max-height: 40vh; overflow-y: auto;">
+                    <div class="card bg-dark border-0 mb-2" style="max-height: 35vh; overflow-y: auto;">
                         <table class="table table-sm table-dark mb-0">
                             <tbody id="alerted_locations_counter"></tbody>
                         </table>
@@ -249,6 +249,10 @@
                     There is an active early warning due to a ballistic missile launch.
                     <br><br>
                     This message will disappear automatically when sirens sound or the threat is no longer active.
+                    <br><br>
+                    <b>The following locations are affected:</b> 
+                    <br> 
+                    <div id="earlyWarningLocations" class="bg-dark text-white border-1" style="width: 100%;"></div>
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
@@ -525,6 +529,7 @@
                                         }
 
                                         if (!earlyWarningModalEnter._isShown) {
+                                            $("#earlyWarningLocations").text(alert[0].cities.map(city => locationMap[city]?.name_en || city).join(", "));
                                             earlyWarningModalEnter.show();
                                         }
                                     }
@@ -548,7 +553,7 @@
 
                                     for (let i = 0; i < locations.length; i++) {
                                         const locationOriginal = locations[i];
-                                        const location = locationMap[locations[i]]?.name_en || locations[i];
+                                        const location = locationMap[locations[i]]?.name_en || locationOriginal;
 
                                         const zone = locationMap[locations[i]]?.zone || "Unknown";
                                         const zone_en = locationMap[locations[i]]?.zone_en || "Unknown";

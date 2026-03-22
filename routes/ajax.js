@@ -85,15 +85,13 @@ function executeAsync(command) {
     return new Promise((resolve, reject) => {
         exec(command, { stdio: "inherit" }, (error, stdout, stderr) => {
             if (error) {
-                reject(error.message);
+                resolve(error.message);
                 return;
             }
             if (stderr) {
-                reject(stderr);
+                resolve(stderr);
                 return;
             }
-
-            console.log(stdout);
 
             resolve(stdout);
         });

@@ -178,7 +178,6 @@ router.use("/", function (req, res) {
                     const child = spawn(process.argv[0], args, {
                         cwd: process.cwd(),
                         detached: true, // very important!
-                        stdio: "inherit", // keep console output
                     });
 
                     // Optional: you can listen to errors

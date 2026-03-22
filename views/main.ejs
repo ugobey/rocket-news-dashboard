@@ -812,6 +812,9 @@
                                                 updateAlertedZone(zone_en);
 
                                                 if (zone_en === "Unknown") {
+
+                                                    console.log("Unmatched location:", alert[0]);
+                                                    
                                                     totalUnmatchedCitiesCounter++;
                                                     $("#totalUnmatchedCitiesCounter").text(totalUnmatchedCitiesCounter);
 

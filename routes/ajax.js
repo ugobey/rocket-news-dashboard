@@ -12,7 +12,7 @@ const pikudHaoref = require("pikud-haoref-api");
 const Parser = require("rss-parser");
 const parser = new Parser();
 
-const { execSync, exec } = require("node:child_process");
+const { spawn, exec } = require("node:child_process");
 
 const pkg = require("../package.json");
 const localAppVersion = pkg.version;

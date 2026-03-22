@@ -161,7 +161,26 @@ router.use("/", function (req, res) {
                     }
                 });
             } else if (getService === "update_app") {
-                executeAsync("git pull origin && npm install").then(() => {});
+                exec("git pull origin && npm install", (error, stdout, stderr) => {
+                    if (error) {
+                        res.statusCode = 500;
+                        res.write(JSON.stringify({ error: error.toString() }));
+                        res.end();
+                        return;
+                    }
+
+                    const args = process.argv.slice(1); // remove node binary
+                    const child = spawn(process.argv[0], args, {
+                        cwd: process.cwd(),
+                        detached: true
+                    });
+
+                    console.log(stdout);
+
+                    res.statusCode = 200;
+                    res.write(JSON.stringify({ updated: true }));
+                    res.end();
+                });
             } else {
                 res.statusCode = 200;
                 res.write(JSON.stringify({ error: "No RSS Service Selected" }));

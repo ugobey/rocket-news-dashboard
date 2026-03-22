@@ -93,6 +93,8 @@ function executeAsync(command) {
                 return;
             }
 
+            console.log(stdout);
+
             resolve(stdout);
         });
     });
@@ -158,45 +160,13 @@ router.use("/", function (req, res) {
                     res.end();
                 }
             } else if (getService === "version_check") {
-                fetch("https://raw.githubusercontent.com/ugobey/rocket-news-dashboard/refs/heads/main/package.json")
-                    .then((response) => {
-                        if (!response.ok) {
-                            errorHandler(service_name, err);
-                            fs.appendFileSync("./logs/pikudHaoref_errors.txt", err + "\n\n");
-
-                            res.statusCode = 200;
-                            res.write(JSON.stringify({ error: err.toString() }));
-                            res.end();
-                            return;
-                        }
-                        return response.json();
-                    })
-                    .then((data) => {
-                        const latestAppVersion = data.version;
-
-                        if (localAppVersion !== latestAppVersion) {
-                            res.statusCode = 200;
-                            res.write(JSON.stringify({ updateAvailable: true, latestVersion: latestAppVersion }));
-                            res.end();
-                        } else {
-                            res.statusCode = 200;
-                            res.write(JSON.stringify({ updateAvailable: false, latestVersion: latestAppVersion }));
-                            res.end();
-                        }
-                    });
-            } else if (getService === "update_app") {
-                executeAsync("git pull origin && npm install").then(() => {
-                    const args = process.argv.slice(1); // remove node binary
-                    const child = spawn(process.argv[0], args, {
-                        cwd: process.cwd(),
-                        detached: true, // very important!
-                        stdio: "inherit", // keep console output
-                    });
-
-                    res.statusCode = 200;
-                    res.write(JSON.stringify({ updated: true }));
-                    res.end();
+                executeAsync("git pull origin").then((result) => {
+                    console.log(result)
                 });
+
+              
+            } else if (getService === "update_app") {
+                executeAsync("git pull origin && npm install").then(() => {});
             } else {
                 res.statusCode = 200;
                 res.write(JSON.stringify({ error: "No RSS Service Selected" }));

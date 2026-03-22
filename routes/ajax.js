@@ -12,7 +12,7 @@ const pikudHaoref = require("pikud-haoref-api");
 const Parser = require("rss-parser");
 const parser = new Parser();
 
-const { spawn, exec } = require("node:child_process");
+const { exec } = require("node:child_process");
 
 const pkg = require("../package.json");
 const localAppVersion = pkg.version;
@@ -159,34 +159,6 @@ router.use("/", function (req, res) {
                         res.write(JSON.stringify({ updateAvailable: false, latestVersion: latestVersion }));
                         res.end();
                     }
-                });
-            } else if (getService === "update_app") {
-                exec("git pull origin && npm install", (error, stdout, stderr) => {
-                    if (error) {
-                        res.statusCode = 500;
-                        res.write(JSON.stringify({ error: error.toString() }));
-                        res.end();
-                        return;
-                    }
-
-                    res.statusCode = 200;
-                    res.write(JSON.stringify({ updated: true }));
-                    res.end();
-
-                    // Spawn a new process with the same arguments as current process
-                    const args = process.argv.slice(1); // remove node binary
-                    const child = spawn(process.argv[0], args, {
-                        cwd: process.cwd(),
-                        detached: true, // very important!
-                    });
-
-                    // Optional: you can listen to errors
-                    child.on("error", (err) => {
-                        console.error("Failed to spawn restart:", err);
-                    });
-
-                    // Exit current process → new one takes over
-                    process.exit(0);
                 });
             } else {
                 res.statusCode = 200;

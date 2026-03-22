@@ -93,6 +93,8 @@ function executeAsync(command) {
                 return;
             }
 
+            console.log(stdout);
+
             resolve(stdout);
         });
     });

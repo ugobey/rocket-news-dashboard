@@ -54,7 +54,7 @@
                 <div class="card bg-danger text-white border-0 mb-2">
                     <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#pikudBody" style="cursor: pointer;">
                         Home Front Command Sirens
-                        
+
                         <span id="liveClock" class="bg-danger text-white fs-6 fw-normal">
                             00:00:00
                         </span>
@@ -183,17 +183,16 @@
                                         <span class="text-danger">Total Errors</span>
                                     </td>
                                     <td>
-
                                         <span id="pikud_haoref_error_counter">0</span>
                                     </td>
                                 </tr>
                                 <!-- Last error message -->
                                 <tr id="error_message" style="display:none;">
                                     <td width="95%">
-                                        <span class="text-danger">Last Error Message</span>
+                                        <span class="text-danger">Open Error Messages</span>
                                     </td>
                                     <td>
-                                        <span id="pikud_haoref_error_message"></span>
+                                        <img src="/icons/open.png" id="show_error_messages" style="width:20px; height:20px;">
                                     </td>
                                 </tr>
                                 <!-- Test alerts -->
@@ -291,6 +290,28 @@
             </div>
         </div>
     </div>
+
+    <!-- Error Messages Modal -->
+    <div class="modal fade" id="errorMessagesModal" tabindex="-1" aria-labelledby="errorMessagesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-0">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="errorMessagesModalLabel">Error Messages</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    These are the error messages received from the Pikud HaOref service.
+                    <br>Only unique error messages will be shown below.
+                    <br>You can see all messages in the console log.
+                    <br><br>
+                    <div id="pikud_haoref_error_messages" style="width: 100%;"></div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- end content -->
 
     <script>
@@ -353,9 +374,11 @@
 
         const earlyWarningModalEnter = new bootstrap.Modal('#earlyWarningModalEnter');
         const earlyWarningModalExit = new bootstrap.Modal('#earlyWarningModalExit');
+        const errorMessagesModal = new bootstrap.Modal('#errorMessagesModal');
 
         let alertedLocations = [];
         let alertedZones = [];
+        let errorLogs = [];
         let rocketAlertCounter = 0;
         let droneAlertCounter = 0;
         let totalEarlyWarningsCounter = 0;
@@ -377,6 +400,10 @@
                 $("#test_mode").attr("src", "/icons/on.png");
                 $("#test_mode").attr("title", "Turn off Test Mode");
             }
+        });
+
+        $("#show_error_messages").on("click", function () {
+            errorMessagesModal.show();
         });
 
         const alertTypeMap = {
@@ -488,14 +515,18 @@
 
                                 $("#pikud_haoref_error_counter").text(pikudHaorefErrorCounter);
 
-                                if (alert.error.indexOf("Request failed with status code 403") > -1) {
-                                    $("#pikud_haoref_error_message").text("403 Forbidden - Requires Israeli IP");
-                                    console.log("Pikud HaOref Error: 403 Forbidden - Requires Israeli IP");
+                                if (!errorLogs.includes(alert.error)) {
+                                    errorLogs.push(alert.error);
+
+                                    if (alert.error.indexOf("Request failed with status code 403") > -1) {
+                                        $("#pikud_haoref_error_messages").prepend("<b>403 Forbidden - Requires Israeli IP</b><br>");
+                                    }
+                                    else {
+                                        $("#pikud_haoref_error_messages").prepend("<b>" + alert.error + "</b><br>");
+                                    }
                                 }
-                                else {
-                                    $("#pikud_haoref_error_message").text(alert.error);
-                                    console.log("Pikud HaOref Error: " + alert.error);
-                                }
+
+                                console.log("Pikud HaOref Error: " + alert.error);
                                 return;
                             }
 
@@ -619,7 +650,7 @@
 
                                             $("#alerted_locations_counter").append(`
                                                 <tr>
-                                                    <td width="60%"><font class='text-info'>${location}</font></td>
+                                                    <td width="95%"><font class='text-info'>${location}</font></td>
                                                     <td>${counter}</td>
                                                 </tr>
                                             `);
@@ -646,7 +677,7 @@
 
                                             $("#alerted_zones_counter").append(`
                                                 <tr>
-                                                    <td width="60%"><font class='text-info'>${zone}</font></td>
+                                                    <td width="95%"><font class='text-info'>${zone}</font></td>
                                                     <td>${counter}</td>
                                                 </tr>
                                             `);

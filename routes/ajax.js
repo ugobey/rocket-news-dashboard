@@ -159,7 +159,7 @@ router.use("/", function (req, res) {
                 }
             } else if (getService === "version_check") {
                 executeAsync("git pull origin").then((result) => {
-                    console.log(result)
+                    console.log(result) 
                 });
 
               

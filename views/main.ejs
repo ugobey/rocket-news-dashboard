@@ -54,9 +54,11 @@
                 <div class="card bg-danger text-white border-0 mb-2">
                     <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#pikudBody" style="cursor: pointer;">
                         Home Front Command Sirens
+                        
                         <span id="liveClock" class="bg-danger text-white fs-6 fw-normal">
                             00:00:00
                         </span>
+                        <img src="/icons/unfold.png" style="width:15px; height:15px;">
                     </div>
                 </div>
                 <div id="pikudBody" class="collapse show">
@@ -76,111 +78,16 @@
                 </div>
             </div>
 
-
             <div class="col-md-2">
-                <!-- Alerts Summary -->
-                <div class="card bg-success text-white border-0 mb-2">
-                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#summaryBody" style="cursor: pointer;">
-                        Alerts Summary
-                    </div>
-                </div>
-                <div id="summaryBody" class="collapse show">
-                    <div class="card bg-dark border-0 mb-2">
-                        <table class="table table-sm table-dark mb-0">
-                            <tbody id="alerts_summary">
-                                <!-- Total alerts -->
-                                <tr>
-                                    <td width="95%">
-                                        <span class="text-warning">Total Alerts</span>
-                                    </td>
-                                    <td>
-                                        <span id="totalAlertsCounter" type="button" class="btn btn-md w-auto bg-dark text-white border-0">0</span>
-                                    </td>
-                                </tr>
-                                <!-- Total drone alerts -->
-                                <tr>
-                                    <td width="95%">
-                                        <span class="text-warning">Total Drone Alerts</span>
-                                    </td>
-                                    <td>
-                                        <span id="droneAlertCounter" type="button" class="btn btn-md w-auto bg-dark text-white border-0">0</span>
-                                    </td>
-                                </tr>
-                                <!-- Total rocket alerts -->
-                                <tr>
-                                    <td width="95%">
-                                        <span class="text-warning">Total Rocket Alerts</span>
-                                    </td>
-                                    <td>
-                                        <span id="rocketAlertCounter" type="button" class="btn btn-md w-auto bg-dark text-white border-0">0</span>
-                                    </td>
-                                </tr>
-                                <!-- Total locations -->
-                                <tr>
-                                    <td width="95%">
-                                        <span class="text-warning">Total Locations</span>
-                                    </td>
-                                    <td>
-                                        <span id="totalLocationsCounter" type="button" class="btn btn-md w-auto bg-dark text-white border-0">0</span>
-                                    </td>
-                                </tr>
-                                <!-- Total zones -->
-                                <tr>
-                                    <td width="95%">
-                                        <span class="text-warning">Total Zones</span>
-                                    </td>
-                                    <td>
-                                        <span id="totalZonesCounter" type="button" class="btn btn-md w-auto bg-dark text-white border-0">0</span>
-                                    </td>
-                                </tr>
-                                <!-- Total early warnings -->
-                                <tr>
-                                    <td width="95%">
-                                        <span class="text-warning">Total Early Warnings</span>
-                                    </td>
-                                    <td>
-                                        <span id="totalEarlyWarningsCounter" type="button" class="btn btn-md w-auto bg-dark text-white border-0">0</span>
-                                    </td>
-                                </tr>
-                                <!-- Total errors -->
-                                <tr id="error_counter" style="display:none;">
-                                    <td width="95%">
-                                        <span class="text-danger">Total Errors</span>
-                                    </td>
-                                    <td>
-
-                                        <span id="pikud_haoref_error_counter" type="button" class="btn btn-md w-auto bg-dark text-white border-0">0</span>
-                                    </td>
-                                </tr>
-                                <!-- Last error message -->
-                                <tr id="error_message" style="display:none;">
-                                    <td width="95%">
-                                        <span class="text-danger">Last Error Message</span>
-                                    </td>
-                                    <td>
-                                        <span id="pikud_haoref_error_message"></span>
-                                    </td>
-                                </tr>
-                                <!-- Test alerts -->
-                                <tr>
-                                    <td colspan="2">
-                                        <button id="test_mode" type="button" class="btn btn-md w-auto bg-dark text-white border-0">Turn on Test Mode</button>
-                                    </td>
-                                </tr>
-
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
                 <!-- Alerted Locations -->
-                <div class="card bg-primary text-white border-0 mb-2">
+                <div class="card bg-danger text-white border-0 mb-2">
                     <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#locationsBody" style="cursor: pointer;">
                         Alerts by Location
+                        <img src="/icons/unfold.png" style="width:15px; height:15px;">
                     </div>
                 </div>
                 <div id="locationsBody" class="collapse show">
-                    <div class="card bg-dark border-0 mb-2" style="max-height: 35vh; overflow-y: auto;">
+                    <div class="card bg-dark border-0 mb-2" style="max-height: 55vh; overflow-y: auto;">
                         <table class="table table-sm table-dark mb-0">
                             <tbody id="alerted_locations_counter"></tbody>
                         </table>
@@ -188,9 +95,10 @@
                 </div>
 
                 <!-- Alerted Zones -->
-                <div class="card bg-primary text-white border-0 mb-2">
+                <div class="card bg-danger text-white border-0 mb-2">
                     <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#zonesBody" style="cursor: pointer;">
                         Alerts by Zone
+                        <img src="/icons/unfold.png" style="width:15px; height:15px;">
                     </div>
                 </div>
                 <div id="zonesBody" class="collapse show">
@@ -203,11 +111,113 @@
             </div>
 
 
+            <div class="col-md-1">
+                <!-- Alerts Summary -->
+                <div class="card bg-primary text-white border-0 mb-2">
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#summaryBody" style="cursor: pointer;">
+                        Alerts Summary
+                        <img src="/icons/unfold.png" style="width:15px; height:15px;">
+                    </div>
+                </div>
+                <div id="summaryBody" class="collapse show">
+                    <div class="card bg-dark border-0 mb-2">
+                        <table class="table table-sm table-dark mb-0">
+                            <tbody id="alerts_summary">
+                                <!-- Total alerts -->
+                                <tr>
+                                    <td width="95%">
+                                        <span class="text-warning">Total Alerts</span>
+                                    </td>
+                                    <td>
+                                        <span id="totalAlertsCounter">0</span>
+                                    </td>
+                                </tr>
+                                <!-- Total drone alerts -->
+                                <tr>
+                                    <td width="95%">
+                                        <span class="text-warning">Total Drone Alerts</span>
+                                    </td>
+                                    <td>
+                                        <span id="droneAlertCounter">0</span>
+                                    </td>
+                                </tr>
+                                <!-- Total rocket alerts -->
+                                <tr>
+                                    <td width="95%">
+                                        <span class="text-warning">Total Rocket Alerts</span>
+                                    </td>
+                                    <td>
+                                        <span id="rocketAlertCounter">0</span>
+                                    </td>
+                                </tr>
+                                <!-- Total locations -->
+                                <tr>
+                                    <td width="95%">
+                                        <span class="text-warning">Total Locations</span>
+                                    </td>
+                                    <td>
+                                        <span id="totalLocationsCounter">0</span>
+                                    </td>
+                                </tr>
+                                <!-- Total zones -->
+                                <tr>
+                                    <td width="95%">
+                                        <span class="text-warning">Total Zones</span>
+                                    </td>
+                                    <td>
+                                        <span id="totalZonesCounter">0</span>
+                                    </td>
+                                </tr>
+                                <!-- Total early warnings -->
+                                <tr>
+                                    <td width="95%">
+                                        <span class="text-warning">Total Early Warnings</span>
+                                    </td>
+                                    <td>
+                                        <span id="totalEarlyWarningsCounter">0</span>
+                                    </td>
+                                </tr>
+                                <!-- Total errors -->
+                                <tr id="error_counter" style="display:none;">
+                                    <td width="95%">
+                                        <span class="text-danger">Total Errors</span>
+                                    </td>
+                                    <td>
+
+                                        <span id="pikud_haoref_error_counter">0</span>
+                                    </td>
+                                </tr>
+                                <!-- Last error message -->
+                                <tr id="error_message" style="display:none;">
+                                    <td width="95%">
+                                        <span class="text-danger">Last Error Message</span>
+                                    </td>
+                                    <td>
+                                        <span id="pikud_haoref_error_message"></span>
+                                    </td>
+                                </tr>
+                                <!-- Test alerts -->
+                                <tr id="test_alerts">
+                                    <td width="95%">
+                                        <span class="text-light">Test Alerts</span>
+                                    </td>
+                                    <td>
+                                        <img src="/icons/off.png" style="width:30px; height:30px;" title="Turn on Test Mode" id="test_mode" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
             <div class="col">
                 <!-- News Updates -->
-                <div class="card bg-secondary text-white border-0 mb-2">
+                <div class="card bg-success text-white border-0 mb-2">
                     <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#newsBody" style="cursor: pointer;">
                         News Updates
+                        <img src="/icons/unfold.png" style="width:15px; height:15px;">
                         <select id="rssFeedSelector" class="form-select form-select-sm w-auto bg-dark text-white border-0" style="display: none;">
                         </select>
                     </div>
@@ -225,6 +235,7 @@
                 <div class="card bg-danger text-white border-0 mb-2">
                     <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#tzofarBody" style="cursor: pointer;">
                         Tzofar Map Alerts
+                        <img src="/icons/unfold.png" style="width:15px; height:15px;">
                     </div>
                 </div>
                 <div id="tzofarBody" class="collapse show">
@@ -250,9 +261,9 @@
                     <br><br>
                     This message will disappear automatically when sirens sound or the threat is no longer active.
                     <br><br>
-                    <b>The following locations are affected:</b> 
-                    <br> 
-                    <div id="earlyWarningLocations" class="bg-dark text-white border-1" style="width: 100%;"></div>
+                    <b>The following locations are affected:</b>
+                    <br>
+                    <div id="earlyWarningLocations" style="width: 100%;"></div>
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
@@ -358,13 +369,13 @@
             if (testmode) {
                 testmode = false;
 
-                $("#test_mode").text("Turn on Test Mode");
-                $("#test_mode").removeClass("bg-light text-black").addClass("bg-dark text-white");
+                $("#test_mode").attr("src", "/icons/off.png");
+                $("#test_mode").attr("title", "Turn on Test Mode");
             } else {
                 testmode = true;
 
-                $("#test_mode").text("Turn off Test Mode");
-                $("#test_mode").removeClass("bg-dark text-white").addClass("bg-light text-black");
+                $("#test_mode").attr("src", "/icons/on.png");
+                $("#test_mode").attr("title", "Turn off Test Mode");
             }
         });
 
@@ -558,6 +569,10 @@
                                         const zone = locationMap[locations[i]]?.zone || "Unknown";
                                         const zone_en = locationMap[locations[i]]?.zone_en || "Unknown";
 
+                                        if (zone_en === "Unknown") {
+                                            console.log("Unknown location", alert[0]);
+                                        }
+
                                         if (location) {
                                             if (alertType === "missiles") {
                                                 rocketAlertCounter++
@@ -604,7 +619,7 @@
 
                                             $("#alerted_locations_counter").append(`
                                                 <tr>
-                                                    <td width="95%"><font class='text-info'>${location}</font></td>
+                                                    <td width="60%"><font class='text-info'>${location}</font></td>
                                                     <td>${counter}</td>
                                                 </tr>
                                             `);
@@ -631,7 +646,7 @@
 
                                             $("#alerted_zones_counter").append(`
                                                 <tr>
-                                                    <td width="95%"><font class='text-info'>${zone}</font></td>
+                                                    <td width="60%"><font class='text-info'>${zone}</font></td>
                                                     <td>${counter}</td>
                                                 </tr>
                                             `);

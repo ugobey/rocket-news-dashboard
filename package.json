@@ -1,6 +1,6 @@
 {
   "name": "rocket-news-dashboard",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Shows rocket alerts and RSS news on a dashboard",
   "main": "app.js",
   "author": "Uri Gobey",

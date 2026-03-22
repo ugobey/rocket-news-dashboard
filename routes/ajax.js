@@ -169,17 +169,25 @@ router.use("/", function (req, res) {
                         return;
                     }
 
-                    const args = process.argv.slice(1); // remove node binary
-                    const child = spawn(process.argv[0], args, {
-                        cwd: process.cwd(),
-                        detached: true
-                    });
-
-                    console.log(stdout);
-
                     res.statusCode = 200;
                     res.write(JSON.stringify({ updated: true }));
                     res.end();
+
+                    // Spawn a new process with the same arguments as current process
+                    const args = process.argv.slice(1); // remove node binary
+                    const child = spawn(process.argv[0], args, {
+                        cwd: process.cwd(),
+                        detached: true, // very important!
+                        stdio: "inherit", // keep console output
+                    });
+
+                    // Optional: you can listen to errors
+                    child.on("error", (err) => {
+                        console.error("Failed to spawn restart:", err);
+                    });
+
+                    // Exit current process → new one takes over
+                    process.exit(0);
                 });
             } else {
                 res.statusCode = 200;

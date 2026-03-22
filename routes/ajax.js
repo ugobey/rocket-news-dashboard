@@ -83,7 +83,7 @@ const testAlertData = [
 //Execute a command asynchronously and return a promise
 function executeAsync(command) {
     return new Promise((resolve, reject) => {
-        exec(command, { stdio: "inherit" }, (error, stdout, stderr) => {
+        exec(command, (error, stdout, stderr) => {
             if (error) {
                 resolve(error.message);
                 return;

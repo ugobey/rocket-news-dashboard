@@ -91,7 +91,7 @@ function executeAsync(command) {
             if (stderr) {
                 reject(stderr);
                 return;
-            }
+            } 
 
             console.log(stdout);
 

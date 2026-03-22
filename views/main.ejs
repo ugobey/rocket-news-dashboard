@@ -58,7 +58,6 @@
                         <span id="liveClock" class="bg-danger text-white fs-6 fw-normal">
                             00:00:00
                         </span>
-                        <img src="/icons/unfold.png" style="width:15px; height:15px;">
                     </div>
                 </div>
                 <div id="pikudBody" class="collapse show">
@@ -204,6 +203,26 @@
                                         <img src="/icons/off.png" style="width:30px; height:30px;" title="Turn on Test Mode" id="test_mode" />
                                     </td>
                                 </tr>
+                                <!-- App version -->
+                                <tr>
+                                    <td width="95%">
+                                        <span class="text-light">App Version</span>
+                                    </td>
+                                    <td>
+                                        <span id="appVersion"><%= appVersion %></span>
+                                    </td>
+                                </tr>
+                                <!-- Update App version -->
+                                <tr style="display:none;" id="update_app_version">
+                                    <td width="95%">
+                                        <span class="text-light">App Update Available</span>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-outline-secondary" id="update_app_button">
+                                            <img src="/icons/update.png" alt="Update" id="update_app" style="width:20px; height:20px;" title="Press to update">
+                                        </button>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -327,10 +346,6 @@
             // Update header clock
             const clockHeader = document.getElementById('liveClock');
             if (clockHeader) clockHeader.textContent = timeString;
-
-            // Update body clock (if you uncommented it)
-            const clockBody = document.getElementById('liveClockBody');
-            if (clockBody) clockBody.textContent = timeString;
         }
 
         updateClock();
@@ -404,6 +419,19 @@
 
         $("#show_error_messages").on("click", function () {
             errorMessagesModal.show();
+        });
+
+        $("#update_app").on("click", async function () {
+            $("#update_app").attr("src", "/icons/updating.png");
+            $("#update_app_button").prop("disabled", true);
+            $("#update_app").off("click");
+
+            const updateApp = await ajaxHandler("update_app");
+
+            if (updateApp && updateApp.updated) {
+                $("#update_app").attr("src", "/icons/updated.png");
+                $("#update_app_button").prop("disabled", false);
+            }
         });
 
         const alertTypeMap = {
@@ -796,8 +824,26 @@
 
         rssPoll();
 
-    </script>
+        async function checkAppVersion() {
+            try {
+                const versionCheck = await ajaxHandler("version_check");
 
+                if (versionCheck && versionCheck.updateAvailable) {
+                    const latestVersion = versionCheck.latestVersion;
+
+                    $("#update_app_version").show();
+                }
+            } catch (error) {
+                console.error("Error checking app version:", error);
+            }
+        }
+
+        checkAppVersion();
+
+        setInterval(() => {
+            checkAppVersion();
+        }, 600000); // Check every 10 minutes
+    </script>
 </body>
 
 </html>

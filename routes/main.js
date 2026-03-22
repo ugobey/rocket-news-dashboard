@@ -9,16 +9,19 @@ require("dotenv").config();
 const sharedFunction = require("../shared/functions.js");
 const errorHandler = sharedFunction.errorHandler;
 
+const pkg = require("../package.json");
+
 router.use("/", function (req, res) {
     try {
         (async () => {
             res.render(service_page_name, {
                 title: service_name,
+                appVersion: pkg.version,
             });
         })().catch((err) =>
             setImmediate(() => {
                 errorHandler(service_name, "Error : " + err);
-            })
+            }),
         );
     } catch (err) {
         errorHandler(service_name, "Error : " + err);

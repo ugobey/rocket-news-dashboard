@@ -818,6 +818,9 @@
 
                     $("#update_app_version").show();
                 }
+                else {
+                    $("#update_app_version").hide();
+                }
             } catch (error) {
                 console.error("Error checking app version:", error);
             }

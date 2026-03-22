@@ -54,7 +54,6 @@
                 <div class="card bg-danger text-white border-0 mb-2">
                     <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#pikudBody" style="cursor: pointer;">
                         Home Front Command Sirens
-
                         <span id="liveClock" class="bg-danger text-white fs-6 fw-normal">
                             00:00:00
                         </span>
@@ -86,7 +85,7 @@
                     </div>
                 </div>
                 <div id="locationsBody" class="collapse show">
-                    <div class="card bg-dark border-0 mb-2" style="max-height: 55vh; overflow-y: auto;">
+                    <div class="card bg-dark border-0 mb-2" style="max-height: 50vh; overflow-y: auto;">
                         <table class="table table-sm table-dark mb-0">
                             <tbody id="alerted_locations_counter"></tbody>
                         </table>
@@ -174,6 +173,24 @@
                                     </td>
                                     <td>
                                         <span id="totalEarlyWarningsCounter">0</span>
+                                    </td>
+                                </tr>
+                                <!-- Total Unmatched Cities -->
+                                <tr id="unmatched_cities_counter" style="display:none;">
+                                    <td width="95%">
+                                        <span class="text-danger">Total Unmatched Cities</span>
+                                    </td>
+                                    <td>
+                                        <span id="totalUnmatchedCitiesCounter">0</span>
+                                    </td>
+                                </tr>
+                                <!-- Open Unmatched Cities -->
+                                <tr id="unmatched_cities" style="display:none;">
+                                    <td width="95%">
+                                        <span class="text-danger">Open Unmatched Cities</span>
+                                    </td>
+                                    <td>
+                                        <img src="/icons/open.png" id="show_unmatched_cities" style="width:20px; height:20px;">
                                     </td>
                                 </tr>
                                 <!-- Total errors -->
@@ -329,6 +346,26 @@
             </div>
         </div>
     </div>
+
+    <!-- Unmatched Cities Modal -->
+    <div class="modal fade" id="unmatchedCitiesModal" tabindex="-1" aria-labelledby="unmatchedCitiesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-0">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="unmatchedCitiesModalLabel">Unmatched Cities</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    These are the unmatched cities received from the Pikud HaOref service.
+                    <br><br>
+                    <div id="unmatched_cities_messages" style="width: 100%;"></div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- end content -->
 
     <script>
@@ -388,13 +425,21 @@
         const earlyWarningModalEnter = new bootstrap.Modal('#earlyWarningModalEnter');
         const earlyWarningModalExit = new bootstrap.Modal('#earlyWarningModalExit');
         const errorMessagesModal = new bootstrap.Modal('#errorMessagesModal');
+        const unmatchedCitiesModal = new bootstrap.Modal('#unmatchedCitiesModal');
 
         let alertedLocations = [];
         let alertedZones = [];
         let errorLogs = [];
+        let unmatchedCitiesLogs = [];
+
         let rocketAlertCounter = 0;
         let droneAlertCounter = 0;
         let totalEarlyWarningsCounter = 0;
+        let pikudHaorefErrorCounter = 0;
+        let totalUnmatchedCitiesCounter = 0;
+
+        let pikudHaorefError = false;
+        let unmatchedCitiesFlag = false;
         let earlyWarningActive = false;
         let testmode = false;
 
@@ -417,6 +462,10 @@
 
         $("#show_error_messages").on("click", function () {
             errorMessagesModal.show();
+        });
+
+        $("#show_unmatched_cities").on("click", function () {
+            unmatchedCitiesModal.show();
         });
 
         const alertTypeMap = {
@@ -451,7 +500,7 @@
         };
 
         function getAlertDetailsByCategory(type) {
-            return alertTypeMap[type] || "Unknown Alert";
+            return alertTypeMap[type] || null;
         }
 
         function extractNewLocations(alertLocations) {
@@ -504,9 +553,6 @@
                         countdown: loc.countdown
                     }])
                 );
-
-                let pikudHaorefErrorCounter = 0;
-                let pikudHaorefError = false;
 
                 const pikudHaorefPoll = async function () {
                     try {
@@ -600,39 +646,52 @@
                                     }
 
                                     const alertTypeDetails = getAlertDetailsByCategory(alertType);
-                                    const alertTypeText = alertTypeDetails.text;
-                                    const alertTypeIcon = alertTypeDetails.icon;
-                                    const timeStamp = moment().format("HH:mm:ss")
 
-                                    const locations = extractNewLocations(alert[0].cities);
+                                    if (alertTypeDetails) {
+                                        const alertTypeText = alertTypeDetails.text;
+                                        const alertTypeIcon = alertTypeDetails.icon;
+                                        const timeStamp = moment().format("HH:mm:ss")
 
-                                    for (let i = 0; i < locations.length; i++) {
-                                        const locationOriginal = locations[i];
-                                        const location = locationMap[locations[i]]?.name_en || locationOriginal;
+                                        const locations = extractNewLocations(alert[0].cities);
 
-                                        const zone = locationMap[locations[i]]?.zone || "Unknown";
-                                        const zone_en = locationMap[locations[i]]?.zone_en || "Unknown";
+                                        for (let i = 0; i < locations.length; i++) {
+                                            const locationOriginal = locations[i];
+                                            const location = locationMap[locations[i]]?.name_en || locationOriginal;
 
-                                        if (zone_en === "Unknown") {
-                                            console.log("Unknown location", alert[0]);
-                                        }
+                                            const zone = locationMap[locations[i]]?.zone || "Unknown";
+                                            const zone_en = locationMap[locations[i]]?.zone_en || "Unknown";
 
-                                        if (location) {
-                                            if (alertType === "missiles") {
-                                                rocketAlertCounter++
-                                                $("#rocketAlertCounter").text(rocketAlertCounter);
-                                            }
-                                            else if (alertType === "hostileAircraftIntrusion") {
-                                                droneAlertCounter++
-                                                $("#droneAlertCounter").text(droneAlertCounter);
-                                            }
+                                            if (location) {
+                                                if (alertType === "missiles") {
+                                                    rocketAlertCounter++
+                                                    $("#rocketAlertCounter").text(rocketAlertCounter);
+                                                }
+                                                else if (alertType === "hostileAircraftIntrusion") {
+                                                    droneAlertCounter++
+                                                    $("#droneAlertCounter").text(droneAlertCounter);
+                                                }
 
-                                            $("#totalAlertsCounter").text(rocketAlertCounter + droneAlertCounter);
+                                                $("#totalAlertsCounter").text(rocketAlertCounter + droneAlertCounter);
 
-                                            updateAlertedLocation(location);
-                                            updateAlertedZone(zone_en);
+                                                updateAlertedLocation(location);
+                                                updateAlertedZone(zone_en);
 
-                                            $("#pikud_haoref_alerts").prepend(`
+                                                if (zone_en === "Unknown") {
+                                                    totalUnmatchedCitiesCounter++;
+                                                    $("#totalUnmatchedCitiesCounter").text(totalUnmatchedCitiesCounter);
+
+                                                    if (!unmatchedCitiesLogs.includes(location)) {
+                                                        unmatchedCitiesLogs.push(location);
+                                                        $("#unmatched_cities_messages").prepend("<b>" + location + "</b><br>");
+                                                    }
+
+                                                    if (!unmatchedCitiesFlag) {
+                                                        unmatchedCitiesFlag = true;
+                                                        $("#unmatched_cities_counter, #unmatched_cities").show();
+                                                    }
+                                                }
+
+                                                $("#pikud_haoref_alerts").prepend(`
                                                 <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
                                                     <td><font class='text-warning'>${timeStamp}</font></td>
                                                     <td><img src="${alertTypeIcon}" style="width:20px; height:20px;" title="${alertTypeText}"></td>
@@ -640,63 +699,65 @@
                                                     <td>${zone_en}</td>
                                                 </tr>
                                             `);
-                                        }
-                                    }
-
-                                    if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
-                                        //Update Alerted Locations Counter
-                                        $("#alerted_locations_counter").html("");
-
-                                        const sortalertedLocations = alertedLocations.toSorted((a, b) => {
-                                            // First compare by counter (descending)
-                                            if (b.counter !== a.counter) {
-                                                return b.counter - a.counter;
                                             }
+                                        }
 
-                                            // If counters are equal → compare locations alphabetically (ascending)
-                                            return a.location.localeCompare(b.location);
-                                        });
+                                        if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
+                                            //Update Alerted Locations Counter
+                                            $("#alerted_locations_counter").html("");
 
-                                        for (let i = 0; i < sortalertedLocations.length; i++) {
-                                            const location = sortalertedLocations[i].location
-                                            const counter = sortalertedLocations[i].counter;
+                                            const sortalertedLocations = alertedLocations.toSorted((a, b) => {
+                                                // First compare by counter (descending)
+                                                if (b.counter !== a.counter) {
+                                                    return b.counter - a.counter;
+                                                }
 
-                                            $("#alerted_locations_counter").append(`
+                                                // If counters are equal → compare locations alphabetically (ascending)
+                                                return a.location.localeCompare(b.location);
+                                            });
+
+                                            for (let i = 0; i < sortalertedLocations.length; i++) {
+                                                const location = sortalertedLocations[i].location
+                                                const counter = sortalertedLocations[i].counter;
+
+                                                $("#alerted_locations_counter").append(`
                                                 <tr>
                                                     <td width="95%"><font class='text-info'>${location}</font></td>
                                                     <td>${counter}</td>
                                                 </tr>
                                             `);
-                                        }
-
-                                        $("#totalLocationsCounter").text(sortalertedLocations.length);
-
-                                        //Update Alerted Zones Counter
-                                        $("#alerted_zones_counter").html("");
-
-                                        const sortalertedZones = alertedZones.toSorted((a, b) => {
-                                            // First compare by counter (descending)
-                                            if (b.counter !== a.counter) {
-                                                return b.counter - a.counter;
                                             }
 
-                                            // If counters are equal → compare zones alphabetically (ascending)
-                                            return a.zone.localeCompare(b.zone);
-                                        });
+                                            $("#totalLocationsCounter").text(sortalertedLocations.length);
 
-                                        for (let i = 0; i < sortalertedZones.length; i++) {
-                                            const zone = sortalertedZones[i].zone
-                                            const counter = sortalertedZones[i].counter;
+                                            //Update Alerted Zones Counter
+                                            $("#alerted_zones_counter").html("");
 
-                                            $("#alerted_zones_counter").append(`
+                                            const sortalertedZones = alertedZones.toSorted((a, b) => {
+                                                // First compare by counter (descending)
+                                                if (b.counter !== a.counter) {
+                                                    return b.counter - a.counter;
+                                                }
+
+                                                // If counters are equal → compare zones alphabetically (ascending)
+                                                return a.zone.localeCompare(b.zone);
+                                            });
+
+                                            for (let i = 0; i < sortalertedZones.length; i++) {
+                                                const zone = sortalertedZones[i].zone
+                                                const counter = sortalertedZones[i].counter;
+
+                                                $("#alerted_zones_counter").append(`
                                                 <tr>
                                                     <td width="95%"><font class='text-info'>${zone}</font></td>
                                                     <td>${counter}</td>
                                                 </tr>
                                             `);
+                                            }
+
+                                            $("#totalZonesCounter").text(sortalertedZones.length);
                                         }
 
-                                        $("#totalZonesCounter").text(sortalertedZones.length);
                                     }
                                 }
                             }

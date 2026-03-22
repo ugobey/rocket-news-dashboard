@@ -791,10 +791,10 @@
 
                                         for (let i = 0; i < locations.length; i++) {
                                             const locationOriginal = locations[i];
-                                            const location = locationMap[locations[i]]?.name_en || locationOriginal;
+                                            const location = locationMap[locations[i].replace("''", "'")]?.name_en || locationOriginal;
 
-                                            const zone = locationMap[locations[i]]?.zone || "Unknown";
-                                            const zone_en = locationMap[locations[i]]?.zone_en || "Unknown";
+                                            const zone = locationMap[locations[i].replace("''", "'")]?.zone || "Unknown";
+                                            const zone_en = locationMap[locations[i].replace("''", "'")]?.zone_en || "Unknown";
 
                                             if (location) {
                                                 if (alertType === "missiles") {
@@ -814,7 +814,7 @@
                                                 if (zone_en === "Unknown") {
 
                                                     console.log("Unmatched location:", alert[0]);
-                                                    
+
                                                     totalUnmatchedCitiesCounter++;
                                                     $("#totalUnmatchedCitiesCounter").text(totalUnmatchedCitiesCounter);
 

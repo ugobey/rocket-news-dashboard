@@ -80,26 +80,6 @@ const testAlertData = [
     },
 ];
 
-//Execute a command asynchronously and return a promise
-function executeAsync(command) {
-    return new Promise((resolve, reject) => {
-        exec(command, (error, stdout, stderr) => {
-            if (error) {
-                resolve(error.message);
-                return;
-            }
-            if (stderr) {
-                resolve(stderr);
-                return;
-            }
-
-            console.log(stdout);
-
-            resolve(stdout);
-        });
-    });
-}
-
 router.use("/", function (req, res) {
     try {
         (async () => {
@@ -160,11 +140,22 @@ router.use("/", function (req, res) {
                     res.end();
                 }
             } else if (getService === "version_check") {
-                executeAsync("git pull origin").then((result) => {
-                    console.log(result) 
-                });
+                exec("git pull origin", (error, stdout, stderr) => {
+                    if (error) {
+                        console.log(error.message);
+                        return;
+                    }
+                    if (stderr) {
+                        console.log(stderr);
+                        return;
+                    }
 
-              
+                    console.log(stdout);
+
+                    res.statusCode = 200;
+                    res.write(JSON.stringify({ error: "No RSS Service Selected" }));
+                    res.end();
+                });
             } else if (getService === "update_app") {
                 executeAsync("git pull origin && npm install").then(() => {});
             } else {

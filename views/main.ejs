@@ -419,19 +419,6 @@
             errorMessagesModal.show();
         });
 
-        $("#update_app").on("click", async function () {
-            $("#update_app").attr("src", "/icons/updating.png");
-            $("#update_app_button").prop("disabled", true);
-            $("#update_app").off("click");
-
-            const updateApp = await ajaxHandler("update_app");
-
-            if (updateApp && updateApp.updated) {
-                $("#update_app").attr("src", "/icons/updated.png");
-                $("#update_app_button").prop("disabled", false);
-            }
-        });
-
         const alertTypeMap = {
             newsFlash: {
                 text: "Early Warning",

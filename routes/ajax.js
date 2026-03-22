@@ -12,7 +12,7 @@ const pikudHaoref = require("pikud-haoref-api");
 const Parser = require("rss-parser");
 const parser = new Parser();
 
-const { exec, spawn } = require("node:child_process");
+const { execSync } = require("node:child_process");
 
 const pkg = require("../package.json");
 const localAppVersion = pkg.version;
@@ -140,22 +140,17 @@ router.use("/", function (req, res) {
                     res.end();
                 }
             } else if (getService === "version_check") {
-                exec("git pull origin", (error, stdout, stderr) => {
-                    if (error) {
-                        console.log(error.message);
-                        return;
-                    }
-                    if (stderr) {
-                        console.log(stderr);
-                        return;
-                    }
+                const latestVersion = execSync("npm view git@github.com:ugobey/rocket-news-dashboard.git version").toString().trim();
 
-                    console.log(stdout);
-
+                if (localAppVersion !== latestVersion) {
                     res.statusCode = 200;
-                    res.write(JSON.stringify({ error: "No RSS Service Selected" }));
+                    res.write(JSON.stringify({ updateAvailable: true, latestVersion: latestVersion }));
                     res.end();
-                });
+                } else {
+                    res.statusCode = 200;
+                    res.write(JSON.stringify({ updateAvailable: false, latestVersion: latestVersion }));
+                    res.end();
+                }
             } else if (getService === "update_app") {
                 executeAsync("git pull origin && npm install").then(() => {});
             } else {

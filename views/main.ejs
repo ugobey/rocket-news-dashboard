@@ -166,13 +166,22 @@
                                         <span id="totalZonesCounter">0</span>
                                     </td>
                                 </tr>
-                                <!-- Total early warnings -->
+                                <!-- Total early warnings - All -->
                                 <tr>
                                     <td width="95%">
-                                        <span class="text-warning">Total Early Warnings</span>
+                                        <span class="text-warning">Total Early Warnings (All)</span>
                                     </td>
                                     <td>
-                                        <span id="totalEarlyWarningsCounter">0</span>
+                                        <span id="totalEarlyWarningsAllCounter">0</span>
+                                    </td>
+                                </tr>
+                                <!-- Total early warnings - Specific -->
+                                <tr id="total_early_warnings_specific_counter" style="display:none;">
+                                    <td width="95%">
+                                        <span class="text-warning">Total Early Warnings (Specific)</span>
+                                    </td>
+                                    <td>
+                                        <span id="totalEarlyWarningsSpecificCounter">0</span>
                                     </td>
                                 </tr>
                                 <!-- Total Unmatched Cities -->
@@ -218,6 +227,17 @@
                                     </td>
                                     <td>
                                         <img src="/icons/off.png" style="width:30px; height:30px;" title="Turn on Test Mode" id="test_mode" />
+                                    </td>
+                                </tr>
+                                <!-- Settings -->
+                                <tr>
+                                    <td width="95%">
+                                        <span class="text-light">Settings</span>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn" id="open_settings" title="Open Settings">
+                                            <img src="/icons/settings.png" alt="Settings" style="width:20px; height:20px;">
+                                        </button>
                                     </td>
                                 </tr>
                                 <!-- App version -->
@@ -366,6 +386,40 @@
             </div>
         </div>
     </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-0">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body border-0">
+                    <table class="table table-sm table-dark mb-0">
+                        <tbody></tbody>
+                        <tr>
+                            <td class="border-0">
+                                <span class="text-light">City for Early Warning</span>
+                            </td>
+                            <td class="border-0">
+                                <input class="form-control bg-light text-dark" type="text" id="citySearch" autocomplete="off" placeholder="Type city name...">
+
+                                <ul id="city_suggestions" class="list-group position-absolute w-100 mt-1 shadow-lg" style="display: none; max-height: 300px; overflow-y: auto; z-index: 1050;"></ul>
+                            </td>
+                            <td class="border-0">
+                                <button class="btn btn-md btn-outline-light" id="saveCityButton">Save</button>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- end content -->
 
     <script>
@@ -426,6 +480,7 @@
         const earlyWarningModalExit = new bootstrap.Modal('#earlyWarningModalExit');
         const errorMessagesModal = new bootstrap.Modal('#errorMessagesModal');
         const unmatchedCitiesModal = new bootstrap.Modal('#unmatchedCitiesModal');
+        const settingsModal = new bootstrap.Modal('#settingsModal');
 
         let alertedLocations = [];
         let alertedZones = [];
@@ -434,7 +489,8 @@
 
         let rocketAlertCounter = 0;
         let droneAlertCounter = 0;
-        let totalEarlyWarningsCounter = 0;
+        let totalEarlyWarningsAllCounter = 0;
+        let totalEarlyWarningsSpecificCounter = 0;
         let pikudHaorefErrorCounter = 0;
         let totalUnmatchedCitiesCounter = 0;
 
@@ -466,6 +522,26 @@
 
         $("#show_unmatched_cities").on("click", function () {
             unmatchedCitiesModal.show();
+        });
+
+        $("#open_settings").on("click", function () {
+            const savedCity = localStorage.getItem("earlyWarningCity");
+            if (savedCity) {
+                $("#citySearch").val(savedCity);
+            }
+            settingsModal.show();
+        });
+
+        $("#saveCityButton").on("click", function () {
+            const city = $("#citySearch").val().trim();
+
+            if (city) {
+                localStorage.setItem("earlyWarningCity", city);
+            } else {
+                localStorage.removeItem("earlyWarningCity");
+            }
+
+            settingsModal.hide();
         });
 
         const alertTypeMap = {
@@ -543,6 +619,55 @@
             .then((data) => {
                 const locationsJSON = data;
 
+                const input = document.getElementById('citySearch');
+                const suggestionsList = document.getElementById('city_suggestions');
+
+                input.addEventListener('input', function () {
+                    const query = this.value.toLowerCase().trim();
+
+                    // Clear previous suggestions
+                    suggestionsList.innerHTML = '';
+
+                    if (query.length === 0) {
+                        suggestionsList.style.display = 'none';
+                        return;
+                    }
+
+                    // Filter JSON data
+                    const filtered = locationsJSON.filter(city =>
+                        city.name_en.toLowerCase().includes(query)
+                    );
+
+                    if (filtered.length === 0) {
+                        suggestionsList.style.display = 'none';
+                        return;
+                    }
+
+                    // Render suggestions
+                    filtered.forEach(city => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item list-group-item-action bg-light text-dark border-secondary';
+                        li.innerHTML = `<strong>${city.name_en}</strong>`;
+
+                        // Click to select
+                        li.addEventListener('click', () => {
+                            input.value = city.name_en;
+                            suggestionsList.style.display = 'none';
+                        });
+
+                        suggestionsList.appendChild(li);
+                    });
+
+                    suggestionsList.style.display = 'block';
+                });
+
+                // Hide suggestions when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.position-relative')) {
+                        suggestionsList.style.display = 'none';
+                    }
+                });
+
                 const locationMap = Object.fromEntries(
                     locationsJSON.map(loc => [loc.value, {
                         name_en: loc.name_en,
@@ -599,6 +724,8 @@
                                 if (alertType === "newsFlash") {
                                     const instructions = alert[0].instructions;
 
+                                    const earlyWarningCity = localStorage.getItem("earlyWarningCity") || "undefined";
+
                                     if (instructions === "האירוע הסתיים") {
                                         if (earlyWarningActive) {
                                             if (!earlyWarningModalExit._isShown) {
@@ -618,9 +745,17 @@
                                             earlyWarningModalEnter.hide();
                                         }
                                     } else {
+                                        const checkIfCityAffected = alert[0].cities.map(city => locationMap[city]?.name_en).includes(earlyWarningCity);
+
                                         if (!earlyWarningActive) {
-                                            totalEarlyWarningsCounter++
-                                            $("#totalEarlyWarningsCounter").text(totalEarlyWarningsCounter);
+                                            if (checkIfCityAffected) {
+                                                totalEarlyWarningsSpecificCounter++
+                                                $("#totalEarlyWarningsSpecificCounter").text(totalEarlyWarningsSpecificCounter);
+                                                $("#total_early_warnings_specific_counter").show();
+                                            }
+
+                                            totalEarlyWarningsAllCounter++
+                                            $("#totalEarlyWarningsAllCounter").text(totalEarlyWarningsAllCounter);
                                         }
 
                                         earlyWarningActive = true;
@@ -636,6 +771,8 @@
                                     }
 
                                 } else if (alertType != "newsFlash") {
+
+                                    earlyWarningActive = false;
 
                                     if (earlyWarningModalEnter._isShown) {
                                         earlyWarningModalEnter.hide();

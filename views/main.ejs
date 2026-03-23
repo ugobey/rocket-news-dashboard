@@ -9,8 +9,8 @@
     <title><%-title%></title>
 
     <link href="/css/bootstrap-5.3.3/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/animate.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="/css/animate.min.css" rel="stylesheet" />
+    <link href="/fonts/fontawesome-free-7.2.0/css/all.min.css" rel="stylesheet">
 
     <script src="/js/jquery-3.7.1.min.js"></script>
     <script src="/js/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
@@ -96,11 +96,11 @@
         }
 
         /* Round the table corners properly */
-        .table thead tr:first-child th:first-child {
+        .table tbody tr:first-child td:first-child {
             border-top-left-radius: 16px;
         }
 
-        .table thead tr:first-child th:last-child {
+        .table tbody tr:first-child td:last-child {
             border-top-right-radius: 16px;
         }
 
@@ -117,6 +117,7 @@
         }
 
         /* Colored headers */
+        /*
         .header-danger {
             background: linear-gradient(90deg, #7f1d1d, #b91c1c);
         }
@@ -127,6 +128,19 @@
 
         .header-success {
             background: linear-gradient(90deg, #166534, #15803d);
+        }
+        */
+
+        .header-danger {
+            background: #b91c1c;
+        }
+
+        .header-primary {
+            background: #1e3a8a;
+        }
+
+        .header-success {
+            background: #15803d;
         }
 
         .live-clock {
@@ -207,6 +221,28 @@
         .icon-btn {
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        /* ====================== SLICK MODAL STYLES ====================== */
+        .glass-modal {
+            background: rgba(6, 37, 91, 0.95);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            border-radius: 24px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
+            color: white;
+        }
+
+        /* Suggestions dropdown */
+        #city_suggestions .list-group-item {
+            background: rgba(15, 23, 42, 0.95);
+            border: none;
+            color: #e2e8f0;
+            padding: 12px 16px;
+        }
+
+        #city_suggestions .list-group-item:hover {
+            background: rgba(59, 130, 246, 0.35);
+        }
     </style>
 </head>
 
@@ -233,10 +269,10 @@
                             <table class="table table-dark table-sm mb-0">
                                 <thead>
                                     <tr>
-                                        <th width="18%">Time</th>
-                                        <th width="12%">Type</th>
+                                        <th width="10%">Time</th>
+                                        <th width="5%">Type</th>
                                         <th>Location</th>
-                                        <th width="18%">Zone</th>
+                                        <th>Zone</th>
                                     </tr>
                                 </thead>
                                 <tbody id="pikud_haoref_alerts" class="fw-medium"></tbody>
@@ -328,7 +364,7 @@
                                 <tr id="unmatched_cities" style="display:none;">
                                     <td><span class="text-violet-400">Open Unmatched Cities</span></td>
                                     <td class="text-end">
-                                        <i id="show_unmatched_cities" class="fa-solid fa-folder-open fa-xl icon-btn text-info" style="cursor:pointer;" title="Show Unmatched Cities"></i>
+                                        <i id="show_unmatched_cities" class="fa-solid fa-arrow-up-right-from-square fa-xl icon-btn text-danger" style="cursor:pointer;" title="Show Unmatched Cities"></i>
                                     </td>
                                 </tr>
                                 <tr id="error_counter" style="display:none;">
@@ -338,19 +374,19 @@
                                 <tr id="error_message" style="display:none;">
                                     <td><span class="text-violet-400">Open Error Messages</span></td>
                                     <td class="text-end">
-                                        <i id="show_error_messages" class="fa-solid fa-folder-open fa-xl icon-btn text-info" style="cursor:pointer;" title="Show Error Messages"></i>
+                                        <i id="show_error_messages" class="fa-solid fa-arrow-up-right-from-square fa-xl icon-btn text-danger" style="cursor:pointer;" title="Show Error Messages"></i>
                                     </td>
                                 </tr>
-                                <tr id="test_alerts">
+                                <tr>
                                     <td><span class="text-light">Test Mode</span></td>
                                     <td class="text-end">
-                                        <i id="test_mode" class="fa-solid fa-toggle-off fa-2xl icon-btn" style="cursor:pointer; transition: all 0.3s ease;" title="Turn ON Test Mode"></i>
+                                        <i id="test_mode" class="fa-solid fa-toggle-off fa-xl icon-btn" style="cursor:pointer; transition: all 0.3s ease;" title="Turn ON Test Mode"></i>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><span class="text-light">Settings</span></td>
                                     <td class="text-end">
-                                        <i id="open_settings" class="fa-solid fa-gear fa-2xl icon-btn text-light" style="cursor:pointer; transition: all 0.3s ease;" title="Open Settings"></i>
+                                        <i id="open_settings" class="fa-solid fa-gear fa-xl icon-btn text-light" style="cursor:pointer; transition: all 0.3s ease;" title="Open Settings"></i>
                                     </td>
                                 </tr>
                                 <tr>
@@ -361,7 +397,7 @@
                                 <tr id="update_app_version" style="display:none;">
                                     <td><span class="text-violet-400">App Update Available</span></td>
                                     <td class="text-end">
-                                        <i class="fa-solid fa-download fa-xl icon-btn text-warning" style="cursor:pointer;" title="Update it on your server"></i>
+                                        <i class="fa-solid fa-cloud-arrow-up fa-xl icon-btn text-warning" style="cursor:pointer;" title="Update it on your server"></i>
                                     </td>
                                 </tr>
 
@@ -410,128 +446,190 @@
         </div>
     </div>
 
-    <!-- Modals remain mostly the same but you can also modernize their styling similarly -->
+    <!-- Modals -->
 
     <!-- Early Warning Modal - Enter -->
     <div class="modal fade" id="earlyWarningModalEnter" tabindex="-1" aria-labelledby="earlyWarningModalEnterLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-danger text-white border-0">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title" id="earlyWarningModalEnterLabel">Early Warning Alert</h5>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-modal bg-danger text-white border-0">
+
+                <!-- Header -->
+                <div class="modal-header border-0 px-4 pt-4 pb-3">
+                    <h4 class="modal-title fw-semibold text-white" id="earlyWarningModalEnterLabel">
+                        <i class="fa-solid fa-circle-exclamation me-3 text-white"></i>Early Missile Warning Alert
+                    </h4>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    There is an active early warning due to a ballistic missile launch.
-                    <br><br>
-                    This message will disappear automatically when sirens sound or the threat is no longer active.
-                    <br><br>
-                    <b>The following locations are affected:</b>
-                    <br>
-                    <div id="earlyWarningLocations" style="width: 100%;"></div>
+
+                <!-- Body -->
+                <div class="modal-body px-4 py-1">
+                    <div class="glass-inner p-4 rounded-4">
+                        This message will disappear automatically when sirens sound or the threat is no longer active.
+                        <br><br>
+                        <b>The following locations are affected:</b>
+                        <br>
+
+                        <div id="earlyWarningLocations" style="width: 100%;"></div>
+                    </div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+
+                <!-- Footer -->
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">
+                        Close
+                    </button>
                 </div>
+
             </div>
         </div>
     </div>
 
     <!-- Early Warning Modal - Exit -->
     <div class="modal fade" id="earlyWarningModalExit" tabindex="-1" aria-labelledby="earlyWarningModalExitLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-success text-white border-0">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title" id="earlyWarningModalExitLabel">Early Warning Alert</h5>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-modal bg-success text-white border-0">
+
+                <!-- Header -->
+                <div class="modal-header border-0 px-4 pt-4 pb-3">
+                    <h4 class="modal-title fw-semibold text-white" id="earlyWarningModalExitLabel">
+                        <i class="fa-solid fa-circle-check me-3 text-white"></i>Safe To Exit Bomb Shelter
+                    </h4>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    You can now exit the bomb shelter.
-                    <br><br>
-                    This message will disappear automatically after 30 seconds.
+
+                <!-- Body -->
+                <div class="modal-body px-4 py-1">
+                    <div class="glass-inner p-4 rounded-4">
+                        You can now exit the bomb shelter.
+                        <br><br>
+                        This message will disappear automatically after 30 seconds.
+                    </div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+
+                <!-- Footer -->
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">
+                        Close
+                    </button>
                 </div>
+
             </div>
         </div>
     </div>
 
     <!-- Error Messages Modal -->
     <div class="modal fade" id="errorMessagesModal" tabindex="-1" aria-labelledby="errorMessagesModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-white border-0">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title" id="errorMessagesModalLabel">Error Messages</h5>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-modal bg-danger text-white border-0">
+
+                <!-- Header -->
+                <div class="modal-header border-0 px-4 pt-4 pb-3">
+                    <h4 class="modal-title fw-semibold text-white" id="errorMessagesModalLabel">
+                        <i class="fa-solid fa-circle-exclamation me-3"></i>Error Messages
+                    </h4>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    These are the error messages received from the Pikud HaOref service.
-                    <br>Only unique error messages will be shown below.
-                    <br>You can see all messages in the console log.
-                    <br><br>
-                    <div id="pikud_haoref_error_messages" style="width: 100%;"></div>
+
+                <!-- Body -->
+                <div class="modal-body px-4 py-1">
+                    <div class="glass-inner p-4 rounded-4">
+                        Unique error messages received from the Pikud HaOref service.
+                        <br><br>
+                        <ul id="pikud_haoref_error_messages" style="width: 100%;"></ul>
+                    </div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+
+                <!-- Footer -->
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">
+                        Close
+                    </button>
                 </div>
+
             </div>
         </div>
     </div>
 
     <!-- Unmatched Cities Modal -->
     <div class="modal fade" id="unmatchedCitiesModal" tabindex="-1" aria-labelledby="unmatchedCitiesModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-white border-0">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title" id="unmatchedCitiesModalLabel">Unmatched Cities</h5>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-modal bg-danger text-white border-0">
+
+                <!-- Header -->
+                <div class="modal-header border-0 px-4 pt-4 pb-3">
+                    <h4 class="modal-title fw-semibold text-white" id="unmatchedCitiesModalLabel">
+                        <i class="fa-solid fa-circle-exclamation me-3 text-white"></i>Unmatched Cities
+                    </h4>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    These are the unmatched cities received from the Pikud HaOref service.
-                    <br><br>
-                    <div id="unmatched_cities_messages" style="width: 100%;"></div>
+
+                <!-- Body -->
+                <div class="modal-body px-4 py-1">
+                    <div class="glass-inner p-4 rounded-4">
+                        These are the unmatched cities received from the Pikud HaOref service.
+                        <br>
+                        <br>
+                        <ul id="unmatched_cities_messages" style="width: 100%;"></ul>
+                    </div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+
+                <!-- Footer -->
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">
+                        Close
+                    </button>
                 </div>
+
             </div>
         </div>
     </div>
 
     <!-- Settings Modal -->
     <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-white border-0">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-modal">
+
+                <!-- Header -->
+                <div class="modal-header border-0 px-4 pt-4 pb-3">
+                    <h4 class="modal-title fw-semibold text-white" id="settingsModalLabel">
+                        <i class="fa-solid fa-sliders me-3 text-primary"></i>Settings
+                    </h4>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body border-0">
-                    <table class="table table-sm table-dark mb-0">
-                        <tbody></tbody>
-                        <tr>
-                            <td class="border-0">
-                                <span class="text-light">City for Early Warning</span>
-                            </td>
-                            <td class="border-0">
-                                <input class="form-control bg-light text-dark" type="text" id="citySearch" autocomplete="off" placeholder="Type city name...">
 
-                                <ul id="city_suggestions" class="list-group position-absolute w-100 mt-1 shadow-lg" style="display: none; max-height: 300px; overflow-y: auto; z-index: 1050;"></ul>
-                            </td>
-                            <td class="border-0">
-                                <button class="btn btn-md btn-outline-light" id="saveCityButton">Save</button>
-                            </td>
-                        </tr>
-                    </table>
+                <!-- Body -->
+                <div class="modal-body px-4 py-1">
+                    <div class="glass-inner p-4 rounded-4">
+                        <table class="table table-light table-borderless mb-0">
+                            <tr>
+                                <td width="35%" class="align-middle">
+                                    <span class="text-dark fw-medium">City (Early Warning)</span>
+                                </td>
+                                <td>
+                                    <input class="form-control" type="text" id="citySearch" autocomplete="off" placeholder="Type city name...">
 
+                                    <ul id="city_suggestions" class="list-group position-absolute w-100 mt-2 shadow-lg rounded-3 overflow-hidden" style="display: none; max-height: 320px; overflow-y: auto; z-index: 1060;">
+                                    </ul>
+                                </td>
+                                <td width="20%" class="text-end align-middle">
+                                    <button class="btn btn-primary px-4 py-2 fw-semibold" id="saveCityButton">
+                                        <i class="fa-solid fa-floppy-disk me-2"></i>Save
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+
+                <!-- Footer -->
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">
+                        Close
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-    <!-- end content -->
 
 
 
@@ -618,7 +716,6 @@
         $("#test_mode").on("click", function () {
             if (testmode) {
                 testmode = false;
-
 
                 $("#test_mode").attr("title", "Turn on Test Mode");
                 $("#test_mode").removeClass("fa-toggle-on active").addClass("fa-toggle-off");
@@ -817,10 +914,10 @@
                                     errorLogs.push(alert.error);
 
                                     if (alert.error.indexOf("Request failed with status code 403") > -1) {
-                                        $("#pikud_haoref_error_messages").prepend("<b>403 Forbidden - Requires Israeli IP</b><br>");
+                                        $("#pikud_haoref_error_messages").prepend("<li>403 Forbidden - Requires Israeli IP</li>");
                                     }
                                     else {
-                                        $("#pikud_haoref_error_messages").prepend("<b>" + alert.error + "</b><br>");
+                                        $("#pikud_haoref_error_messages").prepend("<li>" + alert.error + "</li>");
                                     }
                                 }
 
@@ -936,7 +1033,7 @@
 
                                                     if (!unmatchedCitiesLogs.includes(location)) {
                                                         unmatchedCitiesLogs.push(location);
-                                                        $("#unmatched_cities_messages").prepend("<b>" + location + "</b><br>");
+                                                        $("#unmatched_cities_messages").prepend("<li>" + location + "</li>");
                                                     }
 
                                                     if (!unmatchedCitiesFlag) {
@@ -1110,8 +1207,8 @@
 
                                 $("#rss_alerts").prepend(`
                                     <tr class="animate__animated animate__fadeInDown animate__faster rssNewRow table-light">
-                                        <td width="3%"><font class="text-warning">${publishDate}</font></td>
-                                        <td width="4%"><font class="text-info">${getRealName(rssFeedSelected)}</font></td>
+                                        <td width="5%"><font class="text-warning">${publishDate}</font></td>
+                                        <td width="6%"><font class="text-info">${getRealName(rssFeedSelected)}</font></td>
                                         <td>${item.title}</td>
                                     </tr>
                                 `);

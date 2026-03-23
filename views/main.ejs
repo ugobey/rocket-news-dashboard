@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        <%-title%>
-    </title>
+    <title><%-title%></title>
 
     <link href="/css/bootstrap-5.3.3/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/animate.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
     <script src="/js/jquery-3.7.1.min.js"></script>
     <script src="/js/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
@@ -18,286 +18,399 @@
 
     <style>
         :root {
-            --bs-body-bg: #212529;
+            --primary: #0ea5e9;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #eab308;
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
         }
 
         html {
-            font-size: 13px;
+            font-size: 14px;
         }
 
         body {
-            background-color: #212529;
-            color: #e9ecef;
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+            color: #e2e8f0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
         }
 
-        .section-header {
-            font-size: 1.1rem;
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            /* ← Important */
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+        }
+
+        .card-header {
+            border-bottom: 1px solid var(--glass-border);
+            padding: 16px 20px;
             font-weight: 600;
+            font-size: 1.07rem;
+            border-radius: 20px 20px 0 0 !important;
         }
 
-        .table th,
+        /* ==================== TABLE FIXES ==================== */
+        .table-card {
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .table {
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table thead tr {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .table th {
+            color: #94a3b8;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.73rem;
+            letter-spacing: 0.6px;
+            padding: 14px 12px;
+            border: none;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
         .table td {
+            padding: 11px 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: none;
             vertical-align: middle;
         }
-    </style>
 
+        /* Round the table corners properly */
+        .table thead tr:first-child th:first-child {
+            border-top-left-radius: 16px;
+        }
+
+        .table thead tr:first-child th:last-child {
+            border-top-right-radius: 16px;
+        }
+
+        .table tbody tr:last-child td:first-child {
+            border-bottom-left-radius: 16px;
+        }
+
+        .table tbody tr:last-child td:last-child {
+            border-bottom-right-radius: 16px;
+        }
+
+        .table-dark tr:hover {
+            background: rgba(255, 255, 255, 0.055) !important;
+        }
+
+        /* Colored headers */
+        .header-danger {
+            background: linear-gradient(90deg, #7f1d1d, #b91c1c);
+        }
+
+        .header-primary {
+            background: linear-gradient(90deg, #1e40af, #1e3a8a);
+        }
+
+        .header-success {
+            background: linear-gradient(90deg, #166534, #15803d);
+        }
+
+        .live-clock {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.77rem;
+            letter-spacing: 1px;
+        }
+
+        .stat-number {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .modal-content {
+            background: #1e2937;
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+        }
+
+        .rss-feed {
+            max-height: 38vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        .scrollable::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollable::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+        }
+
+        .icon-btn {
+            transition: all 0.25s ease;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.18) rotate(8deg);
+            filter: brightness(1.3);
+        }
+
+        .collapse-icon {
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
+
+        /* Enhanced Test Mode Toggle */
+        #test_mode {
+            font-size: 2.1rem;
+            color: #64748b;
+        }
+
+        #test_mode.active {
+            color: #22c55e !important;
+            transform: rotate(0deg);
+        }
+
+        #test_mode:hover {
+            color: #86efac;
+            transform: scale(1.15);
+        }
+
+        /* Settings Gear */
+        #open_settings:hover {
+            color: #60a5fa;
+            transform: scale(1.15) rotate(20deg);
+        }
+
+        /* General icon button improvements */
+        .icon-btn {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
 </head>
 
 <body>
 
-    <!-- MAIN CONTENT -->
-    <div class="container-fluid p-2">
-        <div class="row g-2">
+    <div class="container-fluid p-3 p-lg-4">
+        <div class="row g-3">
 
-            <!-- Home Front Command Sirens -->
-            <div class="col-lg-3 col-md-6">
-                <div class="card bg-danger text-white border-0 mb-2">
-                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#pikudBody" style="cursor: pointer;">
-                        Home Front Command Sirens
-                        <span id="liveClock" class="bg-danger text-white fs-6 fw-normal">
-                            00:00:00
-                        </span>
+            <!-- ==================== HOME FRONT COMMAND SIRENS ==================== -->
+            <div class="col-lg-4 col-xl-3">
+                <div class="card table-card header-danger text-white mb-3">
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#pikudBody" style="cursor:pointer;">
+                        <span><i class="fa-solid fa-bell me-2"></i>Home Front Command Sirens</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="liveClock" class="live-clock">00:00:00</span>
+                            <i class="fa-solid fa-chevron-down collapse-icon"></i>
+                        </div>
                     </div>
                 </div>
+
                 <div id="pikudBody" class="collapse show">
-                    <div class="card bg-dark border-0 mb-2">
-                        <table class="table table-sm table-dark mb-0">
-                            <thead>
-                                <tr>
-                                    <th width="10%">Time</th>
-                                    <th width="5%">Type</th>
-                                    <th>Location</th>
-                                    <th>Zone</th>
-                                </tr>
-                            </thead>
-                            <tbody id="pikud_haoref_alerts"></tbody>
-                        </table>
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th width="18%">Time</th>
+                                        <th width="12%">Type</th>
+                                        <th>Location</th>
+                                        <th width="18%">Zone</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pikud_haoref_alerts" class="fw-medium"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-2">
-                <!-- Alerted Locations -->
-                <div class="card bg-danger text-white border-0 mb-2">
-                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#locationsBody" style="cursor: pointer;">
-                        Alerts by Location
-                        <img src="/icons/unfold.png" style="width:15px; height:15px;">
+            <!-- ==================== ALERTS BY LOCATION + ZONE ==================== -->
+            <div class="col-lg-3 col-xl-2">
+                <!-- Locations -->
+                <div class="card table-card header-danger text-white mb-3">
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#locationsBody" style="cursor:pointer;">
+                        <span><i class="fa-solid fa-location-dot me-2"></i>Alerts by Location</span>
+                        <i class="fa-solid fa-chevron-down collapse-icon"></i>
                     </div>
                 </div>
                 <div id="locationsBody" class="collapse show">
-                    <div class="card bg-dark border-0 mb-2" style="max-height: 50vh; overflow-y: auto;">
-                        <table class="table table-sm table-dark mb-0">
+                    <div class="card" style="max-height: 42vh; overflow-y: auto;">
+                        <table class="table table-dark table-sm mb-0">
                             <tbody id="alerted_locations_counter"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Alerted Zones -->
-                <div class="card bg-danger text-white border-0 mb-2">
-                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#zonesBody" style="cursor: pointer;">
-                        Alerts by Zone
-                        <img src="/icons/unfold.png" style="width:15px; height:15px;">
+                <!-- Zones -->
+                <div class="card table-card header-danger text-white mt-3 mb-3">
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#zonesBody" style="cursor:pointer;">
+                        <span><i class="fa-solid fa-map me-2"></i>Alerts by Zone</span>
+                        <i class="fa-solid fa-chevron-down collapse-icon"></i>
                     </div>
                 </div>
                 <div id="zonesBody" class="collapse show">
-                    <div class="card bg-dark border-0 mb-2">
-                        <table class="table table-sm table-dark mb-0">
+                    <div class="card">
+                        <table class="table table-dark table-sm mb-0">
                             <tbody id="alerted_zones_counter"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-
-            <div class="col-md-1">
-                <!-- Alerts Summary -->
-                <div class="card bg-primary text-white border-0 mb-2">
-                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#summaryBody" style="cursor: pointer;">
-                        Alerts Summary
-                        <img src="/icons/unfold.png" style="width:15px; height:15px;">
+            <!-- ==================== SUMMARY ==================== -->
+            <div class="col-lg-3 col-xl-2">
+                <div class="card table-card header-primary text-white mb-3">
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#summaryBody" style="cursor:pointer;">
+                        <span><i class="fa-solid fa-chart-pie me-2"></i>Alerts Summary</span>
+                        <i class="fa-solid fa-chevron-down collapse-icon"></i>
                     </div>
                 </div>
+
                 <div id="summaryBody" class="collapse show">
-                    <div class="card bg-dark border-0 mb-2">
-                        <table class="table table-sm table-dark mb-0">
+                    <div class="card">
+                        <table class="table table-dark table-sm mb-0">
                             <tbody id="alerts_summary">
-                                <!-- Total alerts -->
                                 <tr>
-                                    <td width="95%">
-                                        <span class="text-warning">Total Alerts</span>
-                                    </td>
-                                    <td>
-                                        <span id="totalAlertsCounter">0</span>
-                                    </td>
+                                    <td><span class="text-yellow-400">Total Alerts</span></td>
+                                    <td class="text-end"><span id="totalAlertsCounter" class="stat-number">0</span></td>
                                 </tr>
-                                <!-- Total drone alerts -->
                                 <tr>
-                                    <td width="95%">
-                                        <span class="text-warning">Total Drone Alerts</span>
-                                    </td>
-                                    <td>
-                                        <span id="droneAlertCounter">0</span>
-                                    </td>
+                                    <td><span class="text-sky-400">Total Drone Alerts</span></td>
+                                    <td class="text-end"><span id="droneAlertCounter" class="stat-number">0</span></td>
                                 </tr>
-                                <!-- Total rocket alerts -->
                                 <tr>
-                                    <td width="95%">
-                                        <span class="text-warning">Total Rocket Alerts</span>
-                                    </td>
-                                    <td>
-                                        <span id="rocketAlertCounter">0</span>
-                                    </td>
+                                    <td><span class="text-orange-400">Total Rocket Alerts</span></td>
+                                    <td class="text-end"><span id="rocketAlertCounter" class="stat-number">0</span></td>
                                 </tr>
-                                <!-- Total locations -->
                                 <tr>
-                                    <td width="95%">
-                                        <span class="text-warning">Total Locations</span>
-                                    </td>
-                                    <td>
-                                        <span id="totalLocationsCounter">0</span>
-                                    </td>
+                                    <td><span class="text-emerald-400">Total Locations</span></td>
+                                    <td class="text-end"><span id="totalLocationsCounter" class="stat-number">0</span></td>
                                 </tr>
-                                <!-- Total zones -->
                                 <tr>
-                                    <td width="95%">
-                                        <span class="text-warning">Total Zones</span>
-                                    </td>
-                                    <td>
-                                        <span id="totalZonesCounter">0</span>
-                                    </td>
+                                    <td><span class="text-violet-400">Total Zones</span></td>
+                                    <td class="text-end"><span id="totalZonesCounter" class="stat-number">0</span></td>
                                 </tr>
-                                <!-- Total early warnings - All -->
                                 <tr>
-                                    <td width="95%">
-                                        <span class="text-warning">Total Early Warnings (All)</span>
-                                    </td>
-                                    <td>
-                                        <span id="totalEarlyWarningsAllCounter">0</span>
-                                    </td>
+                                    <td><span class="text-violet-400">Total Early Warnings (All)</span></td>
+                                    <td class="text-end"><span id="totalEarlyWarningsAllCounter" class="stat-number">0</span></td>
                                 </tr>
-                                <!-- Total early warnings - Specific -->
                                 <tr id="total_early_warnings_specific_counter" style="display:none;">
-                                    <td width="95%">
-                                        <span class="text-warning">Total Early Warnings (Specific)</span>
-                                    </td>
-                                    <td>
-                                        <span id="totalEarlyWarningsSpecificCounter">0</span>
-                                    </td>
+                                    <td><span class="text-violet-400">Total Early Warnings (Specific)</span></td>
+                                    <td class="text-end"><span id="totalEarlyWarningsSpecificCounter" class="stat-number">0</span></td>
                                 </tr>
-                                <!-- Total Unmatched Cities -->
                                 <tr id="unmatched_cities_counter" style="display:none;">
-                                    <td width="95%">
-                                        <span class="text-danger">Total Unmatched Cities</span>
-                                    </td>
-                                    <td>
-                                        <span id="totalUnmatchedCitiesCounter">0</span>
-                                    </td>
+                                    <td><span class="text-violet-400">Total Unmatched Cities</span></td>
+                                    <td class="text-end"><span id="totalUnmatchedCitiesCounter" class="stat-number">0</span></td>
                                 </tr>
                                 <!-- Open Unmatched Cities -->
                                 <tr id="unmatched_cities" style="display:none;">
-                                    <td width="95%">
-                                        <span class="text-danger">Open Unmatched Cities</span>
-                                    </td>
-                                    <td>
-                                        <img src="/icons/open.png" id="show_unmatched_cities" style="width:20px; height:20px;">
+                                    <td><span class="text-violet-400">Open Unmatched Cities</span></td>
+                                    <td class="text-end">
+                                        <i id="show_unmatched_cities" class="fa-solid fa-folder-open fa-xl icon-btn text-info" style="cursor:pointer;" title="Show Unmatched Cities"></i>
                                     </td>
                                 </tr>
-                                <!-- Total errors -->
                                 <tr id="error_counter" style="display:none;">
-                                    <td width="95%">
-                                        <span class="text-danger">Total Errors</span>
-                                    </td>
-                                    <td>
-                                        <span id="pikud_haoref_error_counter">0</span>
-                                    </td>
+                                    <td><span class="text-violet-400">Total Errors</span></td>
+                                    <td class="text-end"><span id="pikud_haoref_error_counter" class="stat-number">0</span></td>
                                 </tr>
-                                <!-- Last error message -->
                                 <tr id="error_message" style="display:none;">
-                                    <td width="95%">
-                                        <span class="text-danger">Open Error Messages</span>
-                                    </td>
-                                    <td>
-                                        <img src="/icons/open.png" id="show_error_messages" style="width:20px; height:20px;">
+                                    <td><span class="text-violet-400">Open Error Messages</span></td>
+                                    <td class="text-end">
+                                        <i id="show_error_messages" class="fa-solid fa-folder-open fa-xl icon-btn text-info" style="cursor:pointer;" title="Show Error Messages"></i>
                                     </td>
                                 </tr>
-                                <!-- Test alerts -->
                                 <tr id="test_alerts">
-                                    <td width="95%">
-                                        <span class="text-light">Test Alerts</span>
-                                    </td>
-                                    <td>
-                                        <img src="/icons/off.png" style="width:30px; height:30px;" title="Turn on Test Mode" id="test_mode" />
+                                    <td><span class="text-light">Test Mode</span></td>
+                                    <td class="text-end">
+                                        <i id="test_mode" class="fa-solid fa-toggle-off fa-2xl icon-btn" style="cursor:pointer; transition: all 0.3s ease;" title="Turn ON Test Mode"></i>
                                     </td>
                                 </tr>
-                                <!-- Settings -->
                                 <tr>
-                                    <td width="95%">
-                                        <span class="text-light">Settings</span>
-                                    </td>
-                                    <td>
-                                        <img src="/icons/settings.png" id="open_settings" alt="Settings" style="width:20px; height:20px;">
+                                    <td><span class="text-light">Settings</span></td>
+                                    <td class="text-end">
+                                        <i id="open_settings" class="fa-solid fa-gear fa-2xl icon-btn text-light" style="cursor:pointer; transition: all 0.3s ease;" title="Open Settings"></i>
                                     </td>
                                 </tr>
-                                <!-- App version -->
                                 <tr>
-                                    <td width="95%">
-                                        <span class="text-light">App Version</span>
-                                    </td>
-                                    <td>
-                                        <span id="appVersion"><%= appVersion %></span>
+                                    <td><span class="text-violet-400">App Version</span></td>
+                                    <td class="text-end"><span id="appVersion" class="stat-number"><%= appVersion %></span></td>
+                                </tr>
+                                <!-- App Update Available -->
+                                <tr id="update_app_version" style="display:none;">
+                                    <td><span class="text-violet-400">App Update Available</span></td>
+                                    <td class="text-end">
+                                        <i class="fa-solid fa-download fa-xl icon-btn text-warning" style="cursor:pointer;" title="Update it on your server"></i>
                                     </td>
                                 </tr>
-                                <!-- Update App version -->
-                                <tr style="display:none;" id="update_app_version">
-                                    <td width="95%">
-                                        <span class="text-light">App Update Available</span>
-                                    </td>
-                                    <td>
-                                        <img src="/icons/update.png" alt="Update" style="width:20px; height:20px;" title="Update it on your server">
-                                    </td>
-                                </tr>
+
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-
-            <div class="col">
-                <!-- News Updates -->
-                <div class="card bg-success text-white border-0 mb-2">
-                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#newsBody" style="cursor: pointer;">
-                        News Updates
-                        <img src="/icons/unfold.png" style="width:15px; height:15px;">
-                        <select id="rssFeedSelector" class="form-select form-select-sm w-auto bg-dark text-white border-0" style="display: none;">
-                        </select>
+            <!-- ==================== NEWS + TZOFAR MAP ==================== -->
+            <div class="col-lg-8 col-xl-5">
+                <!-- News -->
+                <div class="card table-card header-success text-white mb-3">
+                    <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#newsBody" style="cursor:pointer;">
+                        <span class="section-header"><i class="fa-solid fa-newspaper me-2"></i>News Updates</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <select id="rssFeedSelector" class="form-select form-select-sm bg-dark text-white border-0" style="display: none;"></select>
+                            <i class="fa-solid fa-chevron-down collapse-icon"></i>
+                        </div>
                     </div>
-
                 </div>
+
                 <div id="newsBody" class="collapse show">
-                    <div class="card bg-dark border-0 mb-2 rss-feed scrollable" style="max-height: 30vh; overflow-y: auto;">
-                        <table class="table table-sm table-dark mb-0">
+                    <div class="card rss-feed">
+                        <table class="table table-dark table-sm mb-0">
                             <tbody id="rss_alerts"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Tzofar Map Alerts -->
-                <div class="card bg-danger text-white border-0 mb-2">
-                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#tzofarBody" style="cursor: pointer;">
-                        Tzofar Map Alerts
-                        <img src="/icons/unfold.png" style="width:15px; height:15px;">
+                <!-- Tzofar Map -->
+                <div class="card table-card header-danger text-white mt-3">
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#tzofarBody" style="cursor:pointer;">
+                        <span><i class="fa-solid fa-map-location-dot me-2"></i>Tzofar Map Alerts</span>
+                        <i class="fa-solid fa-chevron-down collapse-icon"></i>
                     </div>
                 </div>
-                <div id="tzofarBody" class="collapse show">
-                    <div class="">
-                        <iframe src="https://www.tzevaadom.co.il/en/" style="width:100%; height:1400px; border:none; border-radius: 6px;" title="Tzofar GPS Alerts"></iframe>
+
+                <div id="tzofarBody" class="collapse show mt-2">
+                    <div class="card overflow-hidden" style="border-radius: 16px;">
+                        <iframe src="https://www.tzevaadom.co.il/en/" style="width:100%; height:1310px; border:none; border-radius: 6px;" title="Tzofar GPS Alerts"></iframe>
                     </div>
                 </div>
             </div>
 
         </div>
     </div>
+
+    <!-- Modals remain mostly the same but you can also modernize their styling similarly -->
 
     <!-- Early Warning Modal - Enter -->
     <div class="modal fade" id="earlyWarningModalEnter" tabindex="-1" aria-labelledby="earlyWarningModalEnterLabel" aria-hidden="true">
@@ -420,6 +533,8 @@
     </div>
     <!-- end content -->
 
+
+
     <script>
 
         function updateClock() {
@@ -504,13 +619,14 @@
             if (testmode) {
                 testmode = false;
 
-                $("#test_mode").attr("src", "/icons/off.png");
+
                 $("#test_mode").attr("title", "Turn on Test Mode");
+                $("#test_mode").removeClass("fa-toggle-on active").addClass("fa-toggle-off");
             } else {
                 testmode = true;
 
-                $("#test_mode").attr("src", "/icons/on.png");
                 $("#test_mode").attr("title", "Turn off Test Mode");
+                $("#test_mode").removeClass("fa-toggle-off text-muted").addClass("fa-toggle-on active");
             }
         });
 

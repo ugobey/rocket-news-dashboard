@@ -255,7 +255,7 @@
             <div class="col-lg-4 col-xl-3">
                 <div class="card table-card header-danger text-white mb-3">
                     <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#pikudBody" style="cursor:pointer;">
-                        <span><i class="fa-solid fa-bell me-2"></i>Home Front Command Sirens</span>
+                        <span><i class="fa-solid fa-bell me-2"></i>Home Front Command Alerts</span>
                         <div class="d-flex align-items-center gap-2">
                             <span id="liveClock" class="live-clock">00:00:00</span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
@@ -287,7 +287,7 @@
                 <!-- Locations -->
                 <div class="card table-card header-danger text-white mb-3">
                     <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#locationsBody" style="cursor:pointer;">
-                        <span><i class="fa-solid fa-location-dot me-2"></i>Alerts by Location</span>
+                        <span><i class="fa-solid fa-location-dot me-2"></i>Alert Locations</span>
                         <i class="fa-solid fa-chevron-down collapse-icon"></i>
                     </div>
                 </div>
@@ -302,7 +302,7 @@
                 <!-- Zones -->
                 <div class="card table-card header-danger text-white mt-3 mb-3">
                     <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#zonesBody" style="cursor:pointer;">
-                        <span><i class="fa-solid fa-map me-2"></i>Alerts by Zone</span>
+                        <span><i class="fa-solid fa-map me-2"></i>Alert Zones</span>
                         <i class="fa-solid fa-chevron-down collapse-icon"></i>
                     </div>
                 </div>
@@ -1073,7 +1073,7 @@
 
                                                 $("#alerted_locations_counter").append(`
                                                 <tr>
-                                                    <td width="95%"><font class='text-info'>${location}</font></td>
+                                                    <td width="95%"><font class='text-white'>${location}</font></td>
                                                     <td>${counter}</td>
                                                 </tr>
                                             `);
@@ -1100,7 +1100,7 @@
 
                                                 $("#alerted_zones_counter").append(`
                                                 <tr>
-                                                    <td width="95%"><font class='text-info'>${zone}</font></td>
+                                                    <td width="95%"><font class='text-white'>${zone}</font></td>
                                                     <td>${counter}</td>
                                                 </tr>
                                             `);

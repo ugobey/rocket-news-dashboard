@@ -457,7 +457,7 @@
 
                                 <div id="tzofarBody" class="collapse show mt-2">
                                     <div class="card overflow-hidden" style="border-radius: 16px">
-                                        <iframe src="https://www.tzevaadom.co.il/en/" style="width: 100%; height: 1310px; border: none; border-radius: 6px" title="Tzofar GPS Alerts"></iframe>
+                                        <iframe id="tzofarMapFrame" src="https://www.tzevaadom.co.il/en/" style="width: 100%; border: none; border-radius: 6px" title="Tzofar GPS Alerts"></iframe>
                                     </div>
                                 </div>
                             </div>
@@ -633,6 +633,85 @@
 
                 updateClock();
                 setInterval(updateClock, 1000);
+
+                function fitTzofarBodyToViewport () {
+                    const tzofarBody = $('#tzofarBody');
+                    if (!tzofarBody || !tzofarBody.hasClass('show')) {
+                        return;
+                    }
+
+                    const tzofarMapFrame = $('#tzofarMapFrame')[0];
+                    const tzofarCard = tzofarBody.find('.card')[0];
+                    const rect = tzofarBody[0].getBoundingClientRect();
+                    const viewportBottomGap = 15;
+                    const minHeight = 280;
+                    const availableHeight = Math.max(minHeight, Math.floor(window.innerHeight - rect.top - viewportBottomGap));
+
+                    // Keep this section growing downward to fill the visible viewport.
+                    tzofarBody.css('height', `${availableHeight}px`);
+
+                    if (tzofarCard) {
+                        $(tzofarCard).css('height', '100%');
+                    }
+
+                    if (tzofarMapFrame) {
+                        $(tzofarMapFrame).css('height', '100%');
+                    }
+                }
+
+                let fitTzofarRafId = null;
+
+                function scheduleFitTzofarBodyToViewport () {
+                    if (fitTzofarRafId !== null) {
+                        cancelAnimationFrame(fitTzofarRafId);
+                    }
+
+                    fitTzofarRafId = requestAnimationFrame(() => {
+                        fitTzofarRafId = null;
+                        fitTzofarBodyToViewport();
+                    });
+                }
+
+                const tzofarBodyElement = $('#tzofarBody');
+                const newsBodyElement = $('#newsBody');
+
+                if (tzofarBodyElement.length) {
+                    tzofarBodyElement.on('shown.bs.collapse', scheduleFitTzofarBodyToViewport);
+                    tzofarBodyElement.on('hidden.bs.collapse', () => {
+                        $(tzofarBodyElement).css('height', '');
+                    });
+                }
+
+                if (newsBodyElement.length) {
+                    newsBodyElement.on('shown.bs.collapse', scheduleFitTzofarBodyToViewport);
+                    newsBodyElement.on('hidden.bs.collapse', scheduleFitTzofarBodyToViewport);
+
+                    if (typeof ResizeObserver !== 'undefined') {
+                        const newsBodyResizeObserver = new ResizeObserver(() => {
+                            scheduleFitTzofarBodyToViewport();
+                        });
+
+                        newsBodyResizeObserver.observe(newsBodyElement[0]);
+                    } else {
+                        const rssAlertsElement = $('#rss_alerts')[0];
+
+                        if (rssAlertsElement) {
+                            const newsBodyMutationObserver = new MutationObserver(() => {
+                                scheduleFitTzofarBodyToViewport();
+                            });
+
+                            newsBodyMutationObserver.observe(rssAlertsElement, {
+                                childList: true,
+                                subtree: true
+                            });
+                        }
+                    }
+                }
+
+                $(window).on('resize', scheduleFitTzofarBodyToViewport);
+                $(window).on('load', scheduleFitTzofarBodyToViewport);
+
+                scheduleFitTzofarBodyToViewport();
 
                 setInterval(() => {
                     if (pikud_haoref_alerts.children.length > 500) {

@@ -3,12 +3,10 @@ const service_name = "Ajax";
 const express = require("express");
 const router = express.Router();
 
-const sharedFunction = require("../shared/functions.js");
-const errorHandler = sharedFunction.errorHandler;
-
 const fs = require("fs");
 
 const pikudHaoref = require("pikud-haoref-api");
+
 const { parseFeed } = require("@rowanmanning/feed-parser");
 
 const { exec } = require("node:child_process");

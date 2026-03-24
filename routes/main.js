@@ -6,25 +6,18 @@ const router = express.Router();
 
 require("dotenv").config();
 
-const sharedFunction = require("../shared/functions.js");
-const errorHandler = sharedFunction.errorHandler;
-
 const pkg = require("../package.json");
+const pikudHaorefCitiesJSON = require("pikud-haoref-api/cities.json");
 
-router.use("/", function (req, res) {
+router.use("/", async function (req, res) {
     try {
-        (async () => {
-            res.render(service_page_name, {
-                title: service_name,
-                appVersion: pkg.version,
-            });
-        })().catch((err) =>
-            setImmediate(() => {
-                errorHandler(service_name, "Error : " + err);
-            }),
-        );
+        res.render(service_page_name, {
+            title: service_name,
+            appVersion: pkg.version,
+            cities: JSON.stringify(pikudHaorefCitiesJSON),
+        });
     } catch (err) {
-        errorHandler(service_name, "Error : " + err);
+        console.log(service_name + " ERROR", err);
         res.statusCode = 200;
         res.write("ERROR");
         res.end();

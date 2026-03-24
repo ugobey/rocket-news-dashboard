@@ -659,6 +659,7 @@
                 let alertedZones = [];
                 let errorLogs = [];
                 let unmatchedCitiesLogs = [];
+                let earlyWarningLocations = [];
 
                 let rocketAlertCounter = 0;
                 let droneAlertCounter = 0;
@@ -910,7 +911,9 @@
                                             }, 30000);
                                         }
 
+                                        earlyWarningLocations = [];
                                         earlyWarningActive = false;
+                                        $("#earlyWarningLocations").text("");
 
                                         if (earlyWarningModalEnter._isShown) {
                                             earlyWarningModalEnter.hide();
@@ -935,15 +938,21 @@
                                             earlyWarningModalExit.hide();
                                         }
 
+                                        if (!earlyWarningLocations.includes(alert[0].cities.join(","))) {
+                                            earlyWarningLocations.push(alert[0].cities.join(","));
+
+                                            $("#earlyWarningLocations").append(alert[0].cities.map(city => locationMap[city]?.name_en || city).join(", ") + "<br /><br />");
+                                        }
+
                                         if (!earlyWarningModalEnter._isShown) {
-                                            $("#earlyWarningLocations").text(alert[0].cities.map(city => locationMap[city]?.name_en || city).join(", "));
                                             earlyWarningModalEnter.show();
                                         }
                                     }
 
                                 } else if (alertType != "newsFlash") {
-
+                                    earlyWarningLocations = [];
                                     earlyWarningActive = false;
+                                    $("#earlyWarningLocations").text("");
 
                                     if (earlyWarningModalEnter._isShown) {
                                         earlyWarningModalEnter.hide();

@@ -823,7 +823,7 @@
         }
 
         //Pikud HaOref service
-        const locationsJSON = <%- cities %>;
+        const locationsJSON = <% - cities %>;
 
         const input = document.getElementById('citySearch');
         const suggestionsList = document.getElementById('city_suggestions');
@@ -921,10 +921,6 @@
                     }
 
                     if (alert.length) {
-                        //console.log(alert[0]);
-                        //console.log("Alert : ", alert[0]);
-                        //console.log(JSON.stringify(alert));
-
                         const alertType = alert[0] && alert[0].type;
 
                         if (alertType === "newsFlash") {

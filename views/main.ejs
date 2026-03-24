@@ -37,6 +37,27 @@
                     min-height: 100vh;
                 }
 
+                /* Remove underline and color change from all hyperlinks */
+                a {
+                    color: inherit;
+                    /* Keeps current text color */
+                    text-decoration: none;
+                    /* Removes underline */
+                    transition: color 0.2s ease;
+                }
+
+                a:hover {
+                    color: inherit;
+                    /* Prevents color change on hover */
+                    text-decoration: none;
+                }
+
+                /* Optional: If you want a subtle hover effect (recommended for better UX) */
+                a:hover {
+                    opacity: 0.85;
+                    /* Light fade on hover instead of color change */
+                }
+
                 .card {
                     background: var(--glass);
                     backdrop-filter: blur(20px);
@@ -973,10 +994,13 @@
 
                                         for (let i = 0; i < locations.length; i++) {
                                             const locationOriginal = locations[i];
-                                            const location = locationMap[locations[i].replace("''", "'")]?.name_en || locationOriginal;
 
-                                            const zone = locationMap[locations[i].replace("''", "'")]?.zone || "Unknown";
-                                            const zone_en = locationMap[locations[i].replace("''", "'")]?.zone_en || "Unknown";
+                                            const locationKey = locations[i].replace("''", "'");
+                                            const location = locationMap[locationKey]?.name_en || locationOriginal;
+                                            const zone = locationMap[locationKey]?.zone || "Unknown";
+                                            const zone_en = locationMap[locationKey]?.zone_en || "Unknown";
+                                            const lat = locationMap[locationKey]?.lat || "";
+                                            const lng = locationMap[locationKey]?.lng || "";
 
                                             if (location) {
                                                 if (alertType === "missiles") {
@@ -1014,7 +1038,7 @@
                                                     <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
                                                         <td><font class='text-warning'>${timeStamp}</font></td>
                                                         <td><img src="${alertTypeIcon}" style="width:20px; height:20px;" title="${alertTypeText}"></td>
-                                                        <td>${location}</td>
+                                                        <td><a href="https://www.google.com/maps/search/${lat},${lng}" target="_blank">${location}</a></td>
                                                         <td>${zone_en}</td>
                                                     </tr>
                                                 `);
@@ -1146,7 +1170,8 @@
                             reversedArray.push({
                                 published: item.published,
                                 title: item.title,
-                                idpublished: item.id
+                                idpublished: item.id,
+                                url: item.url
                             });
                         });
 
@@ -1170,12 +1195,12 @@
                                     newsArray.push(published);
 
                                     $("#rss_alerts").prepend(`
-                                <tr class="animate__animated animate__fadeInDown animate__faster rssNewRow table-light">
-                                    <td width="5%"><font class="text-warning">${publishDate}</font></td>
-                                    <td width="6%"><font class="text-info">${getRealName(rssFeedCodeName)}</font></td>
-                                    <td>${item.title}</td>
-                                </tr>
-                            `);
+                                        <tr class="animate__animated animate__fadeInDown animate__faster rssNewRow table-light">
+                                            <td width="5%"><font class="text-warning">${publishDate}</font></td>
+                                            <td width="6%"><font class="text-info">${getRealName(rssFeedCodeName)}</font></td>
+                                            <td><a href="${item.url}" target="_blank">${item.title}</a></td>
+                                        </tr>
+                                    `);
                                 }
                             }
                         });

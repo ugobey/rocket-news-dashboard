@@ -988,7 +988,7 @@
                                     if (alertTypeDetails) {
                                         const alertTypeText = alertTypeDetails.text;
                                         const alertTypeIcon = alertTypeDetails.icon;
-                                        const timeStamp = moment().format("HH:mm:ss")
+                                        const timeStamp = moment().format("HH:mm:ss");
 
                                         const locations = extractNewLocations(alert[0].cities);
 
@@ -1179,31 +1179,20 @@
 
                         reversedArray.forEach((item) => {
                             const published = item.published;
-                            const publishDate = moment(published).format("HH:mm");
-                            const publishDay = moment(published).format("MMM Do YYYY");
-                            const currentDay = moment().format("MMM Do YYYY");
+                            const timeStamp = moment().format("HH:mm");
 
-                            const today = moment();
-                            const yesterday = moment(today.startOf("day")).set(
-                                "date",
-                                today.get("date") - 1
-                            );
-                            const yesterDay = yesterday.format("MMM Do YYYY");
+                            if (!newsArray.includes(published)) {
+                                newsArray.push(published);
 
-                            if (publishDay === currentDay) {
-                                if (!newsArray.includes(published)) {
-                                    newsArray.push(published);
-
-                                    $("#rss_alerts").prepend(`
-                                        <tr class="animate__animated animate__fadeInDown animate__faster rssNewRow table-light">
-                                            <td width="5%"><font class="text-warning">${publishDate}</font></td>
-                                            <td width="6%"><font class="text-info">${getRealName(rssFeedCodeName)}</font></td>
-                                            <td><a href="${item.url}" target="_blank">${item.title}</a></td>
-                                        </tr>
-                                    `);
-                                }
+                                $("#rss_alerts").prepend(`
+                                    <tr class="animate__animated animate__fadeInDown animate__faster rssNewRow table-light">
+                                        <td width="5%"><font class="text-warning">${timeStamp}</font></td>
+                                        <td width="6%"><font class="text-info">${getRealName(rssFeedCodeName)}</font></td>
+                                        <td><a href="${item.url}" target="_blank">${item.title}</a></td>
+                                    </tr>
+                                `);
                             }
-                        });
+                            });
                     }
 
                 };

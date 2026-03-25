@@ -225,7 +225,7 @@
                success (green) = news feed.                                        */
             .header-danger {
                 background: #b91c1c;
-                /* Red — Pikud HaOref / Tzofar alert panels */
+                /* Red — Pikud HaOref / map alert panels */
             }
 
             .header-primary {
@@ -265,7 +265,7 @@
 
             /* ==================== RSS FEED SCROLL AREA ====================
                Constrains the news table height to 38% of the viewport so it
-               doesn't push the Tzofar map off-screen on smaller displays.    */
+               doesn't push the map off-screen on smaller displays.    */
             .rss-feed {
                 max-height: 38vh;
                 overflow-y: auto;
@@ -518,7 +518,7 @@
                     </div>
                 </div>
 
-                <!-- ==================== NEWS + TZOFAR MAP ==================== -->
+                <!-- ==================== NEWS + MAP ==================== -->
                 <div class="col-lg-8 col-xl-5">
                     <!-- News -->
                     <div class="card table-card header-success text-white mb-3">
@@ -539,15 +539,15 @@
                         </div>
                     </div>
 
-                    <!-- Tzofar Map -->
+                    <!-- Map -->
                     <div class="card table-card header-danger text-white mt-3">
-                        <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#tzofarBody" style="cursor: pointer">
-                            <span><i class="fa-solid fa-map-location-dot me-2"></i>Tzofar Map Alerts</span>
+                        <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#mapBody" style="cursor: pointer">
+                            <span><i class="fa-solid fa-map-location-dot me-2"></i>Map Alerts</span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
                         </div>
                     </div>
 
-                    <div id="tzofarBody" class="collapse show mt-2">
+                    <div id="mapBody" class="collapse show mt-2">
                         <div class="card overflow-hidden" style="border-radius: 16px">
                             <div id="map"></div>
                         </div>
@@ -992,78 +992,78 @@
             updateClock(); // Run immediately to avoid a 1-second blank on page load
             setInterval(updateClock, 1000); // Then keep updating every second
 
-            // ==================== TZOFAR MAP SIZING ====================
-            // Dynamically stretches the Tzofar map iframe to fill whatever vertical
+            // ==================== MAP SIZING ====================
+            // Dynamically stretches the map iframe to fill whatever vertical
             // space remains between its top edge and the bottom of the viewport.
             // This keeps the map as large as possible without causing page scroll.
-            function fitTzofarBodyToViewport () {
-                const tzofarBody = $('#tzofarBody');
+            function fitMapBodyToViewport () {
+                const mapBody = $('#mapBody');
 
                 // Skip if the section is collapsed — no point sizing a hidden element
-                if (!tzofarBody || !tzofarBody.hasClass('show')) {
+                if (!mapBody || !mapBody.hasClass('show')) {
                     return;
                 }
 
-                const tzofarMapFrame = $('#tzofarMapFrame')[0];
-                const tzofarCard = tzofarBody.find('.card')[0];
-                const rect = tzofarBody[0].getBoundingClientRect(); // Live position relative to viewport
+                const mapFrame = $('#mapFrame')[0];
+                const mapCard = mapBody.find('.card')[0];
+                const rect = mapBody[0].getBoundingClientRect(); // Live position relative to viewport
                 const viewportBottomGap = 15; // Leave a small breathing room at the bottom of the screen
                 const minHeight = 280; // Never shrink the map below this height (px)
                 // availableHeight = distance from the section's top edge to the viewport bottom, minus the gap
                 const availableHeight = Math.max(minHeight, Math.floor(window.innerHeight - rect.top - viewportBottomGap));
 
                 // Apply the computed height to the wrapper div so the card and iframe can fill it with '100%'
-                tzofarBody.css('height', `${availableHeight}px`);
+                mapBody.css('height', `${availableHeight}px`);
 
-                if (tzofarCard) {
-                    $(tzofarCard).css('height', '100%'); // Card stretches to fill the wrapper
+                if (mapCard) {
+                    $(mapCard).css('height', '100%'); // Card stretches to fill the wrapper
                 }
 
-                if (tzofarMapFrame) {
-                    $(tzofarMapFrame).css('height', '100%'); // iframe fills the card
+                if (mapFrame) {
+                    $(mapFrame).css('height', '100%'); // iframe fills the card
                 }
             }
 
-            let fitTzofarRafId = null; // Tracks the pending requestAnimationFrame ID for debouncing
+            let fitMapRafId = null; // Tracks the pending requestAnimationFrame ID for debouncing
 
             // Debounce helper: cancels any queued resize calculation and re-schedules one
             // for the next animation frame. This coalesces rapid resize/collapse events
             // (e.g. window resize bursts) into a single layout recalculation per frame.
-            function scheduleFitTzofarBodyToViewport () {
-                if (fitTzofarRafId !== null) {
-                    cancelAnimationFrame(fitTzofarRafId); // Cancel the previously queued frame
+            function scheduleFitMapBodyToViewport () {
+                if (fitMapRafId !== null) {
+                    cancelAnimationFrame(fitMapRafId); // Cancel the previously queued frame
                 }
 
                 // Queue a fresh calculation; clear the ID once it executes
-                fitTzofarRafId = requestAnimationFrame(() => {
-                    fitTzofarRafId = null;
-                    fitTzofarBodyToViewport();
+                fitMapRafId = requestAnimationFrame(() => {
+                    fitMapRafId = null;
+                    fitMapBodyToViewport();
                 });
             }
 
-            const tzofarBodyElement = $('#tzofarBody');
+            const mapBodyElement = $('#mapBody');
             const newsBodyElement = $('#newsBody');
 
-            // Re-size the map whenever the Tzofar panel is expanded ('shown') or collapsed ('hidden').
+            // Re-size the map whenever the map panel is expanded ('shown') or collapsed ('hidden').
             // On 'hidden' we reset the explicit height so the panel collapses fully to zero.
-            if (tzofarBodyElement.length) {
-                tzofarBodyElement.on('shown.bs.collapse', scheduleFitTzofarBodyToViewport);
-                tzofarBodyElement.on('hidden.bs.collapse', () => {
-                    $(tzofarBodyElement).css('height', ''); // Clear inline height so CSS collapse transition works
+            if (mapBodyElement.length) {
+                mapBodyElement.on('shown.bs.collapse', scheduleFitMapBodyToViewport);
+                mapBodyElement.on('hidden.bs.collapse', () => {
+                    $(mapBodyElement).css('height', ''); // Clear inline height so CSS collapse transition works
                 });
             }
 
             // The news feed panel sits above the map; any change in its height affects
             // how much space remains for the map, so we must resize on its collapse events too.
             if (newsBodyElement.length) {
-                newsBodyElement.on('shown.bs.collapse', scheduleFitTzofarBodyToViewport);
-                newsBodyElement.on('hidden.bs.collapse', scheduleFitTzofarBodyToViewport);
+                newsBodyElement.on('shown.bs.collapse', scheduleFitMapBodyToViewport);
+                newsBodyElement.on('hidden.bs.collapse', scheduleFitMapBodyToViewport);
 
                 // Prefer ResizeObserver (modern browsers) to react to news feed height changes
                 // as new RSS rows are prepended, without needing polling.
                 if (typeof ResizeObserver !== 'undefined') {
                     const newsBodyResizeObserver = new ResizeObserver(() => {
-                        scheduleFitTzofarBodyToViewport();
+                        scheduleFitMapBodyToViewport();
                     });
 
                     newsBodyResizeObserver.observe(newsBodyElement[0]);
@@ -1074,7 +1074,7 @@
 
                     if (rssAlertsElement) {
                         const newsBodyMutationObserver = new MutationObserver(() => {
-                            scheduleFitTzofarBodyToViewport();
+                            scheduleFitMapBodyToViewport();
                         });
 
                         newsBodyMutationObserver.observe(rssAlertsElement, {
@@ -1085,10 +1085,10 @@
                 }
             }
 
-            $(window).on('resize', scheduleFitTzofarBodyToViewport); // Re-size on browser window resize
-            $(window).on('load', scheduleFitTzofarBodyToViewport); // Run once all resources have loaded
+            $(window).on('resize', scheduleFitMapBodyToViewport); // Re-size on browser window resize
+            $(window).on('load', scheduleFitMapBodyToViewport); // Run once all resources have loaded
 
-            scheduleFitTzofarBodyToViewport(); // Initial call on script execution
+            scheduleFitMapBodyToViewport(); // Initial call on script execution
 
             // ==================== PERIODIC DOM MAINTENANCE ====================
 

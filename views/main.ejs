@@ -581,7 +581,12 @@
                     </div>
 
                     <!-- Footer -->
-                    <div class="modal-footer border-0 px-4 pb-4">
+                    <div class="modal-footer border-0 px-4 pb-4 d-flex justify-content-between align-items-center w-100">
+                        <div class="text-white-50 small">
+                            <span>Opened at <strong id="earlyWarningOpenedAt">--:--:--</strong></span>
+                            &nbsp;&middot;&nbsp;
+                            <span>You have about <strong id="earlyWarningCountdown">5:00</strong> before missile sirens will sound</span>
+                        </div>
                         <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -1178,6 +1183,49 @@
             const unmatchedCitiesModal = new bootstrap.Modal('#unmatchedCitiesModal'); // Locations the app couldn't map to locationMap
             const settingsModal = new bootstrap.Modal('#settingsModal'); // User preferences (city selection)
 
+
+            // ==================== EARLY WARNING TIMER ====================
+            let earlyWarningCountdownInterval = null;
+            const EARLY_WARNING_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+
+            function startEarlyWarningTimer () {
+                // Show the time the modal opened
+                const now = new Date();
+                const h = String(now.getHours()).padStart(2, '0');
+                const m = String(now.getMinutes()).padStart(2, '0');
+                const s = String(now.getSeconds()).padStart(2, '0');
+                document.getElementById('earlyWarningOpenedAt').textContent = `${h}:${m}:${s}`;
+
+                // Clear any existing countdown
+                clearEarlyWarningTimer();
+
+                let remaining = EARLY_WARNING_DURATION_MS;
+
+                function tick () {
+                    remaining -= 1000;
+                    if (remaining < 0) remaining = 0;
+
+                    const mins = String(Math.floor(remaining / 60000)).padStart(1, '0');
+                    const secs = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
+                    const el = document.getElementById('earlyWarningCountdown');
+                    if (el) el.textContent = `${mins}:${secs}`;
+
+                    if (remaining <= 0) {
+                        clearEarlyWarningTimer();
+                    }
+                }
+
+                tick(); // Run immediately, then every second
+                earlyWarningCountdownInterval = setInterval(tick, 1000);
+            }
+
+            function clearEarlyWarningTimer () {
+                if (earlyWarningCountdownInterval !== null) {
+                    clearInterval(earlyWarningCountdownInterval);
+                    earlyWarningCountdownInterval = null;
+                }
+            }
+
             // ==================== APPLICATION STATE ====================
 
             // Accumulator arrays — each entry is an object {location, counter} or {zone, counter}
@@ -1513,6 +1561,7 @@
                                     $("#earlyWarningLocations").text("");
 
                                     if (earlyWarningModalEnter._isShown) {
+                                        clearEarlyWarningTimer();
                                         earlyWarningModalEnter.hide(); // Hide the danger modal
                                     }
                                 } else {
@@ -1552,6 +1601,7 @@
                                     }
 
                                     if (!earlyWarningModalEnter._isShown) {
+                                        startEarlyWarningTimer();
                                         earlyWarningModalEnter.show(); // Open the danger modal
                                     }
                                 }
@@ -1566,6 +1616,7 @@
                                 $("#earlyWarningLocations").text("");
 
                                 if (earlyWarningModalEnter._isShown) {
+                                    clearEarlyWarningTimer();
                                     earlyWarningModalEnter.hide();
                                 }
 

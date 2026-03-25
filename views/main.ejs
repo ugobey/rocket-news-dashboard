@@ -14,7 +14,7 @@
         <script src="/js/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
         <script src="/js/moment-2.30.1.min.js"></script>
 
-        <script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMap&libraries=marker&key=AIzaSyCSeMZ5AxUgSWHy6EedcgeXjRC2irszdUQ"></script>
+        <script defer src="https://maps.googleapis.com/maps/api/js?callback=initMap&libraries=marker&key=AIzaSyCSeMZ5AxUgSWHy6EedcgeXjRC2irszdUQ"></script>
 
         <style>
             /* ==================== CSS CUSTOM PROPERTIES ====================
@@ -711,14 +711,13 @@
 
         <script>
             // ==================== MAP ====================
-            // Global variables
             let map;
             let allMarkers = []; // Keeps all active markers
-            const DEFAULT_CENTER = {
+            const defaultMapCenter = {
                 lat: 32.0853,
                 lng: 34.7818
             };
-            const DEFAULT_ZOOM = 8;
+            const defaultMapZoom = 8;
 
             // Active city alerts keyed by a stable city identifier.
             // A city remains here while its marker is active, then is removed on timeout.
@@ -727,13 +726,19 @@
                 activeList: []
             };
 
-            // Initialize the map (runs only once)
-            function initMap () {
+            // Initialize the map (runs only once).
+            // Assigned to window so the async Maps API callback can always find it,
+            // regardless of whether the script fires before or after this block executes.
+            window.initMap = function initMap () {
                 map = new google.maps.Map(document.getElementById('map'), {
-                    zoom: DEFAULT_ZOOM,
-                    center: DEFAULT_CENTER,
-                    mapId: 'DEMO_MAP_ID',
-                    mapTypeId: 'roadmap'
+                    zoom: defaultMapZoom,
+                    center: defaultMapCenter,
+                    mapId: 'rocket-alerts-map',
+                    mapTypeId: 'roadmap',
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                    fullscreenControl: true,
+                    zoomControl: true
                 });
             }
 
@@ -759,8 +764,8 @@
                 const visibleMarkers = allMarkers.filter(marker => marker && marker.map);
 
                 if (visibleMarkers.length === 0) {
-                    map.setCenter(DEFAULT_CENTER);
-                    map.setZoom(DEFAULT_ZOOM);
+                    map.setCenter(defaultMapCenter);
+                    map.setZoom(defaultMapZoom);
                     return;
                 }
 
@@ -778,7 +783,7 @@
 
                 google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
                     if (map.getZoom() > 16) {
-                        map.setZoom(16);
+                        map.setZoom(12);
                     }
                 });
             }
@@ -817,10 +822,8 @@
             // Add new city markers without removing existing ones.
             // Already-active cities are ignored until their per-city duration expires.
             async function addCitiesToMap (cities) {
-                console.log(cities)
                 // Wait until map is ready
                 if (!map) {
-                    console.warn("Map not ready yet, waiting...");
                     await waitForMap();
                 }
 
@@ -860,6 +863,9 @@
                         scale: 1.2,
                     });
 
+                    // Start transparent so we can fade in
+                    pin.element.style.opacity = '0';
+
                     const marker = new google.maps.marker.AdvancedMarkerElement({
                         position: {
                             lat: city.lat,
@@ -868,6 +874,9 @@
                         map: map,
                         content: pin.element
                     });
+
+                    // Fade the marker in after it is placed on the map
+                    addMarkerWithFade(marker);
 
                     // Store it globally so we can track it
                     allMarkers.push(marker);
@@ -904,6 +913,26 @@
 
                 // Fit map to all currently active markers, not only this batch.
                 fitMapToActiveMarkers();
+            }
+
+            // Smooth fade-in when a marker first appears
+            function addMarkerWithFade (marker) {
+                if (!marker || !marker.content) return;
+
+                let opacity = 0;
+                const fadeStep = 0.08;
+                const interval = 50;
+                const markerContent = marker.content;
+
+                const fadeInterval = setInterval(() => {
+                    opacity += fadeStep;
+                    if (opacity >= 1) {
+                        clearInterval(fadeInterval);
+                        markerContent.style.opacity = '1';
+                    } else {
+                        markerContent.style.opacity = String(opacity);
+                    }
+                }, interval);
             }
 
             // Smooth fade-out + remove marker
@@ -971,26 +1000,6 @@
                 clearAllMarkers
             };
 
-
-
-            // ==================== LIVE CLOCK ====================
-            // Refreshes the HH:MM:SS badge in the alert panel header every second.
-            function updateClock () {
-                const now = new Date();
-                // padStart(2, '0') ensures single-digit values are zero-padded (e.g. '9' → '09')
-                const h = String(now.getHours()).padStart(2, '0');
-                const m = String(now.getMinutes()).padStart(2, '0');
-                const s = String(now.getSeconds()).padStart(2, '0');
-
-                const timeString = `${h}:${m}:${s}`;
-
-                // Write the formatted time into the clock badge element
-                const clockHeader = document.getElementById('liveClock');
-                if (clockHeader) clockHeader.textContent = timeString;
-            }
-
-            updateClock(); // Run immediately to avoid a 1-second blank on page load
-            setInterval(updateClock, 1000); // Then keep updating every second
 
             // ==================== MAP SIZING ====================
             // Dynamically stretches the map iframe to fill whatever vertical
@@ -1089,6 +1098,28 @@
             $(window).on('load', scheduleFitMapBodyToViewport); // Run once all resources have loaded
 
             scheduleFitMapBodyToViewport(); // Initial call on script execution
+
+
+
+            // ==================== LIVE CLOCK ====================
+            // Refreshes the HH:MM:SS badge in the alert panel header every second.
+            function updateClock () {
+                const now = new Date();
+                // padStart(2, '0') ensures single-digit values are zero-padded (e.g. '9' → '09')
+                const h = String(now.getHours()).padStart(2, '0');
+                const m = String(now.getMinutes()).padStart(2, '0');
+                const s = String(now.getSeconds()).padStart(2, '0');
+
+                const timeString = `${h}:${m}:${s}`;
+
+                // Write the formatted time into the clock badge element
+                const clockHeader = document.getElementById('liveClock');
+                if (clockHeader) clockHeader.textContent = timeString;
+            }
+
+            updateClock(); // Run immediately to avoid a 1-second blank on page load
+            setInterval(updateClock, 1000); // Then keep updating every second
+
 
             // ==================== PERIODIC DOM MAINTENANCE ====================
 

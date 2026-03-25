@@ -1,144 +1,142 @@
-                <!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
 
-                <!DOCTYPE html>
-                <html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%-title%></title>
 
-                <head>
-                    <meta charset="UTF-8" />
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                    <title><%-title%></title>
+    <link href="/css/bootstrap-5.3.3/bootstrap.min.css" rel="stylesheet" />
+    <link href="/css/animate.min.css" rel="stylesheet" />
+    <link href="/fonts/fontawesome-free-7.2.0/css/all.min.css" rel="stylesheet" />
 
-                    <link href="/css/bootstrap-5.3.3/bootstrap.min.css" rel="stylesheet" />
-                    <link href="/css/animate.min.css" rel="stylesheet" />
-                    <link href="/fonts/fontawesome-free-7.2.0/css/all.min.css" rel="stylesheet" />
+    <script src="/js/jquery-3.7.1.min.js"></script>
+    <script src="/js/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
+    <script src="/js/moment-2.30.1.min.js"></script>
 
-                    <script src="/js/jquery-3.7.1.min.js"></script>
-                    <script src="/js/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
-                    <script src="/js/moment-2.30.1.min.js"></script>
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #eab308;
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-border: rgba(255, 255, 255, 0.12);
+        }
 
-                    <style>
-                :root {
-                    --primary: #0ea5e9;
-                    --danger: #ef4444;
-                    --success: #22c55e;
-                    --warning: #eab308;
-                    --glass: rgba(255, 255, 255, 0.06);
-                    --glass-border: rgba(255, 255, 255, 0.12);
-                }
+        html {
+            font-size: 14px;
+        }
 
-                html {
-                    font-size: 14px;
-                }
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+            color: #e2e8f0;
+            font-family: "Segoe UI", system-ui, sans-serif;
+            min-height: 100vh;
+        }
 
-                body {
-                    background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
-                    color: #e2e8f0;
-                    font-family: "Segoe UI", system-ui, sans-serif;
-                    min-height: 100vh;
-                }
+        /* Remove underline and color change from all hyperlinks */
+        a {
+            color: inherit;
+            /* Keeps current text color */
+            text-decoration: none;
+            /* Removes underline */
+            transition: color 0.2s ease;
+        }
 
-                /* Remove underline and color change from all hyperlinks */
-                a {
-                    color: inherit;
-                    /* Keeps current text color */
-                    text-decoration: none;
-                    /* Removes underline */
-                    transition: color 0.2s ease;
-                }
+        a:hover {
+            color: inherit;
+            /* Prevents color change on hover */
+            text-decoration: none;
+        }
 
-                a:hover {
-                    color: inherit;
-                    /* Prevents color change on hover */
-                    text-decoration: none;
-                }
+        /* Optional: If you want a subtle hover effect (recommended for better UX) */
+        a:hover {
+            opacity: 0.85;
+            /* Light fade on hover instead of color change */
+        }
 
-                /* Optional: If you want a subtle hover effect (recommended for better UX) */
-                a:hover {
-                    opacity: 0.85;
-                    /* Light fade on hover instead of color change */
-                }
+        .card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            /* ← Important */
+            transition: all 0.3s ease;
+        }
 
-                .card {
-                    background: var(--glass);
-                    backdrop-filter: blur(20px);
-                    border: 1px solid var(--glass-border);
-                    border-radius: 20px;
-                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
-                    overflow: hidden;
-                    /* ← Important */
-                    transition: all 0.3s ease;
-                }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+        }
 
-                .card:hover {
-                    transform: translateY(-3px);
-                    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
-                }
+        .card-header {
+            border-bottom: 1px solid var(--glass-border);
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 1.07rem;
+            border-radius: 20px 20px 0 0 !important;
+        }
 
-                .card-header {
-                    border-bottom: 1px solid var(--glass-border);
-                    padding: 16px 20px;
-                    font-weight: 600;
-                    font-size: 1.07rem;
-                    border-radius: 20px 20px 0 0 !important;
-                }
+        /* ==================== TABLE FIXES ==================== */
+        .table-card {
+            border-radius: 20px;
+            overflow: hidden;
+        }
 
-                /* ==================== TABLE FIXES ==================== */
-                .table-card {
-                    border-radius: 20px;
-                    overflow: hidden;
-                }
+        .table {
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
 
-                .table {
-                    margin-bottom: 0;
-                    border-collapse: separate;
-                    border-spacing: 0;
-                }
+        .table thead tr {
+            background: rgba(0, 0, 0, 0.4);
+        }
 
-                .table thead tr {
-                    background: rgba(0, 0, 0, 0.4);
-                }
+        .table th {
+            color: #94a3b8;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.73rem;
+            letter-spacing: 0.6px;
+            padding: 14px 12px;
+            border: none;
+            background: rgba(0, 0, 0, 0.3);
+        }
 
-                .table th {
-                    color: #94a3b8;
-                    font-weight: 500;
-                    text-transform: uppercase;
-                    font-size: 0.73rem;
-                    letter-spacing: 0.6px;
-                    padding: 14px 12px;
-                    border: none;
-                    background: rgba(0, 0, 0, 0.3);
-                }
+        .table td {
+            padding: 11px 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: none;
+            vertical-align: middle;
+        }
 
-                .table td {
-                    padding: 11px 12px;
-                    border-top: 1px solid rgba(255, 255, 255, 0.06);
-                    border-bottom: none;
-                    vertical-align: middle;
-                }
+        /* Round the table corners properly */
+        .table tbody tr:first-child td:first-child {
+            border-top-left-radius: 16px;
+        }
 
-                /* Round the table corners properly */
-                .table tbody tr:first-child td:first-child {
-                    border-top-left-radius: 16px;
-                }
+        .table tbody tr:first-child td:last-child {
+            border-top-right-radius: 16px;
+        }
 
-                .table tbody tr:first-child td:last-child {
-                    border-top-right-radius: 16px;
-                }
+        .table tbody tr:last-child td:first-child {
+            border-bottom-left-radius: 16px;
+        }
 
-                .table tbody tr:last-child td:first-child {
-                    border-bottom-left-radius: 16px;
-                }
+        .table tbody tr:last-child td:last-child {
+            border-bottom-right-radius: 16px;
+        }
 
-                .table tbody tr:last-child td:last-child {
-                    border-bottom-right-radius: 16px;
-                }
+        .table-dark tr:hover {
+            background: rgba(255, 255, 255, 0.055) !important;
+        }
 
-                .table-dark tr:hover {
-                    background: rgba(255, 255, 255, 0.055) !important;
-                }
-
-                /* Colored headers */
-                /*
+        /* Colored headers */
+        /*
                 .header-danger {
                     background: linear-gradient(90deg, #7f1d1d, #b91c1c);
                 }
@@ -152,968 +150,984 @@
                 }
                 */
 
-                .header-danger {
-                    background: #b91c1c;
-                }
+        .header-danger {
+            background: #b91c1c;
+        }
 
-                .header-primary {
-                    background: #1e3a8a;
-                }
+        .header-primary {
+            background: #1e3a8a;
+        }
 
-                .header-success {
-                    background: #15803d;
-                }
+        .header-success {
+            background: #15803d;
+        }
 
-                .live-clock {
-                    background: rgba(0, 0, 0, 0.5);
-                    padding: 6px 14px;
-                    border-radius: 10px;
-                    font-size: 0.77rem;
-                    letter-spacing: 1px;
-                }
+        .live-clock {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 0.77rem;
+            letter-spacing: 1px;
+        }
 
-                .stat-number {
-                    font-size: 1.4rem;
-                    font-weight: 700;
-                    color: #f8fafc;
-                }
+        .stat-number {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
 
-                .modal-content {
-                    background: #1e2937;
-                    border: 1px solid var(--glass-border);
-                    border-radius: 20px;
-                }
+        .modal-content {
+            background: #1e2937;
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+        }
 
-                .rss-feed {
-                    max-height: 38vh;
-                    overflow-y: auto;
-                    scrollbar-width: thin;
-                }
+        .rss-feed {
+            max-height: 38vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
 
-                .scrollable::-webkit-scrollbar {
-                    width: 6px;
-                }
+        .scrollable::-webkit-scrollbar {
+            width: 6px;
+        }
 
-                .scrollable::-webkit-scrollbar-thumb {
-                    background: rgba(255, 255, 255, 0.25);
-                    border-radius: 20px;
-                }
+        .scrollable::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+        }
 
-                .icon-btn {
-                    transition: all 0.25s ease;
-                }
+        .icon-btn {
+            transition: all 0.25s ease;
+        }
 
-                .icon-btn:hover {
-                    transform: scale(1.18) rotate(8deg);
-                    filter: brightness(1.3);
-                }
+        .icon-btn:hover {
+            transform: scale(1.18) rotate(8deg);
+            filter: brightness(1.3);
+        }
 
-                .collapse-icon {
-                    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-                }
+        .collapse-icon {
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-                .collapsed .collapse-icon {
-                    transform: rotate(-90deg);
-                }
+        .collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
 
-                /* Enhanced Test Mode Toggle */
-                #test_mode {
-                    font-size: 2.1rem;
-                    color: #64748b;
-                }
+        /* Enhanced Test Mode Toggle */
+        #test_mode {
+            font-size: 2.1rem;
+            color: #64748b;
+        }
 
-                #test_mode.active {
-                    color: #22c55e !important;
-                    transform: rotate(0deg);
-                }
+        #test_mode.active {
+            color: #22c55e !important;
+            transform: rotate(0deg);
+        }
 
-                #test_mode:hover {
-                    color: #86efac;
-                    transform: scale(1.15);
-                }
+        #test_mode:hover {
+            color: #86efac;
+            transform: scale(1.15);
+        }
 
-                /* Settings Gear */
-                #open_settings:hover {
-                    color: #60a5fa;
-                    transform: scale(1.15) rotate(20deg);
-                }
+        /* Settings Gear */
+        #open_settings:hover {
+            color: #60a5fa;
+            transform: scale(1.15) rotate(20deg);
+        }
 
-                /* General icon button improvements */
-                .icon-btn {
-                    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-                }
+        /* General icon button improvements */
+        .icon-btn {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-                /* ====================== SLICK MODAL STYLES ====================== */
-                .glass-modal {
-                    background: rgba(6, 37, 91, 0.95);
-                    backdrop-filter: blur(24px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    border-radius: 24px;
-                    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
-                    color: white;
-                }
+        /* ====================== SLICK MODAL STYLES ====================== */
+        .glass-modal {
+            background: rgba(6, 37, 91, 0.95);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
+            color: white;
+        }
 
-                /* Suggestions dropdown */
-                #city_suggestions .list-group-item {
-                    background: rgba(15, 23, 42, 0.95);
-                    border: none;
-                    color: #e2e8f0;
-                    padding: 12px 16px;
-                }
+        /* Suggestions dropdown */
+        #city_suggestions .list-group-item {
+            background: rgba(15, 23, 42, 0.95);
+            border: none;
+            color: #e2e8f0;
+            padding: 12px 16px;
+        }
 
-                #city_suggestions .list-group-item:hover {
-                    background: rgba(59, 130, 246, 0.35);
-                }
+        #city_suggestions .list-group-item:hover {
+            background: rgba(59, 130, 246, 0.35);
+        }
 
-                    </style>
-                </head>
+    </style>
+</head>
 
-                <body>
-                    <div class="container-fluid p-3 p-lg-4">
-                        <div class="row g-3">
-                            <!-- ==================== HOME FRONT COMMAND SIRENS ==================== -->
-                            <div class="col-lg-4 col-xl-3">
-                                <div class="card table-card header-danger text-white mb-3">
-                                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#pikudBody" style="cursor: pointer">
-                                        <span><i class="fa-solid fa-bell me-2"></i>Home Front Command Alerts</span>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <span id="liveClock" class="live-clock">00:00:00</span>
-                                            <i class="fa-solid fa-chevron-down collapse-icon"></i>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div id="pikudBody" class="collapse show">
-                                    <div class="card">
-                                        <div class="table-responsive">
-                                            <table class="table table-dark table-sm mb-0">
-                                                <thead>
-                                                    <tr>
-                                                        <th width="10%">Time</th>
-                                                        <th width="5%">Type</th>
-                                                        <th>Location</th>
-                                                        <th>Zone</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="pikud_haoref_alerts" class="fw-medium"></tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- ==================== ALERTS BY LOCATION + ZONE ==================== -->
-                            <div class="col-lg-3 col-xl-2">
-                                <!-- Locations -->
-                                <div class="card table-card header-danger text-white mb-3">
-                                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#locationsBody" style="cursor: pointer">
-                                        <span><i class="fa-solid fa-location-dot me-2"></i>Alert Locations</span>
-                                        <i class="fa-solid fa-chevron-down collapse-icon"></i>
-                                    </div>
-                                </div>
-                                <div id="locationsBody" class="collapse show">
-                                    <div class="card" style="max-height: 42vh; overflow-y: auto">
-                                        <table class="table table-dark table-sm mb-0">
-                                            <tbody id="alerted_locations_counter"></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <!-- Zones -->
-                                <div class="card table-card header-danger text-white mt-3 mb-3">
-                                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#zonesBody" style="cursor: pointer">
-                                        <span><i class="fa-solid fa-map me-2"></i>Alert Zones</span>
-                                        <i class="fa-solid fa-chevron-down collapse-icon"></i>
-                                    </div>
-                                </div>
-                                <div id="zonesBody" class="collapse show">
-                                    <div class="card">
-                                        <table class="table table-dark table-sm mb-0">
-                                            <tbody id="alerted_zones_counter"></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- ==================== SUMMARY ==================== -->
-                            <div class="col-lg-3 col-xl-2">
-                                <div class="card table-card header-primary text-white mb-3">
-                                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#summaryBody" style="cursor: pointer">
-                                        <span><i class="fa-solid fa-chart-pie me-2"></i>Alerts Summary</span>
-                                        <i class="fa-solid fa-chevron-down collapse-icon"></i>
-                                    </div>
-                                </div>
-
-                                <div id="summaryBody" class="collapse show">
-                                    <div class="card">
-                                        <table class="table table-dark table-sm mb-0">
-                                            <tbody id="alerts_summary">
-                                                <tr>
-                                                    <td><span class="text-yellow-400">Total Alerts</span></td>
-                                                    <td class="text-end"><span id="totalAlertsCounter" class="stat-number">0</span></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><span class="text-sky-400">Total Drone Alerts</span></td>
-                                                    <td class="text-end"><span id="droneAlertCounter" class="stat-number">0</span></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><span class="text-orange-400">Total Rocket Alerts</span></td>
-                                                    <td class="text-end"><span id="rocketAlertCounter" class="stat-number">0</span></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><span class="text-emerald-400">Total Locations</span></td>
-                                                    <td class="text-end"><span id="totalLocationsCounter" class="stat-number">0</span></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><span class="text-violet-400">Total Zones</span></td>
-                                                    <td class="text-end"><span id="totalZonesCounter" class="stat-number">0</span></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><span class="text-violet-400">Total Early Warnings (All)</span></td>
-                                                    <td class="text-end"><span id="totalEarlyWarningsAllCounter" class="stat-number">0</span></td>
-                                                </tr>
-                                                <tr id="total_early_warnings_specific_counter" style="display: none">
-                                                    <td><span class="text-violet-400">Total Early Warnings (Specific)</span></td>
-                                                    <td class="text-end"><span id="totalEarlyWarningsSpecificCounter" class="stat-number">0</span></td>
-                                                </tr>
-                                                <tr id="unmatched_cities_counter" style="display: none">
-                                                    <td><span class="text-violet-400">Total Unmatched Cities</span></td>
-                                                    <td class="text-end"><span id="totalUnmatchedCitiesCounter" class="stat-number">0</span></td>
-                                                </tr>
-                                                <!-- Open Unmatched Cities -->
-                                                <tr id="unmatched_cities" style="display: none">
-                                                    <td><span class="text-violet-400">Open Unmatched Cities</span></td>
-                                                    <td class="text-end">
-                                                        <i id="show_unmatched_cities" class="fa-solid fa-arrow-up-right-from-square fa-xl icon-btn text-danger" style="cursor: pointer" title="Show Unmatched Cities"></i>
-                                                    </td>
-                                                </tr>
-                                                <tr id="error_counter" style="display: none">
-                                                    <td><span class="text-violet-400">Total Errors</span></td>
-                                                    <td class="text-end"><span id="pikud_haoref_error_counter" class="stat-number">0</span></td>
-                                                </tr>
-                                                <tr id="error_message" style="display: none">
-                                                    <td><span class="text-violet-400">Open Error Messages</span></td>
-                                                    <td class="text-end">
-                                                        <i id="show_error_messages" class="fa-solid fa-arrow-up-right-from-square fa-xl icon-btn text-danger" style="cursor: pointer" title="Show Error Messages"></i>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td><span class="text-light">Test Mode</span></td>
-                                                    <td class="text-end">
-                                                        <i id="test_mode" class="fa-solid fa-toggle-off fa-xl icon-btn" style="cursor: pointer; transition: all 0.3s ease" title="Turn ON Test Mode"></i>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td><span class="text-light">Settings</span></td>
-                                                    <td class="text-end">
-                                                        <i id="open_settings" class="fa-solid fa-gear fa-xl icon-btn text-light" style="cursor: pointer; transition: all 0.3s ease" title="Open Settings"></i>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td><span class="text-violet-400">App Version</span></td>
-                                                    <td class="text-end"><span id="appVersion" class="stat-number"><%= appVersion %></span></td>
-                                                </tr>
-                                                <!-- App Update Available -->
-                                                <tr id="update_app_version" style="display: none">
-                                                    <td><span class="text-violet-400">App Update Available</span></td>
-                                                    <td class="text-end">
-                                                        <i class="fa-solid fa-cloud-arrow-up fa-xl icon-btn text-warning" style="cursor: pointer" title="Update it on your server"></i>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- ==================== NEWS + TZOFAR MAP ==================== -->
-                            <div class="col-lg-8 col-xl-5">
-                                <!-- News -->
-                                <div class="card table-card header-success text-white mb-3">
-                                    <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#newsBody" style="cursor: pointer">
-                                        <span class="section-header"><i class="fa-solid fa-newspaper me-2"></i>News Updates</span>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <select id="rssFeedSelector" class="form-select form-select-sm bg-dark text-white border-0" style="display: none"></select>
-                                            <i class="fa-solid fa-chevron-down collapse-icon"></i>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div id="newsBody" class="collapse show">
-                                    <div class="card rss-feed">
-                                        <table class="table table-dark table-sm mb-0">
-                                            <tbody id="rss_alerts"></tbody>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <!-- Tzofar Map -->
-                                <div class="card table-card header-danger text-white mt-3">
-                                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#tzofarBody" style="cursor: pointer">
-                                        <span><i class="fa-solid fa-map-location-dot me-2"></i>Tzofar Map Alerts</span>
-                                        <i class="fa-solid fa-chevron-down collapse-icon"></i>
-                                    </div>
-                                </div>
-
-                                <div id="tzofarBody" class="collapse show mt-2">
-                                    <div class="card overflow-hidden" style="border-radius: 16px">
-                                        <iframe id="tzofarMapFrame" src="https://www.tzevaadom.co.il/en/" style="width: 100%; border: none; border-radius: 6px" title="Tzofar GPS Alerts"></iframe>
-                                    </div>
-                                </div>
-                            </div>
+<body>
+    <div class="container-fluid p-3 p-lg-4">
+        <div class="row g-3">
+            <!-- ==================== HOME FRONT COMMAND SIRENS ==================== -->
+            <div class="col-lg-4 col-xl-3">
+                <div class="card table-card header-danger text-white mb-3">
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#pikudBody" style="cursor: pointer">
+                        <span><i class="fa-solid fa-bell me-2"></i>Home Front Command Alerts</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <span id="liveClock" class="live-clock">00:00:00</span>
+                            <i class="fa-solid fa-chevron-down collapse-icon"></i>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Modals -->
-
-                    <!-- Early Warning Modal - Enter -->
-                    <div class="modal fade" id="earlyWarningModalEnter" tabindex="-1" aria-labelledby="earlyWarningModalEnterLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content glass-modal bg-danger text-white border-0">
-                                <!-- Header -->
-                                <div class="modal-header border-0 px-4 pt-4 pb-3">
-                                    <h4 class="modal-title fw-semibold text-white" id="earlyWarningModalEnterLabel"><i class="fa-solid fa-circle-exclamation me-3 text-white"></i>Early Missile Warning Alert</h4>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-
-                                <!-- Body -->
-                                <div class="modal-body px-4 py-1">
-                                    <div class="glass-inner p-4 rounded-4">
-                                        This message will disappear automatically when sirens sound or the threat is no longer active.
-                                        <br /><br />
-                                        <b>The following locations are affected:</b>
-                                        <br />
-
-                                        <div id="earlyWarningLocations" style="width: 100%"></div>
-                                    </div>
-                                </div>
-
-                                <!-- Footer -->
-                                <div class="modal-footer border-0 px-4 pb-4">
-                                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
-                                </div>
-                            </div>
+                <div id="pikudBody" class="collapse show">
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th width="10%">Time</th>
+                                        <th width="5%">Type</th>
+                                        <th>Location</th>
+                                        <th>Zone</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pikud_haoref_alerts" class="fw-medium"></tbody>
+                            </table>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Early Warning Modal - Exit -->
-                    <div class="modal fade" id="earlyWarningModalExit" tabindex="-1" aria-labelledby="earlyWarningModalExitLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content glass-modal bg-success text-white border-0">
-                                <!-- Header -->
-                                <div class="modal-header border-0 px-4 pt-4 pb-3">
-                                    <h4 class="modal-title fw-semibold text-white" id="earlyWarningModalExitLabel"><i class="fa-solid fa-circle-check me-3 text-white"></i>Safe To Exit Bomb Shelter</h4>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
+            <!-- ==================== ALERTS BY LOCATION + ZONE ==================== -->
+            <div class="col-lg-3 col-xl-2">
+                <!-- Locations -->
+                <div class="card table-card header-danger text-white mb-3">
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#locationsBody" style="cursor: pointer">
+                        <span><i class="fa-solid fa-location-dot me-2"></i>Alert Locations</span>
+                        <i class="fa-solid fa-chevron-down collapse-icon"></i>
+                    </div>
+                </div>
+                <div id="locationsBody" class="collapse show">
+                    <div class="card" style="max-height: 42vh; overflow-y: auto">
+                        <table class="table table-dark table-sm mb-0">
+                            <tbody id="alerted_locations_counter"></tbody>
+                        </table>
+                    </div>
+                </div>
 
-                                <!-- Body -->
-                                <div class="modal-body px-4 py-1">
-                                    <div class="glass-inner p-4 rounded-4">
-                                        You can now exit the bomb shelter.
-                                        <br /><br />
-                                        This message will disappear automatically after 30 seconds.
-                                    </div>
-                                </div>
+                <!-- Zones -->
+                <div class="card table-card header-danger text-white mt-3 mb-3">
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#zonesBody" style="cursor: pointer">
+                        <span><i class="fa-solid fa-map me-2"></i>Alert Zones</span>
+                        <i class="fa-solid fa-chevron-down collapse-icon"></i>
+                    </div>
+                </div>
+                <div id="zonesBody" class="collapse show">
+                    <div class="card">
+                        <table class="table table-dark table-sm mb-0">
+                            <tbody id="alerted_zones_counter"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-                                <!-- Footer -->
-                                <div class="modal-footer border-0 px-4 pb-4">
-                                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
-                                </div>
-                            </div>
+            <!-- ==================== SUMMARY ==================== -->
+            <div class="col-lg-3 col-xl-2">
+                <div class="card table-card header-primary text-white mb-3">
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#summaryBody" style="cursor: pointer">
+                        <span><i class="fa-solid fa-chart-pie me-2"></i>Alerts Summary</span>
+                        <i class="fa-solid fa-chevron-down collapse-icon"></i>
+                    </div>
+                </div>
+
+                <div id="summaryBody" class="collapse show">
+                    <div class="card">
+                        <table class="table table-dark table-sm mb-0">
+                            <tbody id="alerts_summary">
+                                <tr>
+                                    <td><span class="text-yellow-400">Total Alerts</span></td>
+                                    <td class="text-end"><span id="totalAlertsCounter" class="stat-number">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="text-sky-400">Total Drone Alerts</span></td>
+                                    <td class="text-end"><span id="droneAlertCounter" class="stat-number">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="text-orange-400">Total Rocket Alerts</span></td>
+                                    <td class="text-end"><span id="rocketAlertCounter" class="stat-number">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="text-emerald-400">Total Locations</span></td>
+                                    <td class="text-end"><span id="totalLocationsCounter" class="stat-number">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="text-violet-400">Total Zones</span></td>
+                                    <td class="text-end"><span id="totalZonesCounter" class="stat-number">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="text-violet-400">Total Early Warnings (All)</span></td>
+                                    <td class="text-end"><span id="totalEarlyWarningsAllCounter" class="stat-number">0</span></td>
+                                </tr>
+                                <tr id="total_early_warnings_specific_counter" style="display: none">
+                                    <td><span class="text-violet-400">Total Early Warnings (Specific)</span></td>
+                                    <td class="text-end"><span id="totalEarlyWarningsSpecificCounter" class="stat-number">0</span></td>
+                                </tr>
+                                <tr id="unmatched_cities_counter" style="display: none">
+                                    <td><span class="text-violet-400">Total Unmatched Cities</span></td>
+                                    <td class="text-end"><span id="totalUnmatchedCitiesCounter" class="stat-number">0</span></td>
+                                </tr>
+                                <!-- Open Unmatched Cities -->
+                                <tr id="unmatched_cities" style="display: none">
+                                    <td><span class="text-violet-400">Open Unmatched Cities</span></td>
+                                    <td class="text-end">
+                                        <i id="show_unmatched_cities" class="fa-solid fa-arrow-up-right-from-square fa-xl icon-btn text-danger" style="cursor: pointer" title="Show Unmatched Cities"></i>
+                                    </td>
+                                </tr>
+                                <tr id="error_counter" style="display: none">
+                                    <td><span class="text-violet-400">Total Errors</span></td>
+                                    <td class="text-end"><span id="pikud_haoref_error_counter" class="stat-number">0</span></td>
+                                </tr>
+                                <tr id="error_message" style="display: none">
+                                    <td><span class="text-violet-400">Open Error Messages</span></td>
+                                    <td class="text-end">
+                                        <i id="show_error_messages" class="fa-solid fa-arrow-up-right-from-square fa-xl icon-btn text-danger" style="cursor: pointer" title="Show Error Messages"></i>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="text-light">Test Mode</span></td>
+                                    <td class="text-end">
+                                        <i id="test_mode" class="fa-solid fa-toggle-off fa-xl icon-btn" style="cursor: pointer; transition: all 0.3s ease" title="Turn ON Test Mode"></i>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="text-light">Settings</span></td>
+                                    <td class="text-end">
+                                        <i id="open_settings" class="fa-solid fa-gear fa-xl icon-btn text-light" style="cursor: pointer; transition: all 0.3s ease" title="Open Settings"></i>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span class="text-violet-400">App Version</span></td>
+                                    <td class="text-end"><span id="appVersion" class="stat-number"><%= appVersion %></span></td>
+                                </tr>
+                                <!-- App Update Available -->
+                                <tr id="update_app_version" style="display: none">
+                                    <td><span class="text-violet-400">App Update Available</span></td>
+                                    <td class="text-end">
+                                        <i class="fa-solid fa-cloud-arrow-up fa-xl icon-btn text-warning" style="cursor: pointer" title="Update it on your server"></i>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== NEWS + TZOFAR MAP ==================== -->
+            <div class="col-lg-8 col-xl-5">
+                <!-- News -->
+                <div class="card table-card header-success text-white mb-3">
+                    <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#newsBody" style="cursor: pointer">
+                        <span class="section-header"><i class="fa-solid fa-newspaper me-2"></i>News Updates</span>
+                        <div class="d-flex align-items-center gap-2">
+                            <select id="rssFeedSelector" class="form-select form-select-sm bg-dark text-white border-0" style="display: none"></select>
+                            <i class="fa-solid fa-chevron-down collapse-icon"></i>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Error Messages Modal -->
-                    <div class="modal fade" id="errorMessagesModal" tabindex="-1" aria-labelledby="errorMessagesModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content glass-modal bg-dark text-white border-0">
-                                <!-- Header -->
-                                <div class="modal-header border-0 px-4 pt-4 pb-3">
-                                    <h4 class="modal-title fw-semibold text-white" id="errorMessagesModalLabel"><i class="fa-solid fa-circle-exclamation me-3"></i>Error Messages</h4>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-
-                                <!-- Body -->
-                                <div class="modal-body px-4 py-1">
-                                    <div class="glass-inner p-4 rounded-4">
-                                        Unique error messages received from the Pikud HaOref service.
-                                        <br /><br />
-                                        <ul id="pikud_haoref_error_messages" style="width: 100%"></ul>
-                                    </div>
-                                </div>
-
-                                <!-- Footer -->
-                                <div class="modal-footer border-0 px-4 pb-4">
-                                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
-                                </div>
-                            </div>
-                        </div>
+                <div id="newsBody" class="collapse show">
+                    <div class="card rss-feed">
+                        <table class="table table-dark table-sm mb-0">
+                            <tbody id="rss_alerts"></tbody>
+                        </table>
                     </div>
+                </div>
 
-                    <!-- Unmatched Cities Modal -->
-                    <div class="modal fade" id="unmatchedCitiesModal" tabindex="-1" aria-labelledby="unmatchedCitiesModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content glass-modal bg-dark text-white border-0">
-                                <!-- Header -->
-                                <div class="modal-header border-0 px-4 pt-4 pb-3">
-                                    <h4 class="modal-title fw-semibold text-white" id="unmatchedCitiesModalLabel"><i class="fa-solid fa-circle-exclamation me-3 text-white"></i>Unmatched Cities</h4>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-
-                                <!-- Body -->
-                                <div class="modal-body px-4 py-1">
-                                    <div class="glass-inner p-4 rounded-4">
-                                        These are the unmatched cities received from the Pikud HaOref service.
-                                        <br />
-                                        <br />
-                                        <ul id="unmatched_cities_messages" style="width: 100%"></ul>
-                                    </div>
-                                </div>
-
-                                <!-- Footer -->
-                                <div class="modal-footer border-0 px-4 pb-4">
-                                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Tzofar Map -->
+                <div class="card table-card header-danger text-white mt-3">
+                    <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#tzofarBody" style="cursor: pointer">
+                        <span><i class="fa-solid fa-map-location-dot me-2"></i>Tzofar Map Alerts</span>
+                        <i class="fa-solid fa-chevron-down collapse-icon"></i>
                     </div>
+                </div>
 
-                    <!-- Settings Modal -->
-                    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content glass-modal bg-dark">
-                                <!-- Header -->
-                                <div class="modal-header border-0 px-4 pt-4 pb-3">
-                                    <h4 class="modal-title fw-semibold text-white" id="settingsModalLabel"><i class="fa-solid fa-sliders me-3 text-primary"></i>Settings</h4>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-
-                                <!-- Body -->
-                                <div class="modal-body px-4 py-1">
-                                    <div class="glass-inner p-4 rounded-4">
-                                        <table class="table table-light table-borderless mb-0">
-                                            <tr>
-                                                <td width="35%" class="align-middle">
-                                                    <span class="text-dark fw-medium">City (Early Warning)</span>
-                                                </td>
-                                                <td>
-                                                    <input class="form-control" type="text" id="citySearch" autocomplete="off" placeholder="Type city name..." />
-
-                                                    <ul id="city_suggestions" class="list-group position-absolute w-100 mt-2 shadow-lg rounded-3 overflow-hidden" style="display: none; max-height: 320px; overflow-y: auto; z-index: 1060"></ul>
-                                                </td>
-                                                <td width="20%" class="text-end align-middle">
-                                                    <button class="btn btn-primary px-4 py-2 fw-semibold" id="saveCityButton"><i class="fa-solid fa-floppy-disk me-2"></i>Save</button>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-
-                                <!-- Footer -->
-                                <div class="modal-footer border-0 px-4 pb-4">
-                                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
-                                </div>
-                            </div>
-                        </div>
+                <div id="tzofarBody" class="collapse show mt-2">
+                    <div class="card overflow-hidden" style="border-radius: 16px">
+                        <iframe id="tzofarMapFrame" src="https://www.tzevaadom.co.il/en/" style="width: 100%; border: none; border-radius: 6px" title="Tzofar GPS Alerts"></iframe>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    <script>
-                function updateClock () {
-                    const now = new Date();
-                    const h = String(now.getHours()).padStart(2, '0');
-                    const m = String(now.getMinutes()).padStart(2, '0');
-                    const s = String(now.getSeconds()).padStart(2, '0');
+    <!-- Modals -->
 
-                    const timeString = `${h}:${m}:${s}`;
+    <!-- Early Warning Modal - Enter -->
+    <div class="modal fade" id="earlyWarningModalEnter" tabindex="-1" aria-labelledby="earlyWarningModalEnterLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-modal bg-danger text-white border-0">
+                <!-- Header -->
+                <div class="modal-header border-0 px-4 pt-4 pb-3">
+                    <h4 class="modal-title fw-semibold text-white" id="earlyWarningModalEnterLabel"><i class="fa-solid fa-circle-exclamation me-3 text-white"></i>Early Missile Warning Alert</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
 
-                    // Update header clock
-                    const clockHeader = document.getElementById('liveClock');
-                    if (clockHeader) clockHeader.textContent = timeString;
-                }
+                <!-- Body -->
+                <div class="modal-body px-4 py-1">
+                    <div class="glass-inner p-4 rounded-4">
+                        This message will disappear automatically when sirens sound or the threat is no longer active.
+                        <br /><br />
+                        <b>The following locations are affected:</b>
+                        <br />
 
-                updateClock();
-                setInterval(updateClock, 1000);
+                        <div id="earlyWarningLocations" style="width: 100%"></div>
+                    </div>
+                </div>
 
-                function fitTzofarBodyToViewport () {
-                    const tzofarBody = $('#tzofarBody');
-                    if (!tzofarBody || !tzofarBody.hasClass('show')) {
-                        return;
-                    }
+                <!-- Footer -->
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    const tzofarMapFrame = $('#tzofarMapFrame')[0];
-                    const tzofarCard = tzofarBody.find('.card')[0];
-                    const rect = tzofarBody[0].getBoundingClientRect();
-                    const viewportBottomGap = 15;
-                    const minHeight = 280;
-                    const availableHeight = Math.max(minHeight, Math.floor(window.innerHeight - rect.top - viewportBottomGap));
+    <!-- Early Warning Modal - Exit -->
+    <div class="modal fade" id="earlyWarningModalExit" tabindex="-1" aria-labelledby="earlyWarningModalExitLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-modal bg-success text-white border-0">
+                <!-- Header -->
+                <div class="modal-header border-0 px-4 pt-4 pb-3">
+                    <h4 class="modal-title fw-semibold text-white" id="earlyWarningModalExitLabel"><i class="fa-solid fa-circle-check me-3 text-white"></i>Safe To Exit Bomb Shelter</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
 
-                    // Keep this section growing downward to fill the visible viewport.
-                    tzofarBody.css('height', `${availableHeight}px`);
+                <!-- Body -->
+                <div class="modal-body px-4 py-1">
+                    <div class="glass-inner p-4 rounded-4">
+                        You can now exit the bomb shelter.
+                        <br /><br />
+                        This message will disappear automatically after 30 seconds.
+                    </div>
+                </div>
 
-                    if (tzofarCard) {
-                        $(tzofarCard).css('height', '100%');
-                    }
+                <!-- Footer -->
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    if (tzofarMapFrame) {
-                        $(tzofarMapFrame).css('height', '100%');
-                    }
-                }
+    <!-- Error Messages Modal -->
+    <div class="modal fade" id="errorMessagesModal" tabindex="-1" aria-labelledby="errorMessagesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-modal bg-dark text-white border-0">
+                <!-- Header -->
+                <div class="modal-header border-0 px-4 pt-4 pb-3">
+                    <h4 class="modal-title fw-semibold text-white" id="errorMessagesModalLabel"><i class="fa-solid fa-circle-exclamation me-3"></i>Error Messages</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
 
-                let fitTzofarRafId = null;
+                <!-- Body -->
+                <div class="modal-body px-4 py-1">
+                    <div class="glass-inner p-4 rounded-4">
+                        Unique error messages received from the Pikud HaOref service.
+                        <br /><br />
+                        <ul id="pikud_haoref_error_messages" style="width: 100%"></ul>
+                    </div>
+                </div>
 
-                function scheduleFitTzofarBodyToViewport () {
-                    if (fitTzofarRafId !== null) {
-                        cancelAnimationFrame(fitTzofarRafId);
-                    }
+                <!-- Footer -->
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    fitTzofarRafId = requestAnimationFrame(() => {
-                        fitTzofarRafId = null;
-                        fitTzofarBodyToViewport();
+    <!-- Unmatched Cities Modal -->
+    <div class="modal fade" id="unmatchedCitiesModal" tabindex="-1" aria-labelledby="unmatchedCitiesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-modal bg-dark text-white border-0">
+                <!-- Header -->
+                <div class="modal-header border-0 px-4 pt-4 pb-3">
+                    <h4 class="modal-title fw-semibold text-white" id="unmatchedCitiesModalLabel"><i class="fa-solid fa-circle-exclamation me-3 text-white"></i>Unmatched Cities</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body px-4 py-1">
+                    <div class="glass-inner p-4 rounded-4">
+                        These are the unmatched cities received from the Pikud HaOref service.
+                        <br />
+                        <br />
+                        <ul id="unmatched_cities_messages" style="width: 100%"></ul>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content glass-modal bg-dark">
+                <!-- Header -->
+                <div class="modal-header border-0 px-4 pt-4 pb-3">
+                    <h4 class="modal-title fw-semibold text-white" id="settingsModalLabel"><i class="fa-solid fa-sliders me-3 text-primary"></i>Settings</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body px-4 py-1">
+                    <div class="glass-inner p-4 rounded-4">
+                        <table class="table table-light table-borderless mb-0">
+                            <tr>
+                                <td width="35%" class="align-middle">
+                                    <span class="text-dark fw-medium">City (Early Warning)</span>
+                                </td>
+                                <td>
+                                    <input class="form-control" type="text" id="citySearch" autocomplete="off" placeholder="Type city name..." />
+
+                                    <ul id="city_suggestions" class="list-group position-absolute w-100 mt-2 shadow-lg rounded-3 overflow-hidden" style="display: none; max-height: 320px; overflow-y: auto; z-index: 1060"></ul>
+                                </td>
+                                <td width="20%" class="text-end align-middle">
+                                    <button class="btn btn-primary px-4 py-2 fw-semibold" id="saveCityButton"><i class="fa-solid fa-floppy-disk me-2"></i>Save</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateClock () {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+
+            const timeString = `${h}:${m}:${s}`;
+
+            // Update header clock
+            const clockHeader = document.getElementById('liveClock');
+            if (clockHeader) clockHeader.textContent = timeString;
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        function fitTzofarBodyToViewport () {
+            const tzofarBody = $('#tzofarBody');
+            if (!tzofarBody || !tzofarBody.hasClass('show')) {
+                return;
+            }
+
+            const tzofarMapFrame = $('#tzofarMapFrame')[0];
+            const tzofarCard = tzofarBody.find('.card')[0];
+            const rect = tzofarBody[0].getBoundingClientRect();
+            const viewportBottomGap = 15;
+            const minHeight = 280;
+            const availableHeight = Math.max(minHeight, Math.floor(window.innerHeight - rect.top - viewportBottomGap));
+
+            // Keep this section growing downward to fill the visible viewport.
+            tzofarBody.css('height', `${availableHeight}px`);
+
+            if (tzofarCard) {
+                $(tzofarCard).css('height', '100%');
+            }
+
+            if (tzofarMapFrame) {
+                $(tzofarMapFrame).css('height', '100%');
+            }
+        }
+
+        let fitTzofarRafId = null;
+
+        function scheduleFitTzofarBodyToViewport () {
+            if (fitTzofarRafId !== null) {
+                cancelAnimationFrame(fitTzofarRafId);
+            }
+
+            fitTzofarRafId = requestAnimationFrame(() => {
+                fitTzofarRafId = null;
+                fitTzofarBodyToViewport();
+            });
+        }
+
+        const tzofarBodyElement = $('#tzofarBody');
+        const newsBodyElement = $('#newsBody');
+
+        if (tzofarBodyElement.length) {
+            tzofarBodyElement.on('shown.bs.collapse', scheduleFitTzofarBodyToViewport);
+            tzofarBodyElement.on('hidden.bs.collapse', () => {
+                $(tzofarBodyElement).css('height', '');
+            });
+        }
+
+        if (newsBodyElement.length) {
+            newsBodyElement.on('shown.bs.collapse', scheduleFitTzofarBodyToViewport);
+            newsBodyElement.on('hidden.bs.collapse', scheduleFitTzofarBodyToViewport);
+
+            if (typeof ResizeObserver !== 'undefined') {
+                const newsBodyResizeObserver = new ResizeObserver(() => {
+                    scheduleFitTzofarBodyToViewport();
+                });
+
+                newsBodyResizeObserver.observe(newsBodyElement[0]);
+            } else {
+                const rssAlertsElement = $('#rss_alerts')[0];
+
+                if (rssAlertsElement) {
+                    const newsBodyMutationObserver = new MutationObserver(() => {
+                        scheduleFitTzofarBodyToViewport();
+                    });
+
+                    newsBodyMutationObserver.observe(rssAlertsElement, {
+                        childList: true,
+                        subtree: true
                     });
                 }
+            }
+        }
 
-                const tzofarBodyElement = $('#tzofarBody');
-                const newsBodyElement = $('#newsBody');
+        $(window).on('resize', scheduleFitTzofarBodyToViewport);
+        $(window).on('load', scheduleFitTzofarBodyToViewport);
 
-                if (tzofarBodyElement.length) {
-                    tzofarBodyElement.on('shown.bs.collapse', scheduleFitTzofarBodyToViewport);
-                    tzofarBodyElement.on('hidden.bs.collapse', () => {
-                        $(tzofarBodyElement).css('height', '');
-                    });
+        scheduleFitTzofarBodyToViewport();
+
+        setInterval(() => {
+            if (pikud_haoref_alerts.children.length > 500) {
+                $('#pikud_haoref_alerts tr:last').remove();
+            }
+        }, 1000);
+
+        setInterval(() => {
+            $(".alertNewRow").removeClass("table-light");
+            $(".alertNewRow").removeClass("alertNewRow");
+
+            $(".rssNewRow").removeClass("table-light");
+            $(".rssNewRow").removeClass("rssNewRow");
+        }, 5000);
+
+        async function ajaxHandler (service, rssFeedURL) {
+            return new Promise((resolve) => {
+                $.ajax({
+                    url: "/ajax",
+                    type: "POST",
+                    data: {
+                        "service": service,
+                        "rssfeed": rssFeedURL,
+                        "testmode": testmode
+                    },
+                    async: true,
+                    dataType: "json",
+                    success: function (result) {
+                        resolve(result);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        console.log(XMLHttpRequest, textStatus, errorThrown);
+                    }
+                });
+            });
+        }
+
+        const earlyWarningModalEnter = new bootstrap.Modal('#earlyWarningModalEnter');
+        const earlyWarningModalExit = new bootstrap.Modal('#earlyWarningModalExit');
+        const errorMessagesModal = new bootstrap.Modal('#errorMessagesModal');
+        const unmatchedCitiesModal = new bootstrap.Modal('#unmatchedCitiesModal');
+        const settingsModal = new bootstrap.Modal('#settingsModal');
+
+        let alertedLocations = [];
+        let alertedZones = [];
+        let errorLogs = [];
+        let unmatchedCitiesLogs = [];
+        let earlyWarningLocations = [];
+
+        let rocketAlertCounter = 0;
+        let droneAlertCounter = 0;
+        let totalEarlyWarningsAllCounter = 0;
+        let totalEarlyWarningsSpecificCounter = 0;
+        let pikudHaorefErrorCounter = 0;
+        let totalUnmatchedCitiesCounter = 0;
+
+        let pikudHaorefError = false;
+        let unmatchedCitiesFlag = false;
+        let earlyWarningActive = false;
+        let testmode = false;
+
+        const pikudHaorefInterval = 1000;
+        const recentlyAlertedLocations = {};
+
+        $("#test_mode").on("click", function () {
+            if (testmode) {
+                testmode = false;
+
+                $("#test_mode").attr("title", "Turn on Test Mode");
+                $("#test_mode").removeClass("fa-toggle-on active").addClass("fa-toggle-off");
+            } else {
+                testmode = true;
+
+                $("#test_mode").attr("title", "Turn off Test Mode");
+                $("#test_mode").removeClass("fa-toggle-off text-muted").addClass("fa-toggle-on active");
+            }
+        });
+
+        $("#show_error_messages").on("click", function () {
+            errorMessagesModal.show();
+        });
+
+        $("#show_unmatched_cities").on("click", function () {
+            unmatchedCitiesModal.show();
+        });
+
+        $("#open_settings").on("click", function () {
+            const savedCity = localStorage.getItem("earlyWarningCity");
+            if (savedCity) {
+                $("#citySearch").val(savedCity);
+            }
+            settingsModal.show();
+        });
+
+        $("#saveCityButton").on("click", function () {
+            const city = $("#citySearch").val().trim();
+
+            if (city) {
+                localStorage.setItem("earlyWarningCity", city);
+            } else {
+                localStorage.removeItem("earlyWarningCity");
+            }
+
+            settingsModal.hide();
+        });
+
+        const alertTypeMap = {
+            newsFlash: {
+                text: "Early Warning",
+                icon: "/icons/warning.png"
+            },
+            missiles: {
+                text: "Rocket Alert",
+                icon: "/icons/rocket.png"
+            },
+            hostileAircraftIntrusion: {
+                text: "Drone Alert",
+                icon: "/icons/uav.png"
+            },
+            earthQuake: {
+                text: "Earthquake Alert",
+                icon: "/icons/earthquake.png"
+            },
+            radiologicalEvent: {
+                text: "Radiological Alert",
+                icon: "/icons/radiological.png"
+            },
+            tsunami: {
+                text: "Tsunami Alert",
+                icon: "/icons/tsunami.png"
+            },
+            hazardousMaterials: {
+                text: "Hazardous Materials Alert",
+                icon: "/icons/hazardous.png"
+            }
+        };
+
+        function getAlertDetailsByCategory (type) {
+            return alertTypeMap[type] || null;
+        }
+
+        function extractNewLocations (alertLocations) {
+            const newLocations = [];
+            const now = Math.floor(Date.now() / 1000);
+
+            for (let location of alertLocations) {
+                if (!recentlyAlertedLocations[location] || recentlyAlertedLocations[location] < now - 60) {
+                    newLocations.push(location);
+                    recentlyAlertedLocations[location] = now;
                 }
+            }
 
-                if (newsBodyElement.length) {
-                    newsBodyElement.on('shown.bs.collapse', scheduleFitTzofarBodyToViewport);
-                    newsBodyElement.on('hidden.bs.collapse', scheduleFitTzofarBodyToViewport);
+            return newLocations;
+        }
 
-                    if (typeof ResizeObserver !== 'undefined') {
-                        const newsBodyResizeObserver = new ResizeObserver(() => {
-                            scheduleFitTzofarBodyToViewport();
-                        });
+        function updateAlertedLocation (location) {
+            const index = alertedLocations.findIndex(item => item.location === location);
 
-                        newsBodyResizeObserver.observe(newsBodyElement[0]);
-                    } else {
-                        const rssAlertsElement = $('#rss_alerts')[0];
+            if (index !== -1) {
+                alertedLocations[index].counter++;
+            } else {
+                alertedLocations.push({
+                    location: location,
+                    counter: 1
+                });
+            }
+        }
 
-                        if (rssAlertsElement) {
-                            const newsBodyMutationObserver = new MutationObserver(() => {
-                                scheduleFitTzofarBodyToViewport();
-                            });
+        function updateAlertedZone (zone) {
+            const index = alertedZones.findIndex(item => item.zone === zone);
 
-                            newsBodyMutationObserver.observe(rssAlertsElement, {
-                                childList: true,
-                                subtree: true
-                            });
+            if (index !== -1) {
+                alertedZones[index].counter++;
+            } else {
+                alertedZones.push({
+                    zone: zone,
+                    counter: 1
+                });
+            }
+        }
+
+        function incrementErrorCount (errorMessage) {
+            const index = errorLogs.findIndex(item => item.error === errorMessage);
+
+            if (index !== -1) {
+                errorLogs[index].count += 1;
+            } else {
+                errorLogs.push({
+                    error: errorMessage,
+                    count: 1
+                });
+            }
+        }
+
+        //Pikud HaOref service
+        const locationsJSON = <%- cities %>;
+
+        const input = document.getElementById('citySearch');
+        const suggestionsList = document.getElementById('city_suggestions');
+
+        input.addEventListener('input', function () {
+            const query = this.value.toLowerCase().trim();
+
+            // Clear previous suggestions
+            suggestionsList.innerHTML = '';
+
+            if (query.length === 0) {
+                suggestionsList.style.display = 'none';
+                return;
+            }
+
+            // Filter JSON data
+            const filtered = locationsJSON.filter(city =>
+                city.name_en.toLowerCase().includes(query)
+            );
+
+            if (filtered.length === 0) {
+                suggestionsList.style.display = 'none';
+                return;
+            }
+
+            // Render suggestions
+            filtered.forEach(city => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item list-group-item-action bg-light text-dark border-secondary';
+                li.innerHTML = `<strong>${city.name_en}</strong>`;
+
+                // Click to select
+                li.addEventListener('click', () => {
+                    input.value = city.name_en;
+                    suggestionsList.style.display = 'none';
+                });
+
+                suggestionsList.appendChild(li);
+            });
+
+            suggestionsList.style.display = 'block';
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.position-relative')) {
+                suggestionsList.style.display = 'none';
+            }
+        });
+
+        const locationMap = Object.fromEntries(
+            locationsJSON.map(loc => [loc.value, {
+                name_en: loc.name_en,
+                zone: loc.zone,
+                zone_en: loc.zone_en,
+                lng: loc.lng,
+                lat: loc.lat,
+                countdown: loc.countdown
+            }])
+        );
+
+        const pikudHaorefPoll = async function () {
+            try {
+                setTimeout(pikudHaorefPoll, pikudHaorefInterval);
+
+                const alert = await ajaxHandler("pikud_haoref");
+
+                if (alert) {
+                    window.alertsJSON = alert;
+
+                    if (alert.error) {
+                        pikudHaorefErrorCounter++
+
+                        if (!pikudHaorefError) {
+                            pikudHaorefError = true;
+                            $("#error_counter, #error_message").show();
                         }
-                    }
-                }
 
-                $(window).on('resize', scheduleFitTzofarBodyToViewport);
-                $(window).on('load', scheduleFitTzofarBodyToViewport);
+                        $("#pikud_haoref_error_counter").text(pikudHaorefErrorCounter);
 
-                scheduleFitTzofarBodyToViewport();
-
-                setInterval(() => {
-                    if (pikud_haoref_alerts.children.length > 500) {
-                        $('#pikud_haoref_alerts tr:last').remove();
-                    }
-                }, 1000);
-
-                setInterval(() => {
-                    $(".alertNewRow").removeClass("table-light");
-                    $(".alertNewRow").removeClass("alertNewRow");
-
-                    $(".rssNewRow").removeClass("table-light");
-                    $(".rssNewRow").removeClass("rssNewRow");
-                }, 5000);
-
-                async function ajaxHandler (service, rssFeedURL) {
-                    return new Promise((resolve) => {
-                        $.ajax({
-                            url: "/ajax",
-                            type: "POST",
-                            data: {
-                                "service": service,
-                                "rssfeed": rssFeedURL,
-                                "testmode": testmode
-                            },
-                            async: true,
-                            dataType: "json",
-                            success: function (result) {
-                                resolve(result);
-                            },
-                            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                                console.log(XMLHttpRequest, textStatus, errorThrown);
+                        if (errorLogs.findIndex(item => item.error === alert.error) === -1) {
+                            if (alert.error.indexOf("Request failed with status code 403") > -1) {
+                                $("#pikud_haoref_error_messages").prepend("<li>403 Forbidden - Requires Israeli IP</li>");
+                            } else {
+                                $("#pikud_haoref_error_messages").prepend("<li>" + alert.error + "</li>");
                             }
-                        });
-                    });
-                }
-
-                const earlyWarningModalEnter = new bootstrap.Modal('#earlyWarningModalEnter');
-                const earlyWarningModalExit = new bootstrap.Modal('#earlyWarningModalExit');
-                const errorMessagesModal = new bootstrap.Modal('#errorMessagesModal');
-                const unmatchedCitiesModal = new bootstrap.Modal('#unmatchedCitiesModal');
-                const settingsModal = new bootstrap.Modal('#settingsModal');
-
-                let alertedLocations = [];
-                let alertedZones = [];
-                let errorLogs = [];
-                let unmatchedCitiesLogs = [];
-                let earlyWarningLocations = [];
-
-                let rocketAlertCounter = 0;
-                let droneAlertCounter = 0;
-                let totalEarlyWarningsAllCounter = 0;
-                let totalEarlyWarningsSpecificCounter = 0;
-                let pikudHaorefErrorCounter = 0;
-                let totalUnmatchedCitiesCounter = 0;
-
-                let pikudHaorefError = false;
-                let unmatchedCitiesFlag = false;
-                let earlyWarningActive = false;
-                let testmode = false;
-
-                const pikudHaorefInterval = 1000;
-                const recentlyAlertedLocations = {};
-
-                $("#test_mode").on("click", function () {
-                    if (testmode) {
-                        testmode = false;
-
-                        $("#test_mode").attr("title", "Turn on Test Mode");
-                        $("#test_mode").removeClass("fa-toggle-on active").addClass("fa-toggle-off");
-                    } else {
-                        testmode = true;
-
-                        $("#test_mode").attr("title", "Turn off Test Mode");
-                        $("#test_mode").removeClass("fa-toggle-off text-muted").addClass("fa-toggle-on active");
-                    }
-                });
-
-                $("#show_error_messages").on("click", function () {
-                    errorMessagesModal.show();
-                });
-
-                $("#show_unmatched_cities").on("click", function () {
-                    unmatchedCitiesModal.show();
-                });
-
-                $("#open_settings").on("click", function () {
-                    const savedCity = localStorage.getItem("earlyWarningCity");
-                    if (savedCity) {
-                        $("#citySearch").val(savedCity);
-                    }
-                    settingsModal.show();
-                });
-
-                $("#saveCityButton").on("click", function () {
-                    const city = $("#citySearch").val().trim();
-
-                    if (city) {
-                        localStorage.setItem("earlyWarningCity", city);
-                    } else {
-                        localStorage.removeItem("earlyWarningCity");
-                    }
-
-                    settingsModal.hide();
-                });
-
-                const alertTypeMap = {
-                    newsFlash: {
-                        text: "Early Warning",
-                        icon: "/icons/warning.png"
-                    },
-                    missiles: {
-                        text: "Rocket Alert",
-                        icon: "/icons/rocket.png"
-                    },
-                    hostileAircraftIntrusion: {
-                        text: "Drone Alert",
-                        icon: "/icons/uav.png"
-                    },
-                    earthQuake: {
-                        text: "Earthquake Alert",
-                        icon: "/icons/earthquake.png"
-                    },
-                    radiologicalEvent: {
-                        text: "Radiological Alert",
-                        icon: "/icons/radiological.png"
-                    },
-                    tsunami: {
-                        text: "Tsunami Alert",
-                        icon: "/icons/tsunami.png"
-                    },
-                    hazardousMaterials: {
-                        text: "Hazardous Materials Alert",
-                        icon: "/icons/hazardous.png"
-                    }
-                };
-
-                function getAlertDetailsByCategory (type) {
-                    return alertTypeMap[type] || null;
-                }
-
-                function extractNewLocations (alertLocations) {
-                    const newLocations = [];
-                    const now = Math.floor(Date.now() / 1000);
-
-                    for (let location of alertLocations) {
-                        if (!recentlyAlertedLocations[location] || recentlyAlertedLocations[location] < now - 60) {
-                            newLocations.push(location);
-                            recentlyAlertedLocations[location] = now;
                         }
-                    }
 
-                    return newLocations;
-                }
+                        incrementErrorCount(alert.error);
 
-                function updateAlertedLocation (location) {
-                    const index = alertedLocations.findIndex(item => item.location === location);
-
-                    if (index !== -1) {
-                        alertedLocations[index].counter++;
-                    } else {
-                        alertedLocations.push({
-                            location: location,
-                            counter: 1
-                        });
-                    }
-                }
-
-                function updateAlertedZone (zone) {
-                    const index = alertedZones.findIndex(item => item.zone === zone);
-
-                    if (index !== -1) {
-                        alertedZones[index].counter++;
-                    } else {
-                        alertedZones.push({
-                            zone: zone,
-                            counter: 1
-                        });
-                    }
-                }
-
-                //Pikud HaOref service
-                const locationsJSON = <%- cities %>;
-
-                const input = document.getElementById('citySearch');
-                const suggestionsList = document.getElementById('city_suggestions');
-
-                input.addEventListener('input', function () {
-                    const query = this.value.toLowerCase().trim();
-
-                    // Clear previous suggestions
-                    suggestionsList.innerHTML = '';
-
-                    if (query.length === 0) {
-                        suggestionsList.style.display = 'none';
+                        console.log("Pikud HaOref Error: " + alert.error);
                         return;
                     }
 
-                    // Filter JSON data
-                    const filtered = locationsJSON.filter(city =>
-                        city.name_en.toLowerCase().includes(query)
-                    );
+                    if (alert.length) {
+                        const alertType = alert[0].type;
+                        const alertCities = alert[0].cities;
+                        const instructions = alert[0].instructions;
 
-                    if (filtered.length === 0) {
-                        suggestionsList.style.display = 'none';
-                        return;
-                    }
+                        if (alertType === "newsFlash") {
+                            const earlyWarningCity = localStorage.getItem("earlyWarningCity") || "undefined";
 
-                    // Render suggestions
-                    filtered.forEach(city => {
-                        const li = document.createElement('li');
-                        li.className = 'list-group-item list-group-item-action bg-light text-dark border-secondary';
-                        li.innerHTML = `<strong>${city.name_en}</strong>`;
-
-                        // Click to select
-                        li.addEventListener('click', () => {
-                            input.value = city.name_en;
-                            suggestionsList.style.display = 'none';
-                        });
-
-                        suggestionsList.appendChild(li);
-                    });
-
-                    suggestionsList.style.display = 'block';
-                });
-
-                // Hide suggestions when clicking outside
-                document.addEventListener('click', (e) => {
-                    if (!e.target.closest('.position-relative')) {
-                        suggestionsList.style.display = 'none';
-                    }
-                });
-
-                const locationMap = Object.fromEntries(
-                    locationsJSON.map(loc => [loc.value, {
-                        name_en: loc.name_en,
-                        zone: loc.zone,
-                        zone_en: loc.zone_en,
-                        lng: loc.lng,
-                        lat: loc.lat,
-                        countdown: loc.countdown
-                    }])
-                );
-
-                const pikudHaorefPoll = async function () {
-                    try {
-                        setTimeout(pikudHaorefPoll, pikudHaorefInterval);
-
-                        const alert = await ajaxHandler("pikud_haoref");
-
-                        if (alert) {
-
-                            window.alertsJSON = alert;
-
-                            if (alert.error) {
-                                pikudHaorefErrorCounter++
-
-                                if (!pikudHaorefError) {
-                                    pikudHaorefError = true;
-                                    $("#error_counter, #error_message").show();
-                                }
-
-                                $("#pikud_haoref_error_counter").text(pikudHaorefErrorCounter);
-
-                                if (!errorLogs.includes(alert.error)) {
-                                    errorLogs.push(alert.error);
-
-                                    if (alert.error.indexOf("Request failed with status code 403") > -1) {
-                                        $("#pikud_haoref_error_messages").prepend("<li>403 Forbidden - Requires Israeli IP</li>");
-                                    } else {
-                                        $("#pikud_haoref_error_messages").prepend("<li>" + alert.error + "</li>");
+                            if (instructions === "האירוע הסתיים") {
+                                if (earlyWarningActive) {
+                                    if (!earlyWarningModalExit._isShown) {
+                                        earlyWarningModalExit.show();
                                     }
-                                }
 
-                                console.log("Pikud HaOref Error: " + alert.error);
-                                return;
-                            }
-
-                            if (alert.length) {
-                                const alertType = alert[0] && alert[0].type;
-
-                                if (alertType === "newsFlash") {
-                                    const instructions = alert[0].instructions;
-
-                                    const earlyWarningCity = localStorage.getItem("earlyWarningCity") || "undefined";
-
-                                    if (instructions === "האירוע הסתיים") {
-                                        if (earlyWarningActive) {
-                                            if (!earlyWarningModalExit._isShown) {
-                                                earlyWarningModalExit.show();
-                                            }
-
-                                            setTimeout(() => {
-                                                if (earlyWarningModalExit._isShown) {
-                                                    earlyWarningModalExit.hide();
-                                                }
-                                            }, 30000);
-                                        }
-
-                                        earlyWarningLocations = [];
-                                        earlyWarningActive = false;
-                                        $("#earlyWarningLocations").text("");
-
-                                        if (earlyWarningModalEnter._isShown) {
-                                            earlyWarningModalEnter.hide();
-                                        }
-                                    } else {
-                                        const checkIfCityAffected = alert[0].cities.map(city => locationMap[city]?.name_en).includes(earlyWarningCity);
-
-                                        if (!earlyWarningActive) {
-                                            if (checkIfCityAffected) {
-                                                totalEarlyWarningsSpecificCounter++
-                                                $("#totalEarlyWarningsSpecificCounter").text(totalEarlyWarningsSpecificCounter);
-                                                $("#total_early_warnings_specific_counter").show();
-                                            }
-
-                                            totalEarlyWarningsAllCounter++
-                                            $("#totalEarlyWarningsAllCounter").text(totalEarlyWarningsAllCounter);
-                                        }
-
-                                        earlyWarningActive = true;
-
+                                    setTimeout(() => {
                                         if (earlyWarningModalExit._isShown) {
                                             earlyWarningModalExit.hide();
                                         }
+                                    }, 30000);
+                                }
 
-                                        if (!earlyWarningLocations.includes(alert[0].cities.join(","))) {
-                                            earlyWarningLocations.push(alert[0].cities.join(","));
+                                earlyWarningLocations = [];
+                                earlyWarningActive = false;
+                                $("#earlyWarningLocations").text("");
 
-                                            $("#earlyWarningLocations").append(alert[0].cities.map(city => locationMap[city]?.name_en || city).join(", ") + "<br /><br />");
+                                if (earlyWarningModalEnter._isShown) {
+                                    earlyWarningModalEnter.hide();
+                                }
+                            } else {
+                                const checkIfCityAffected = alertCities.map(city => locationMap[city]?.name_en).includes(earlyWarningCity);
+
+                                if (!earlyWarningActive) {
+                                    if (checkIfCityAffected) {
+                                        totalEarlyWarningsSpecificCounter++
+                                        $("#totalEarlyWarningsSpecificCounter").text(totalEarlyWarningsSpecificCounter);
+                                        $("#total_early_warnings_specific_counter").show();
+                                    }
+
+                                    totalEarlyWarningsAllCounter++
+                                    $("#totalEarlyWarningsAllCounter").text(totalEarlyWarningsAllCounter);
+                                }
+
+                                earlyWarningActive = true;
+
+                                if (earlyWarningModalExit._isShown) {
+                                    earlyWarningModalExit.hide();
+                                }
+
+                                for (let i = 0; i < alertCities.length; i++) {
+                                    const city = alertCities[i];
+
+                                    if (!earlyWarningLocations.includes(city)) {
+                                        earlyWarningLocations.push(city);
+
+                                        $("#earlyWarningLocations").append((locationMap[city]?.name_en || city) + ", ");
+                                    }
+                                }
+
+                                if (!earlyWarningModalEnter._isShown) {
+                                    earlyWarningModalEnter.show();
+                                }
+                            }
+
+                        } else if (alertType != "newsFlash") {
+                            earlyWarningLocations = [];
+                            earlyWarningActive = false;
+                            $("#earlyWarningLocations").text("");
+
+                            if (earlyWarningModalEnter._isShown) {
+                                earlyWarningModalEnter.hide();
+                            }
+
+                            if (earlyWarningModalExit._isShown) {
+                                earlyWarningModalExit.hide();
+                            }
+
+                            const alertTypeDetails = getAlertDetailsByCategory(alertType);
+
+                            if (alertTypeDetails) {
+                                const alertTypeText = alertTypeDetails.text;
+                                const alertTypeIcon = alertTypeDetails.icon;
+                                const timeStamp = moment().format("HH:mm:ss");
+
+                                const locations = extractNewLocations(alertCities);
+
+                                for (let i = 0; i < locations.length; i++) {
+                                    const locationOriginal = locations[i];
+
+                                    const locationKey = locations[i].replace("''", "'");
+                                    const location = locationMap[locationKey]?.name_en || locationOriginal;
+                                    const zone = locationMap[locationKey]?.zone || "Unknown";
+                                    const zone_en = locationMap[locationKey]?.zone_en || "Unknown";
+                                    const lat = locationMap[locationKey]?.lat || "";
+                                    const lng = locationMap[locationKey]?.lng || "";
+
+                                    if (location) {
+                                        if (alertType === "missiles") {
+                                            rocketAlertCounter++
+                                            $("#rocketAlertCounter").text(rocketAlertCounter);
+                                        } else if (alertType === "hostileAircraftIntrusion") {
+                                            droneAlertCounter++
+                                            $("#droneAlertCounter").text(droneAlertCounter);
                                         }
 
-                                        if (!earlyWarningModalEnter._isShown) {
-                                            earlyWarningModalEnter.show();
+                                        $("#totalAlertsCounter").text(rocketAlertCounter + droneAlertCounter);
+
+                                        updateAlertedLocation(location);
+                                        updateAlertedZone(zone_en);
+
+                                        if (zone_en === "Unknown") {
+
+                                            console.log("Unmatched location:", alert[0]);
+
+                                            totalUnmatchedCitiesCounter++;
+                                            $("#totalUnmatchedCitiesCounter").text(totalUnmatchedCitiesCounter);
+
+                                            if (!unmatchedCitiesLogs.includes(location)) {
+                                                unmatchedCitiesLogs.push(location);
+                                                $("#unmatched_cities_messages").prepend("<li>" + location + "</li>");
+                                            }
+
+                                            if (!unmatchedCitiesFlag) {
+                                                unmatchedCitiesFlag = true;
+                                                $("#unmatched_cities_counter, #unmatched_cities").show();
+                                            }
                                         }
-                                    }
 
-                                } else if (alertType != "newsFlash") {
-                                    earlyWarningLocations = [];
-                                    earlyWarningActive = false;
-                                    $("#earlyWarningLocations").text("");
-
-                                    if (earlyWarningModalEnter._isShown) {
-                                        earlyWarningModalEnter.hide();
-                                    }
-
-                                    if (earlyWarningModalExit._isShown) {
-                                        earlyWarningModalExit.hide();
-                                    }
-
-                                    const alertTypeDetails = getAlertDetailsByCategory(alertType);
-
-                                    if (alertTypeDetails) {
-                                        const alertTypeText = alertTypeDetails.text;
-                                        const alertTypeIcon = alertTypeDetails.icon;
-                                        const timeStamp = moment().format("HH:mm:ss");
-
-                                        const locations = extractNewLocations(alert[0].cities);
-
-                                        for (let i = 0; i < locations.length; i++) {
-                                            const locationOriginal = locations[i];
-
-                                            const locationKey = locations[i].replace("''", "'");
-                                            const location = locationMap[locationKey]?.name_en || locationOriginal;
-                                            const zone = locationMap[locationKey]?.zone || "Unknown";
-                                            const zone_en = locationMap[locationKey]?.zone_en || "Unknown";
-                                            const lat = locationMap[locationKey]?.lat || "";
-                                            const lng = locationMap[locationKey]?.lng || "";
-
-                                            if (location) {
-                                                if (alertType === "missiles") {
-                                                    rocketAlertCounter++
-                                                    $("#rocketAlertCounter").text(rocketAlertCounter);
-                                                } else if (alertType === "hostileAircraftIntrusion") {
-                                                    droneAlertCounter++
-                                                    $("#droneAlertCounter").text(droneAlertCounter);
-                                                }
-
-                                                $("#totalAlertsCounter").text(rocketAlertCounter + droneAlertCounter);
-
-                                                updateAlertedLocation(location);
-                                                updateAlertedZone(zone_en);
-
-                                                if (zone_en === "Unknown") {
-
-                                                    console.log("Unmatched location:", alert[0]);
-
-                                                    totalUnmatchedCitiesCounter++;
-                                                    $("#totalUnmatchedCitiesCounter").text(totalUnmatchedCitiesCounter);
-
-                                                    if (!unmatchedCitiesLogs.includes(location)) {
-                                                        unmatchedCitiesLogs.push(location);
-                                                        $("#unmatched_cities_messages").prepend("<li>" + location + "</li>");
-                                                    }
-
-                                                    if (!unmatchedCitiesFlag) {
-                                                        unmatchedCitiesFlag = true;
-                                                        $("#unmatched_cities_counter, #unmatched_cities").show();
-                                                    }
-                                                }
-
-                                                $("#pikud_haoref_alerts").prepend(`
+                                        $("#pikud_haoref_alerts").prepend(`
                                                     <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
                                                         <td><font class='text-warning'>${timeStamp}</font></td>
                                                         <td><img src="${alertTypeIcon}" style="width:20px; height:20px;" title="${alertTypeText}"></td>
@@ -1121,186 +1135,184 @@
                                                         <td>${zone_en}</td>
                                                     </tr>
                                                 `);
-                                            }
+                                    }
+                                }
+
+                                if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
+                                    //Update Alerted Locations Counter
+                                    $("#alerted_locations_counter").html("");
+
+                                    const sortalertedLocations = alertedLocations.toSorted((a, b) => {
+                                        // First compare by counter (descending)
+                                        if (b.counter !== a.counter) {
+                                            return b.counter - a.counter;
                                         }
 
-                                        if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
-                                            //Update Alerted Locations Counter
-                                            $("#alerted_locations_counter").html("");
+                                        // If counters are equal → compare locations alphabetically (ascending)
+                                        return a.location.localeCompare(b.location);
+                                    });
 
-                                            const sortalertedLocations = alertedLocations.toSorted((a, b) => {
-                                                // First compare by counter (descending)
-                                                if (b.counter !== a.counter) {
-                                                    return b.counter - a.counter;
-                                                }
+                                    for (let i = 0; i < sortalertedLocations.length; i++) {
+                                        const location = sortalertedLocations[i].location
+                                        const counter = sortalertedLocations[i].counter;
 
-                                                // If counters are equal → compare locations alphabetically (ascending)
-                                                return a.location.localeCompare(b.location);
-                                            });
-
-                                            for (let i = 0; i < sortalertedLocations.length; i++) {
-                                                const location = sortalertedLocations[i].location
-                                                const counter = sortalertedLocations[i].counter;
-
-                                                $("#alerted_locations_counter").append(`
+                                        $("#alerted_locations_counter").append(`
                                                     <tr>
                                                         <td width="95%"><font class='text-white'>${location}</font></td>
                                                         <td>${counter}</td>
                                                     </tr>
                                                 `);
-                                            }
+                                    }
 
-                                            $("#totalLocationsCounter").text(sortalertedLocations.length);
+                                    $("#totalLocationsCounter").text(sortalertedLocations.length);
 
-                                            //Update Alerted Zones Counter
-                                            $("#alerted_zones_counter").html("");
+                                    //Update Alerted Zones Counter
+                                    $("#alerted_zones_counter").html("");
 
-                                            const sortalertedZones = alertedZones.toSorted((a, b) => {
-                                                // First compare by counter (descending)
-                                                if (b.counter !== a.counter) {
-                                                    return b.counter - a.counter;
-                                                }
+                                    const sortalertedZones = alertedZones.toSorted((a, b) => {
+                                        // First compare by counter (descending)
+                                        if (b.counter !== a.counter) {
+                                            return b.counter - a.counter;
+                                        }
 
-                                                // If counters are equal → compare zones alphabetically (ascending)
-                                                return a.zone.localeCompare(b.zone);
-                                            });
+                                        // If counters are equal → compare zones alphabetically (ascending)
+                                        return a.zone.localeCompare(b.zone);
+                                    });
 
-                                            for (let i = 0; i < sortalertedZones.length; i++) {
-                                                const zone = sortalertedZones[i].zone
-                                                const counter = sortalertedZones[i].counter;
+                                    for (let i = 0; i < sortalertedZones.length; i++) {
+                                        const zone = sortalertedZones[i].zone
+                                        const counter = sortalertedZones[i].counter;
 
-                                                $("#alerted_zones_counter").append(`
+                                        $("#alerted_zones_counter").append(`
                                                     <tr>
                                                         <td width="95%"><font class='text-white'>${zone}</font></td>
                                                         <td>${counter}</td>
                                                     </tr>
                                                 `);
-                                            }
-
-                                            $("#totalZonesCounter").text(sortalertedZones.length);
-                                        }
-
                                     }
+
+                                    $("#totalZonesCounter").text(sortalertedZones.length);
                                 }
+
                             }
                         }
-                    } catch (error) {
-                        console.error("Error in Pikud HaOref Polling:", error);
                     }
-                };
+                }
+            } catch (error) {
+                console.error("Error in Pikud HaOref Polling:", error);
+            }
+        };
 
-                pikudHaorefPoll();
+        pikudHaorefPoll();
+
+        //RSS service
+        const newsArray = [];
+        const rssInterval = 10000;
+        let currentRssFeedIndex = 0;
+
+        const rssFeeds = [{
+                codename: "RSSarutz7",
+                realname: "Arutz 7",
+                url: "https://www.israelnationalnews.com/Rss.aspx"
+            },
+            {
+                codename: "RSSbnn",
+                realname: "BNN",
+                url: "https://www.bernie.news/api/news/rss"
+            },
+            {
+                codename: "RSSjerusalemPost",
+                realname: "JPost",
+                url: "https://www.jpost.com/rss/rssfeedsfrontpage.aspx"
+            },
+            {
+                codename: "RSSynet",
+                realname: "Ynet",
+                url: "https://www.ynet.co.il/Integration/StoryRss3082.xml"
+            }
+        ];
 
 
+        function getRealName (codename) {
+            const feed = rssFeeds.find(feed => feed.codename === codename);
+            return feed.realname;
+        };
 
-                //RSS service
-                const newsArray = [];
-                const rssInterval = 10000;
-                let currentRssFeedIndex = 0;
+        const rssPoll = async function () {
 
-                const rssFeeds = [{
-                        codename: "RSSarutz7",
-                        realname: "Arutz 7",
-                        url: "https://www.israelnationalnews.com/Rss.aspx"
-                    },
-                    {
-                        codename: "RSSbnn",
-                        realname: "BNN",
-                        url: "https://www.bernie.news/api/news/rss"
-                    },
-                    {
-                        codename: "RSSjerusalemPost",
-                        realname: "JPost",
-                        url: "https://www.jpost.com/rss/rssfeedsfrontpage.aspx"
-                    },
-                    {
-                        codename: "RSSynet",
-                        realname: "Ynet",
-                        url: "https://www.ynet.co.il/Integration/StoryRss3082.xml"
-                    }
-                ];
+            const rssFeedCodeName = rssFeeds[currentRssFeedIndex].codename;
+            const rssFeedURL = rssFeeds[currentRssFeedIndex].url;
 
+            currentRssFeedIndex++;
 
-                function getRealName (codename) {
-                    const feed = rssFeeds.find(feed => feed.codename === codename);
-                    return feed.realname;
-                };
+            if (currentRssFeedIndex === rssFeeds.length) {
+                currentRssFeedIndex = 0;
+            }
 
-                const rssPoll = async function () {
+            setTimeout(rssPoll, rssInterval);
 
-                    const rssFeedCodeName = rssFeeds[currentRssFeedIndex].codename;
-                    const rssFeedURL = rssFeeds[currentRssFeedIndex].url;
+            const news = await ajaxHandler("rss", rssFeedURL);
 
-                    currentRssFeedIndex++;
+            if (news && !news.error) {
 
-                    if (currentRssFeedIndex === rssFeeds.length) {
-                        currentRssFeedIndex = 0;
-                    }
+                let reversedArray = [];
 
-                    setTimeout(rssPoll, rssInterval);
+                news.feed.items.forEach((item) => {
+                    reversedArray.push({
+                        published: item.published,
+                        title: item.title,
+                        idpublished: item.id,
+                        url: item.url
+                    });
+                });
 
-                    const news = await ajaxHandler("rss", rssFeedURL);
+                reversedArray = reversedArray.reverse();
 
-                    if (news && !news.error) {
+                reversedArray.forEach((item) => {
+                    const published = item.published;
+                    const timeStamp = moment().format("HH:mm");
 
-                        let reversedArray = [];
+                    if (!newsArray.includes(published)) {
+                        newsArray.push(published);
 
-                        news.feed.items.forEach((item) => {
-                            reversedArray.push({
-                                published: item.published,
-                                title: item.title,
-                                idpublished: item.id,
-                                url: item.url
-                            });
-                        });
-
-                        reversedArray = reversedArray.reverse();
-
-                        reversedArray.forEach((item) => {
-                            const published = item.published;
-                            const timeStamp = moment().format("HH:mm");
-
-                            if (!newsArray.includes(published)) {
-                                newsArray.push(published);
-
-                                $("#rss_alerts").prepend(`
+                        $("#rss_alerts").prepend(`
                                     <tr class="animate__animated animate__fadeInDown animate__faster rssNewRow table-light">
                                         <td width="5%"><font class="text-warning">${timeStamp}</font></td>
                                         <td width="6%"><font class="text-info">${getRealName(rssFeedCodeName)}</font></td>
                                         <td><a href="${item.url}" target="_blank">${item.title}</a></td>
                                     </tr>
                                 `);
-                            }
-                        });
                     }
+                });
+            }
 
-                };
+        };
 
-                rssPoll();
+        rssPoll();
 
-                async function checkAppVersion () {
-                    try {
-                        const versionCheck = await ajaxHandler("version_check");
+        async function checkAppVersion () {
+            try {
+                const versionCheck = await ajaxHandler("version_check");
 
-                        if (versionCheck && versionCheck.updateAvailable) {
-                            const latestVersion = versionCheck.latestVersion;
+                if (versionCheck && versionCheck.updateAvailable) {
+                    const latestVersion = versionCheck.latestVersion;
 
-                            $("#update_app_version").show();
-                        } else {
-                            $("#update_app_version").hide();
-                        }
-                    } catch (error) {
-                        console.error("Error checking app version:", error);
-                    }
+                    $("#update_app_version").show();
+                } else {
+                    $("#update_app_version").hide();
                 }
+            } catch (error) {
+                console.error("Error checking app version:", error);
+            }
+        }
 
-                checkAppVersion();
+        checkAppVersion();
 
-                setInterval(() => {
-                    checkAppVersion();
-                }, 600000); // Check every 10 minutes
+        setInterval(() => {
+            checkAppVersion();
+        }, 600000); // Check every 10 minutes
 
-                    </script>
-                </body>
+    </script>
+</body>
 
-                </html>
+</html>

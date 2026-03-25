@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+        <meta charset="utf-8">
+        <title>Simple Markers</title>
+        <style>
+            #map {
+                height: 100%;
+            }
+
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <div id="map"></div>
+        <script>
+            // Global variables
+            let map;
+            let allMarkers = []; // Keeps all active markers
+            const DEFAULT_CENTER = {
+                lat: 32.0853,
+                lng: 34.7818
+            };
+            const DEFAULT_ZOOM = 8;
+
+            // Active city alerts keyed by a stable city identifier.
+            // A city remains here while its marker is active, then is removed on timeout.
+            const alertedCitiesState = {
+                activeByKey: {},
+                activeList: []
+            };
+
+            // Initialize the map (runs only once)
+            function initMap () {
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: DEFAULT_ZOOM,
+                    center: DEFAULT_CENTER,
+                    mapId: 'DEMO_MAP_ID',
+                    mapTypeId: 'roadmap'
+                });
+            }
+
+            function buildMarkerContent (type) {
+                const markerElement = document.createElement('div');
+                markerElement.className = 'adv-marker';
+
+                if (type === 'missiles' || type === 'hostileAircraftIntrusion') {
+                    markerElement.classList.add(`adv-marker--${type}`);
+                } else {
+                    markerElement.classList.add('adv-marker--default');
+                }
+
+                return markerElement;
+            }
+
+            // Keeps all active markers visible as markers are added/removed.
+            function fitMapToActiveMarkers () {
+                if (!map) {
+                    return;
+                }
+
+                const visibleMarkers = allMarkers.filter(marker => marker && marker.map);
+
+                if (visibleMarkers.length === 0) {
+                    map.setCenter(DEFAULT_CENTER);
+                    map.setZoom(DEFAULT_ZOOM);
+                    return;
+                }
+
+                if (visibleMarkers.length === 1) {
+                    map.setCenter(visibleMarkers[0].position);
+                    map.setZoom(12);
+                    return;
+                }
+
+                const bounds = new google.maps.LatLngBounds();
+                visibleMarkers.forEach(marker => bounds.extend(marker.position));
+                map.fitBounds(bounds, {
+                    padding: 60
+                });
+
+                google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
+                    if (map.getZoom() > 16) {
+                        map.setZoom(16);
+                    }
+                });
+            }
+
+            function getCityKey (city) {
+                if (city.id !== undefined && city.id !== null) {
+                    return String(city.id);
+                }
+
+                if (city.name) {
+                    return String(city.name).toLowerCase();
+                }
+
+                return `${city.lat},${city.lng}`;
+            }
+
+            function removeCityFromActiveList (cityKey) {
+                alertedCitiesState.activeList = alertedCitiesState.activeList.filter(item => item.cityKey !== cityKey);
+            }
+
+            function cleanupExpiredCity (cityKey, marker) {
+                marker.map = null;
+                allMarkers = allMarkers.filter(m => m !== marker);
+                delete alertedCitiesState.activeByKey[cityKey];
+                removeCityFromActiveList(cityKey);
+                fitMapToActiveMarkers();
+            }
+
+            // Returns only cities that are not currently active on the map.
+            // Use this before issuing API calls to avoid repeatedly querying active cities.
+            function getCitiesNeedingApiCall (cities) {
+                const safeCities = Array.isArray(cities) ? cities : [];
+                return safeCities.filter(city => !alertedCitiesState.activeByKey[getCityKey(city)]);
+            }
+
+            // Add new city markers without removing existing ones.
+            // Already-active cities are ignored until their per-city duration expires.
+            async function addCitiesOneByOne (cities) {
+                // Wait until map is ready
+                if (!map) {
+                    console.warn("Map not ready yet, waiting...");
+                    await waitForMap();
+                }
+
+                const incomingCities = Array.isArray(cities) ? cities : [];
+
+                // Load the marker library and get AdvancedMarkerElement
+                const {
+                    AdvancedMarkerElement
+                } = await google.maps.importLibrary("marker");
+
+                const {
+                    PinElement
+                } = await google.maps.importLibrary("marker");
+
+                incomingCities.forEach((city) => {
+                    const cityKey = getCityKey(city);
+
+                    // Skip if this city is already active on the map.
+                    if (alertedCitiesState.activeByKey[cityKey]) {
+                        return;
+                    }
+
+                    // Then create marker:
+                    const pin = new PinElement({
+                        background: '#FF0000', // fill color (any hex)
+                        borderColor: '#000000',
+                        glyphColor: '#FFFFFF', // color of the letter/icon inside
+                        scale: 1.2,
+                    });
+
+                    const marker = new google.maps.marker.AdvancedMarkerElement({
+                        position: {
+                            lat: city.lat,
+                            lng: city.lng
+                        },
+                        map: map,
+                        content: pin.element
+                    });
+
+                    // Store it globally so we can track it
+                    allMarkers.push(marker);
+
+                    // Optional: InfoWindow
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `<h3>${city.name}</h3>`
+                    });
+                    marker.addListener('click', () => {
+                        infoWindow.open(map, marker);
+                    });
+
+                    const duration = Number(city.duration) > 0 ? Number(city.duration) : 10000;
+
+                    // Store active city record so repeated API cycles can ignore duplicates.
+                    const activeRecord = {
+                        cityKey,
+                        city,
+                        marker,
+                        createdAt: Date.now(),
+                        expiresAt: Date.now() + duration
+                    };
+
+                    alertedCitiesState.activeByKey[cityKey] = activeRecord;
+                    alertedCitiesState.activeList.push(activeRecord);
+
+                    // On timeout: fade marker, then remove from active state so city can alert again.
+                    setTimeout(() => {
+                        removeMarkerWithFade(marker, () => {
+                            cleanupExpiredCity(cityKey, marker);
+                        });
+                    }, duration);
+                });
+
+                // Fit map to all currently active markers, not only this batch.
+                fitMapToActiveMarkers();
+            }
+
+            // Smooth fade-out + remove marker
+            function removeMarkerWithFade (marker, onComplete) {
+                if (!marker) return;
+
+                let opacity = 1.0;
+                const fadeStep = 0.08;
+                const interval = 50;
+                const markerContent = marker.content;
+
+                const fadeInterval = setInterval(() => {
+                    opacity -= fadeStep;
+                    if (opacity <= 0) {
+                        clearInterval(fadeInterval);
+                        if (markerContent) {
+                            markerContent.style.opacity = '0';
+                        }
+                        if (typeof onComplete === "function") {
+                            onComplete();
+                        }
+                    } else {
+                        if (markerContent) {
+                            markerContent.style.opacity = String(opacity);
+                        }
+                    }
+                }, interval);
+            }
+
+            // Optional: Clear everything if needed
+            function clearAllMarkers () {
+                allMarkers.forEach(marker => {
+                    marker.map = null;
+                });
+                allMarkers = [];
+                alertedCitiesState.activeByKey = {};
+                alertedCitiesState.activeList = [];
+                fitMapToActiveMarkers();
+            }
+
+            // Helper: Wait for map to be ready
+            function waitForMap () {
+                return new Promise((resolve) => {
+                    const checkInterval = setInterval(() => {
+                        if (map) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100); // check every 100ms
+                });
+            }
+
+            // Expose helper methods for the parent page / external scripts.
+            window.mapAlerts = {
+                addCitiesOneByOne,
+                getCitiesNeedingApiCall,
+                getActiveAlerts: function () {
+                    return alertedCitiesState.activeList.map(item => ({
+                        key: item.cityKey,
+                        city: item.city,
+                        createdAt: item.createdAt,
+                        expiresAt: item.expiresAt
+                    }));
+                },
+                clearAllMarkers
+            };
+
+        </script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMap&libraries=marker&v=weekly&key=AIzaSyCSeMZ5AxUgSWHy6EedcgeXjRC2irszdUQ">
+        </script>
+    </body>
+
+</html>

@@ -14,6 +14,8 @@
         <script src="/js/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
         <script src="/js/moment-2.30.1.min.js"></script>
 
+        <script async defer src="https://maps.googleapis.com/maps/api/js?callback=initMap&libraries=marker&key=AIzaSyCSeMZ5AxUgSWHy6EedcgeXjRC2irszdUQ"></script>
+
         <style>
             /* ==================== CSS CUSTOM PROPERTIES ====================
                All shared design tokens live here so changing one value
@@ -45,6 +47,50 @@
                 color: #e2e8f0;
                 font-family: "Segoe UI", system-ui, sans-serif;
                 min-height: 100vh;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            /* Map container must have explicit height for Google Maps to render correctly. */
+            #map {
+                height: 100%;
+            }
+
+            .adv-marker {
+                --marker-color: #ef4444;
+                position: relative;
+                width: 22px;
+                height: 22px;
+                border-radius: 50% 50% 50% 0;
+                transform: rotate(-45deg);
+                background: var(--marker-color);
+                border: 2px solid #ffffff;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+            }
+
+            .adv-marker::after {
+                content: "";
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: 8px;
+                height: 8px;
+                transform: translate(-50%, -50%) rotate(45deg);
+                border-radius: 50%;
+                background: #ffffff;
+            }
+
+            .adv-marker--missiles {
+                --marker-color: #ef4444;
+            }
+
+            .adv-marker--hostileAircraftIntrusion {
+                --marker-color: #3b82f6;
+            }
+
+            .adv-marker--default {
+                --marker-color: #ef4444;
             }
 
             /* ==================== LINKS ====================
@@ -503,7 +549,7 @@
 
                     <div id="tzofarBody" class="collapse show mt-2">
                         <div class="card overflow-hidden" style="border-radius: 16px">
-                            <iframe id="tzofarMapFrame" src="https://www.tzevaadom.co.il/en/" style="width: 100%; border: none; border-radius: 6px" title="Tzofar GPS Alerts"></iframe>
+                            <div id="map"></div>
                         </div>
                     </div>
                 </div>
@@ -664,6 +710,269 @@
         </div>
 
         <script>
+            // ==================== MAP ====================
+            // Global variables
+            let map;
+            let allMarkers = []; // Keeps all active markers
+            const DEFAULT_CENTER = {
+                lat: 32.0853,
+                lng: 34.7818
+            };
+            const DEFAULT_ZOOM = 8;
+
+            // Active city alerts keyed by a stable city identifier.
+            // A city remains here while its marker is active, then is removed on timeout.
+            const alertedCitiesState = {
+                activeByKey: {},
+                activeList: []
+            };
+
+            // Initialize the map (runs only once)
+            function initMap () {
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: DEFAULT_ZOOM,
+                    center: DEFAULT_CENTER,
+                    mapId: 'DEMO_MAP_ID',
+                    mapTypeId: 'roadmap'
+                });
+            }
+
+            function buildMarkerContent (type) {
+                const markerElement = document.createElement('div');
+                markerElement.className = 'adv-marker';
+
+                if (type === 'missiles' || type === 'hostileAircraftIntrusion') {
+                    markerElement.classList.add(`adv-marker--${type}`);
+                } else {
+                    markerElement.classList.add('adv-marker--default');
+                }
+
+                return markerElement;
+            }
+
+            // Keeps all active markers visible as markers are added/removed.
+            function fitMapToActiveMarkers () {
+                if (!map) {
+                    return;
+                }
+
+                const visibleMarkers = allMarkers.filter(marker => marker && marker.map);
+
+                if (visibleMarkers.length === 0) {
+                    map.setCenter(DEFAULT_CENTER);
+                    map.setZoom(DEFAULT_ZOOM);
+                    return;
+                }
+
+                if (visibleMarkers.length === 1) {
+                    map.setCenter(visibleMarkers[0].position);
+                    map.setZoom(12);
+                    return;
+                }
+
+                const bounds = new google.maps.LatLngBounds();
+                visibleMarkers.forEach(marker => bounds.extend(marker.position));
+                map.fitBounds(bounds, {
+                    padding: 60
+                });
+
+                google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
+                    if (map.getZoom() > 16) {
+                        map.setZoom(16);
+                    }
+                });
+            }
+
+            function getCityKey (city) {
+                if (city.id !== undefined && city.id !== null) {
+                    return String(city.id);
+                }
+
+                if (city.name) {
+                    return String(city.name).toLowerCase();
+                }
+
+                return `${city.lat},${city.lng}`;
+            }
+
+            function removeCityFromActiveList (cityKey) {
+                alertedCitiesState.activeList = alertedCitiesState.activeList.filter(item => item.cityKey !== cityKey);
+            }
+
+            function cleanupExpiredCity (cityKey, marker) {
+                marker.map = null;
+                allMarkers = allMarkers.filter(m => m !== marker);
+                delete alertedCitiesState.activeByKey[cityKey];
+                removeCityFromActiveList(cityKey);
+                fitMapToActiveMarkers();
+            }
+
+            // Returns only cities that are not currently active on the map.
+            // Use this before issuing API calls to avoid repeatedly querying active cities.
+            function getCitiesNeedingApiCall (cities) {
+                const safeCities = Array.isArray(cities) ? cities : [];
+                return safeCities.filter(city => !alertedCitiesState.activeByKey[getCityKey(city)]);
+            }
+
+            // Add new city markers without removing existing ones.
+            // Already-active cities are ignored until their per-city duration expires.
+            async function addCitiesToMap (cities) {
+                console.log(cities)
+                // Wait until map is ready
+                if (!map) {
+                    console.warn("Map not ready yet, waiting...");
+                    await waitForMap();
+                }
+
+                const incomingCities = Array.isArray(cities) ? cities : [];
+
+                // Load the marker library and get AdvancedMarkerElement
+                const {
+                    AdvancedMarkerElement
+                } = await google.maps.importLibrary("marker");
+
+                const {
+                    PinElement
+                } = await google.maps.importLibrary("marker");
+
+                incomingCities.forEach((city) => {
+                    const cityKey = getCityKey(city);
+
+                    // Skip if this city is already active on the map.
+                    if (alertedCitiesState.activeByKey[cityKey]) {
+                        return;
+                    }
+
+                    const type = city.type;
+
+                    let backgroundColor = '#00FF00'; // Default green
+                    if (type === 'missiles') {
+                        backgroundColor = '#FF0000'; // Red for missiles
+                    } else if (type === 'hostileAircraftIntrusion') {
+                        backgroundColor = '#FFA500'; // Orange for hostile aircraft intrusion
+                    }
+
+                    // Then create marker:
+                    const pin = new PinElement({
+                        background: backgroundColor, // fill color (any hex)
+                        borderColor: '#000000',
+                        glyphColor: '#FFFFFF', // White color of the letter/icon inside
+                        scale: 1.2,
+                    });
+
+                    const marker = new google.maps.marker.AdvancedMarkerElement({
+                        position: {
+                            lat: city.lat,
+                            lng: city.lng
+                        },
+                        map: map,
+                        content: pin.element
+                    });
+
+                    // Store it globally so we can track it
+                    allMarkers.push(marker);
+
+                    // Optional: InfoWindow
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `<h3>${city.name}</h3>`
+                    });
+                    marker.addListener('click', () => {
+                        infoWindow.open(map, marker);
+                    });
+
+                    const duration = Number(city.duration) > 0 ? Number(city.duration) : 10000;
+
+                    // Store active city record so repeated API cycles can ignore duplicates.
+                    const activeRecord = {
+                        cityKey,
+                        city,
+                        marker,
+                        createdAt: Date.now(),
+                        expiresAt: Date.now() + duration
+                    };
+
+                    alertedCitiesState.activeByKey[cityKey] = activeRecord;
+                    alertedCitiesState.activeList.push(activeRecord);
+
+                    // On timeout: fade marker, then remove from active state so city can alert again.
+                    setTimeout(() => {
+                        removeMarkerWithFade(marker, () => {
+                            cleanupExpiredCity(cityKey, marker);
+                        });
+                    }, duration);
+                });
+
+                // Fit map to all currently active markers, not only this batch.
+                fitMapToActiveMarkers();
+            }
+
+            // Smooth fade-out + remove marker
+            function removeMarkerWithFade (marker, onComplete) {
+                if (!marker) return;
+
+                let opacity = 1.0;
+                const fadeStep = 0.08;
+                const interval = 50;
+                const markerContent = marker.content;
+
+                const fadeInterval = setInterval(() => {
+                    opacity -= fadeStep;
+                    if (opacity <= 0) {
+                        clearInterval(fadeInterval);
+                        if (markerContent) {
+                            markerContent.style.opacity = '0';
+                        }
+                        if (typeof onComplete === "function") {
+                            onComplete();
+                        }
+                    } else {
+                        if (markerContent) {
+                            markerContent.style.opacity = String(opacity);
+                        }
+                    }
+                }, interval);
+            }
+
+            // Optional: Clear everything if needed
+            function clearAllMarkers () {
+                allMarkers.forEach(marker => {
+                    marker.map = null;
+                });
+                allMarkers = [];
+                alertedCitiesState.activeByKey = {};
+                alertedCitiesState.activeList = [];
+                fitMapToActiveMarkers();
+            }
+
+            // Helper: Wait for map to be ready
+            function waitForMap () {
+                return new Promise((resolve) => {
+                    const checkInterval = setInterval(() => {
+                        if (map) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100); // check every 100ms
+                });
+            }
+
+            // Expose helper methods for the parent page / external scripts.
+            window.mapAlerts = {
+                addCitiesToMap,
+                getCitiesNeedingApiCall,
+                getActiveAlerts: function () {
+                    return alertedCitiesState.activeList.map(item => ({
+                        key: item.cityKey,
+                        city: item.city,
+                        createdAt: item.createdAt,
+                        expiresAt: item.expiresAt
+                    }));
+                },
+                clearAllMarkers
+            };
+
+
+
             // ==================== LIVE CLOCK ====================
             // Refreshes the HH:MM:SS badge in the alert panel header every second.
             function updateClock () {
@@ -846,6 +1155,7 @@
             let errorLogs = []; // Unique Pikud HaOref error messages with occurrence counts
             let unmatchedCitiesLogs = []; // Location names that couldn't be found in locationMap
             let earlyWarningLocations = []; // Cities currently under an active early-warning (newsFlash)
+            let alertedCitiesObj = []; // Cities that have received alerts this session
 
             // Summary counters reflected in the Alerts Summary table
             let rocketAlertCounter = 0; // Missile alert rows received
@@ -1256,6 +1566,14 @@
                                         const lat = locationMap[locationKey]?.lat || "";
                                         const lng = locationMap[locationKey]?.lng || "";
 
+                                        alertedCitiesObj.push({
+                                            name: location,
+                                            lat: lat,
+                                            lng: lng,
+                                            duration: 60000,
+                                            type: alertType
+                                        });
+
                                         if (location) {
                                             // Increment the type-specific counter (rockets vs. drones)
                                             if (alertType === "missiles") {
@@ -1299,15 +1617,19 @@
                                             // trigger the 5-second highlight fade set up in the cleanup interval above.
                                             // The location name links to Google Maps using the alert's coordinates.
                                             $("#pikud_haoref_alerts").prepend(`
-                                                    <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
-                                                        <td><font class='text-warning'>${timeStamp}</font></td>
-                                                        <td><img src="${alertTypeIcon}" style="width:20px; height:20px;" title="${alertTypeText}"></td>
-                                                        <td><a href="https://www.google.com/maps/search/${lat},${lng}" target="_blank">${location}</a></td>
-                                                        <td>${zone_en}</td>
-                                                    </tr>
-                                                `);
+                                                <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
+                                                    <td><font class='text-warning'>${timeStamp}</font></td>
+                                                    <td><img src="${alertTypeIcon}" style="width:20px; height:20px;" title="${alertTypeText}"></td>
+                                                    <td><a href="https://www.google.com/maps/search/${lat},${lng}" target="_blank">${location}</a></td>
+                                                    <td>${zone_en}</td>
+                                                </tr>
+                                            `);
                                         }
                                     }
+
+                                    addCitiesToMap(alertedCitiesObj); // Add new cities to the map with popups, one at a time
+
+                                    alertedCitiesObj = []; // Clear the batch array after processing
 
                                     // Rebuild the Locations and Zones counter tables after each missile/drone alert.
                                     // Only these two types update the counters; other alert types (earthquakes, etc.)
@@ -1332,11 +1654,11 @@
                                             const counter = sortalertedLocations[i].counter;
 
                                             $("#alerted_locations_counter").append(`
-                                                    <tr>
-                                                        <td width="95%"><font class='text-white'>${location}</font></td>
-                                                        <td>${counter}</td>
-                                                    </tr>
-                                                `);
+                                                <tr>
+                                                    <td width="95%"><font class='text-white'>${location}</font></td>
+                                                    <td>${counter}</td>
+                                                </tr>
+                                            `);
                                         }
 
                                         $("#totalLocationsCounter").text(sortalertedLocations.length);
@@ -1360,11 +1682,11 @@
                                             const counter = sortalertedZones[i].counter;
 
                                             $("#alerted_zones_counter").append(`
-                                                    <tr>
-                                                        <td width="95%"><font class='text-white'>${zone}</font></td>
-                                                        <td>${counter}</td>
-                                                    </tr>
-                                                `);
+                                                <tr>
+                                                    <td width="95%"><font class='text-white'>${zone}</font></td>
+                                                    <td>${counter}</td>
+                                                </tr>
+                                            `);
                                         }
 
                                         $("#totalZonesCounter").text(sortalertedZones.length);
@@ -1463,12 +1785,12 @@
                             newsArray.push(published); // Mark as seen
 
                             $("#rss_alerts").prepend(`
-                                    <tr class="animate__animated animate__fadeInDown animate__faster rssNewRow table-light">
-                                        <td width="5%"><font class="text-warning">${timeStamp}</font></td>
-                                        <td width="6%"><font class="text-info">${getRealName(rssFeedCodeName)}</font></td>
-                                        <td><a href="${item.url}" target="_blank">${item.title}</a></td>
-                                    </tr>
-                                `);
+                                <tr class="animate__animated animate__fadeInDown animate__faster rssNewRow table-light">
+                                    <td width="5%"><font class="text-warning">${timeStamp}</font></td>
+                                    <td width="6%"><font class="text-info">${getRealName(rssFeedCodeName)}</font></td>
+                                    <td><a href="${item.url}" target="_blank">${item.title}</a></td>
+                                </tr>
+                            `);
                         }
                     });
                 }

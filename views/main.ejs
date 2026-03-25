@@ -15,17 +15,29 @@
         <script src="/js/moment-2.30.1.min.js"></script>
 
         <style>
+            /* ==================== CSS CUSTOM PROPERTIES ====================
+               All shared design tokens live here so changing one value
+               propagates consistently across every component. */
             :root {
                 --primary: #0ea5e9;
+                /* Sky-blue accent */
                 --danger: #ef4444;
+                /* Red — alerts / sirens */
                 --success: #22c55e;
+                /* Green — all-clear / news */
                 --warning: #eab308;
+                /* Yellow — timestamps / caution */
                 --glass: rgba(255, 255, 255, 0.06);
+                /* Frosted-glass card fill */
                 --glass-border: rgba(255, 255, 255, 0.12);
+                /* Frosted-glass card border */
             }
 
+            /* ==================== BASE / RESET ====================
+               Dark-theme foundation applied to the entire page. */
             html {
                 font-size: 14px;
+                /* Slightly smaller base for dense data tables */
             }
 
             body {
@@ -35,7 +47,9 @@
                 min-height: 100vh;
             }
 
-            /* Remove underline and color change from all hyperlinks */
+            /* ==================== LINKS ====================
+               Strip browser default underline/blue from every <a> tag;
+               a subtle opacity fade on hover replaces the color change. */
             a {
                 color: inherit;
                 /* Keeps current text color */
@@ -56,6 +70,9 @@
                 /* Light fade on hover instead of color change */
             }
 
+            /* ==================== CARD (GLASSMORPHISM) ====================
+               Every panel uses a frosted-glass look: semi-transparent fill
+               blurred with backdrop-filter, soft border, and deep shadow.  */
             .card {
                 background: var(--glass);
                 backdrop-filter: blur(20px);
@@ -63,7 +80,7 @@
                 border-radius: 20px;
                 box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
                 overflow: hidden;
-                /* ← Important */
+                /* Required so child table rows don't escape rounded corners */
                 transition: all 0.3s ease;
             }
 
@@ -80,16 +97,21 @@
                 border-radius: 20px 20px 0 0 !important;
             }
 
-            /* ==================== TABLE FIXES ==================== */
+            /* ==================== TABLES ====================
+               Bootstrap tables need several overrides to fit the dark glass
+               theme and to round the corners of the first/last rows correctly. */
             .table-card {
                 border-radius: 20px;
                 overflow: hidden;
+                /* Clips table corners to match card rounding */
             }
 
             .table {
                 margin-bottom: 0;
                 border-collapse: separate;
+                /* Must be 'separate', not 'collapse', for border-radius to apply to cells */
                 border-spacing: 0;
+                /* Separate + zero spacing mimics collapse without losing radius support */
             }
 
             .table thead tr {
@@ -114,7 +136,8 @@
                 vertical-align: middle;
             }
 
-            /* Round the table corners properly */
+            /* Round only the four outer corners of the table body —
+               inner cells stay square so borders align correctly.      */
             .table tbody tr:first-child td:first-child {
                 border-top-left-radius: 16px;
             }
@@ -150,18 +173,28 @@
                 }
                 */
 
+            /* ==================== SECTION HEADER VARIANTS ====================
+               Applied to .card-header elements to colour-code each dashboard panel:
+               danger (red) = active alerts,  primary (blue) = summary,
+               success (green) = news feed.                                        */
             .header-danger {
                 background: #b91c1c;
+                /* Red — Pikud HaOref / Tzofar alert panels */
             }
 
             .header-primary {
                 background: #1e3a8a;
+                /* Dark blue — Alerts Summary panel */
             }
 
             .header-success {
                 background: #15803d;
+                /* Green — News Updates panel */
             }
 
+            /* ==================== CLOCK & STAT DISPLAY ====================
+               .live-clock  — pill badge in the alert panel header showing HH:MM:SS
+               .stat-number — large bold number used in the Summary counter table */
             .live-clock {
                 background: rgba(0, 0, 0, 0.5);
                 padding: 6px 14px;
@@ -176,16 +209,22 @@
                 color: #f8fafc;
             }
 
+            /* ==================== MODALS ====================
+               Dark modal content override for Bootstrap's default white background. */
             .modal-content {
                 background: #1e2937;
                 border: 1px solid var(--glass-border);
                 border-radius: 20px;
             }
 
+            /* ==================== RSS FEED SCROLL AREA ====================
+               Constrains the news table height to 38% of the viewport so it
+               doesn't push the Tzofar map off-screen on smaller displays.    */
             .rss-feed {
                 max-height: 38vh;
                 overflow-y: auto;
                 scrollbar-width: thin;
+                /* Firefox: use thin scrollbar variant */
             }
 
             .scrollable::-webkit-scrollbar {
@@ -197,6 +236,9 @@
                 border-radius: 20px;
             }
 
+            /* ==================== ICON BUTTONS & COLLAPSE CHEVRON ====================
+               .icon-btn       — subtle scale+rotate pop on hover for clickable icons
+               .collapse-icon  — chevron that rotates -90° when its section is collapsed */
             .icon-btn {
                 transition: all 0.25s ease;
             }
@@ -212,16 +254,21 @@
 
             .collapsed .collapse-icon {
                 transform: rotate(-90deg);
+                /* Points left when panel is collapsed */
             }
 
-            /* Enhanced Test Mode Toggle */
+            /* ==================== INTERACTIVE SUMMARY ICONS ====================
+               Test Mode toggle: grey (off) → green (on) when testmode is active.
+               Settings gear:   brightens and rotates slightly on hover.          */
             #test_mode {
                 font-size: 2.1rem;
                 color: #64748b;
+                /* Muted grey = off state */
             }
 
             #test_mode.active {
                 color: #22c55e !important;
+                /* Bright green = test mode on */
                 transform: rotate(0deg);
             }
 
@@ -230,10 +277,10 @@
                 transform: scale(1.15);
             }
 
-            /* Settings Gear */
             #open_settings:hover {
                 color: #60a5fa;
                 transform: scale(1.15) rotate(20deg);
+                /* Spinning gear effect */
             }
 
             /* General icon button improvements */
@@ -241,7 +288,9 @@
                 transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
-            /* ====================== SLICK MODAL STYLES ====================== */
+            /* ==================== GLASS MODALS ====================
+               Deep-navy frosted glass applied to early-warning, error,
+               unmatched-city, and settings modals.                      */
             .glass-modal {
                 background: rgba(6, 37, 91, 0.95);
                 backdrop-filter: blur(24px);
@@ -251,7 +300,8 @@
                 color: white;
             }
 
-            /* Suggestions dropdown */
+            /* ==================== CITY AUTOCOMPLETE DROPDOWN ====================
+               Dropdown list that appears below the city search input in Settings. */
             #city_suggestions .list-group-item {
                 background: rgba(15, 23, 42, 0.95);
                 border: none;
@@ -378,7 +428,6 @@
                                         <td><span class="text-violet-400">Total Unmatched Cities</span></td>
                                         <td class="text-end"><span id="totalUnmatchedCitiesCounter" class="stat-number">0</span></td>
                                     </tr>
-                                    <!-- Open Unmatched Cities -->
                                     <tr id="unmatched_cities" style="display: none">
                                         <td><span class="text-violet-400">Open Unmatched Cities</span></td>
                                         <td class="text-end">
@@ -411,7 +460,6 @@
                                         <td><span class="text-violet-400">App Version</span></td>
                                         <td class="text-end"><span id="appVersion" class="stat-number"><%= appVersion %></span></td>
                                     </tr>
-                                    <!-- App Update Available -->
                                     <tr id="update_app_version" style="display: none">
                                         <td><span class="text-violet-400">App Update Available</span></td>
                                         <td class="text-end">
@@ -616,54 +664,68 @@
         </div>
 
         <script>
+            // ==================== LIVE CLOCK ====================
+            // Refreshes the HH:MM:SS badge in the alert panel header every second.
             function updateClock () {
                 const now = new Date();
+                // padStart(2, '0') ensures single-digit values are zero-padded (e.g. '9' → '09')
                 const h = String(now.getHours()).padStart(2, '0');
                 const m = String(now.getMinutes()).padStart(2, '0');
                 const s = String(now.getSeconds()).padStart(2, '0');
 
                 const timeString = `${h}:${m}:${s}`;
 
-                // Update header clock
+                // Write the formatted time into the clock badge element
                 const clockHeader = document.getElementById('liveClock');
                 if (clockHeader) clockHeader.textContent = timeString;
             }
 
-            updateClock();
-            setInterval(updateClock, 1000);
+            updateClock(); // Run immediately to avoid a 1-second blank on page load
+            setInterval(updateClock, 1000); // Then keep updating every second
 
+            // ==================== TZOFAR MAP SIZING ====================
+            // Dynamically stretches the Tzofar map iframe to fill whatever vertical
+            // space remains between its top edge and the bottom of the viewport.
+            // This keeps the map as large as possible without causing page scroll.
             function fitTzofarBodyToViewport () {
                 const tzofarBody = $('#tzofarBody');
+
+                // Skip if the section is collapsed — no point sizing a hidden element
                 if (!tzofarBody || !tzofarBody.hasClass('show')) {
                     return;
                 }
 
                 const tzofarMapFrame = $('#tzofarMapFrame')[0];
                 const tzofarCard = tzofarBody.find('.card')[0];
-                const rect = tzofarBody[0].getBoundingClientRect();
-                const viewportBottomGap = 15;
-                const minHeight = 280;
+                const rect = tzofarBody[0].getBoundingClientRect(); // Live position relative to viewport
+                const viewportBottomGap = 15; // Leave a small breathing room at the bottom of the screen
+                const minHeight = 280; // Never shrink the map below this height (px)
+                // availableHeight = distance from the section's top edge to the viewport bottom, minus the gap
                 const availableHeight = Math.max(minHeight, Math.floor(window.innerHeight - rect.top - viewportBottomGap));
 
-                // Keep this section growing downward to fill the visible viewport.
+                // Apply the computed height to the wrapper div so the card and iframe can fill it with '100%'
                 tzofarBody.css('height', `${availableHeight}px`);
 
                 if (tzofarCard) {
-                    $(tzofarCard).css('height', '100%');
+                    $(tzofarCard).css('height', '100%'); // Card stretches to fill the wrapper
                 }
 
                 if (tzofarMapFrame) {
-                    $(tzofarMapFrame).css('height', '100%');
+                    $(tzofarMapFrame).css('height', '100%'); // iframe fills the card
                 }
             }
 
-            let fitTzofarRafId = null;
+            let fitTzofarRafId = null; // Tracks the pending requestAnimationFrame ID for debouncing
 
+            // Debounce helper: cancels any queued resize calculation and re-schedules one
+            // for the next animation frame. This coalesces rapid resize/collapse events
+            // (e.g. window resize bursts) into a single layout recalculation per frame.
             function scheduleFitTzofarBodyToViewport () {
                 if (fitTzofarRafId !== null) {
-                    cancelAnimationFrame(fitTzofarRafId);
+                    cancelAnimationFrame(fitTzofarRafId); // Cancel the previously queued frame
                 }
 
+                // Queue a fresh calculation; clear the ID once it executes
                 fitTzofarRafId = requestAnimationFrame(() => {
                     fitTzofarRafId = null;
                     fitTzofarBodyToViewport();
@@ -673,17 +735,23 @@
             const tzofarBodyElement = $('#tzofarBody');
             const newsBodyElement = $('#newsBody');
 
+            // Re-size the map whenever the Tzofar panel is expanded ('shown') or collapsed ('hidden').
+            // On 'hidden' we reset the explicit height so the panel collapses fully to zero.
             if (tzofarBodyElement.length) {
                 tzofarBodyElement.on('shown.bs.collapse', scheduleFitTzofarBodyToViewport);
                 tzofarBodyElement.on('hidden.bs.collapse', () => {
-                    $(tzofarBodyElement).css('height', '');
+                    $(tzofarBodyElement).css('height', ''); // Clear inline height so CSS collapse transition works
                 });
             }
 
+            // The news feed panel sits above the map; any change in its height affects
+            // how much space remains for the map, so we must resize on its collapse events too.
             if (newsBodyElement.length) {
                 newsBodyElement.on('shown.bs.collapse', scheduleFitTzofarBodyToViewport);
                 newsBodyElement.on('hidden.bs.collapse', scheduleFitTzofarBodyToViewport);
 
+                // Prefer ResizeObserver (modern browsers) to react to news feed height changes
+                // as new RSS rows are prepended, without needing polling.
                 if (typeof ResizeObserver !== 'undefined') {
                     const newsBodyResizeObserver = new ResizeObserver(() => {
                         scheduleFitTzofarBodyToViewport();
@@ -691,6 +759,8 @@
 
                     newsBodyResizeObserver.observe(newsBodyElement[0]);
                 } else {
+                    // Fallback for browsers that lack ResizeObserver: watch the table body
+                    // for DOM mutations (row prepends) and resize when they occur.
                     const rssAlertsElement = $('#rss_alerts')[0];
 
                     if (rssAlertsElement) {
@@ -699,24 +769,31 @@
                         });
 
                         newsBodyMutationObserver.observe(rssAlertsElement, {
-                            childList: true,
-                            subtree: true
+                            childList: true, // Detect added/removed rows
+                            subtree: true // Include any nested changes
                         });
                     }
                 }
             }
 
-            $(window).on('resize', scheduleFitTzofarBodyToViewport);
-            $(window).on('load', scheduleFitTzofarBodyToViewport);
+            $(window).on('resize', scheduleFitTzofarBodyToViewport); // Re-size on browser window resize
+            $(window).on('load', scheduleFitTzofarBodyToViewport); // Run once all resources have loaded
 
-            scheduleFitTzofarBodyToViewport();
+            scheduleFitTzofarBodyToViewport(); // Initial call on script execution
 
+            // ==================== PERIODIC DOM MAINTENANCE ====================
+
+            // Cap the alert table at 500 rows to prevent unbounded DOM growth
+            // during long sessions with many incoming alerts.
             setInterval(() => {
                 if (pikud_haoref_alerts.children.length > 500) {
-                    $('#pikud_haoref_alerts tr:last').remove();
+                    $('#pikud_haoref_alerts tr:last').remove(); // Remove the oldest (bottom) row
                 }
             }, 1000);
 
+            // After 5 seconds, strip the highlight classes added when a row first appears.
+            // This gives users a brief visual cue for new rows without permanently
+            // disrupting the table's uniform appearance.
             setInterval(() => {
                 $(".alertNewRow").removeClass("table-light");
                 $(".alertNewRow").removeClass("alertNewRow");
@@ -725,6 +802,12 @@
                 $(".rssNewRow").removeClass("rssNewRow");
             }, 5000);
 
+            // ==================== AJAX HANDLER ====================
+            // Wraps jQuery's $.ajax in a Promise so callers can use async/await.
+            // Parameters:
+            //   service    - the backend service to call ('pikud_haoref', 'rss', 'version_check')
+            //   rssFeedURL - RSS feed URL forwarded to the server (only used when service='rss')
+            // The current testmode flag is always sent so the server can return mock data when needed.
             async function ajaxHandler (service, rssFeedURL) {
                 return new Promise((resolve) => {
                     $.ajax({
@@ -733,12 +816,12 @@
                         data: {
                             "service": service,
                             "rssfeed": rssFeedURL,
-                            "testmode": testmode
+                            "testmode": testmode // Tells the server to use hardcoded test data
                         },
                         async: true,
                         dataType: "json",
                         success: function (result) {
-                            resolve(result);
+                            resolve(result); // Resolve with the parsed JSON response
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
                             console.log(XMLHttpRequest, textStatus, errorThrown);
@@ -747,33 +830,44 @@
                 });
             }
 
-            const earlyWarningModalEnter = new bootstrap.Modal('#earlyWarningModalEnter');
-            const earlyWarningModalExit = new bootstrap.Modal('#earlyWarningModalExit');
-            const errorMessagesModal = new bootstrap.Modal('#errorMessagesModal');
-            const unmatchedCitiesModal = new bootstrap.Modal('#unmatchedCitiesModal');
-            const settingsModal = new bootstrap.Modal('#settingsModal');
+            // ==================== BOOTSTRAP MODAL INSTANCES ====================
+            // Pre-instantiating modals avoids creation overhead on first show.
+            const earlyWarningModalEnter = new bootstrap.Modal('#earlyWarningModalEnter'); // Red danger — active missile warning
+            const earlyWarningModalExit = new bootstrap.Modal('#earlyWarningModalExit'); // Green success — all-clear signal
+            const errorMessagesModal = new bootstrap.Modal('#errorMessagesModal'); // List of unique Pikud HaOref fetch errors
+            const unmatchedCitiesModal = new bootstrap.Modal('#unmatchedCitiesModal'); // Locations the app couldn't map to locationMap
+            const settingsModal = new bootstrap.Modal('#settingsModal'); // User preferences (city selection)
 
-            let alertedLocations = [];
-            let alertedZones = [];
-            let errorLogs = [];
-            let unmatchedCitiesLogs = [];
-            let earlyWarningLocations = [];
+            // ==================== APPLICATION STATE ====================
 
-            let rocketAlertCounter = 0;
-            let droneAlertCounter = 0;
-            let totalEarlyWarningsAllCounter = 0;
-            let totalEarlyWarningsSpecificCounter = 0;
-            let pikudHaorefErrorCounter = 0;
-            let totalUnmatchedCitiesCounter = 0;
+            // Accumulator arrays — each entry is an object {location, counter} or {zone, counter}
+            let alertedLocations = []; // All unique locations that have received alerts this session
+            let alertedZones = []; // All unique zones that have received alerts this session
+            let errorLogs = []; // Unique Pikud HaOref error messages with occurrence counts
+            let unmatchedCitiesLogs = []; // Location names that couldn't be found in locationMap
+            let earlyWarningLocations = []; // Cities currently under an active early-warning (newsFlash)
 
-            let pikudHaorefError = false;
-            let unmatchedCitiesFlag = false;
-            let earlyWarningActive = false;
-            let testmode = false;
+            // Summary counters reflected in the Alerts Summary table
+            let rocketAlertCounter = 0; // Missile alert rows received
+            let droneAlertCounter = 0; // Hostile aircraft intrusion rows received
+            let totalEarlyWarningsAllCounter = 0; // Early warnings for any location
+            let totalEarlyWarningsSpecificCounter = 0; // Early warnings that include the user's saved city
+            let pikudHaorefErrorCounter = 0; // Total fetch errors from Pikud HaOref
+            let totalUnmatchedCitiesCounter = 0; // Total alerts for unrecognised location names
 
-            const pikudHaorefInterval = 1000;
-            const recentlyAlertedLocations = {};
+            // Boolean flags for UI state
+            let pikudHaorefError = false; // True once the first Pikud HaOref error has occurred
+            let unmatchedCitiesFlag = false; // True once the first unmatched city has been logged
+            let earlyWarningActive = false; // True while an early-warning (newsFlash) alert is ongoing
+            let testmode = false; // When true, the server returns hardcoded mock alert data
 
+            const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
+            const recentlyAlertedLocations = {}; // Dedup cache: location → Unix timestamp of last alert row added
+
+            // ==================== EVENT HANDLERS ====================
+
+            // Test-mode toggle: flips the testmode boolean and swaps the icon between
+            // fa-toggle-off (grey, inactive) and fa-toggle-on (green, active).
             $("#test_mode").on("click", function () {
                 if (testmode) {
                     testmode = false;
@@ -788,14 +882,17 @@
                 }
             });
 
+            // Show the error log modal listing all unique Pikud HaOref fetch errors
             $("#show_error_messages").on("click", function () {
                 errorMessagesModal.show();
             });
 
+            // Show the unmatched cities modal for locations not found in locationMap
             $("#show_unmatched_cities").on("click", function () {
                 unmatchedCitiesModal.show();
             });
 
+            // Pre-fill the city search input with the user's previously saved city before opening settings
             $("#open_settings").on("click", function () {
                 const savedCity = localStorage.getItem("earlyWarningCity");
                 if (savedCity) {
@@ -804,18 +901,22 @@
                 settingsModal.show();
             });
 
+            // Persist the selected city to localStorage; remove the key if the field is cleared
             $("#saveCityButton").on("click", function () {
                 const city = $("#citySearch").val().trim();
 
                 if (city) {
-                    localStorage.setItem("earlyWarningCity", city);
+                    localStorage.setItem("earlyWarningCity", city); // Save non-empty value
                 } else {
-                    localStorage.removeItem("earlyWarningCity");
+                    localStorage.removeItem("earlyWarningCity"); // Clear when user blanks the field
                 }
 
                 settingsModal.hide();
             });
 
+            // ==================== ALERT TYPE LOOKUP ====================
+            // Maps the API's string type codes to human-readable labels and icon paths.
+            // Keys match the values returned in alert[0].type from the Pikud HaOref API.
             const alertTypeMap = {
                 newsFlash: {
                     text: "Early Warning",
@@ -847,37 +948,48 @@
                 }
             };
 
+            // Returns the display details object for a given API type code,
+            // or null if the type is not recognised (prevents rendering broken rows).
             function getAlertDetailsByCategory (type) {
                 return alertTypeMap[type] || null;
             }
 
+            // ==================== ALERT HELPER FUNCTIONS ====================
+
+            // Filters alertLocations to only those not seen within the last 60 seconds.
+            // Uses recentlyAlertedLocations as a Unix-timestamp cache to prevent duplicate
+            // table rows when the API keeps returning the same active alert on every poll.
             function extractNewLocations (alertLocations) {
                 const newLocations = [];
-                const now = Math.floor(Date.now() / 1000);
+                const now = Math.floor(Date.now() / 1000); // Current time as Unix seconds
 
                 for (let location of alertLocations) {
+                    // Accept the location if it has never been seen, or if 60 seconds have elapsed
                     if (!recentlyAlertedLocations[location] || recentlyAlertedLocations[location] < now - 60) {
                         newLocations.push(location);
-                        recentlyAlertedLocations[location] = now;
+                        recentlyAlertedLocations[location] = now; // Record the timestamp for this location
                     }
                 }
 
                 return newLocations;
             }
 
+            // Upsert a location into alertedLocations:
+            // increments its counter if it already exists, otherwise adds a new entry.
             function updateAlertedLocation (location) {
                 const index = alertedLocations.findIndex(item => item.location === location);
 
                 if (index !== -1) {
-                    alertedLocations[index].counter++;
+                    alertedLocations[index].counter++; // Location already tracked — bump its count
                 } else {
                     alertedLocations.push({
                         location: location,
                         counter: 1
-                    });
+                    }); // First alert for this location
                 }
             }
 
+            // Upsert a zone into alertedZones (same upsert pattern as updateAlertedLocation).
             function updateAlertedZone (zone) {
                 const index = alertedZones.findIndex(item => item.zone === zone);
 
@@ -891,6 +1003,8 @@
                 }
             }
 
+            // Upsert an error message into errorLogs so the modal shows unique messages
+            // with a count rather than one entry per occurrence.
             function incrementErrorCount (errorMessage) {
                 const index = errorLogs.findIndex(item => item.error === errorMessage);
 
@@ -904,24 +1018,32 @@
                 }
             }
 
+            // ==================== LOCATION DATA & CITY AUTOCOMPLETE ====================
+
+            // locationsJSON is injected server-side by EJS from the pikud-haoref-api package.
+            // It is the full list of recognised Israeli cities/locations with IDs, names,
+            // zone info, coordinates, and shelter countdown values.
             //Pikud HaOref service
             const locationsJSON = <%- cities %>;
 
             const input = document.getElementById('citySearch');
             const suggestionsList = document.getElementById('city_suggestions');
 
+            // Filter locationsJSON on every keystroke and render matching city names as
+            // clickable dropdown items beneath the Settings search input.
             input.addEventListener('input', function () {
                 const query = this.value.toLowerCase().trim();
 
-                // Clear previous suggestions
+                // Clear previous suggestions before rendering a fresh set
                 suggestionsList.innerHTML = '';
 
+                // Hide the dropdown immediately when the input is empty
                 if (query.length === 0) {
                     suggestionsList.style.display = 'none';
                     return;
                 }
 
-                // Filter JSON data
+                // Case-insensitive substring match against the English city name
                 const filtered = locationsJSON.filter(city =>
                     city.name_en.toLowerCase().includes(query)
                 );
@@ -931,13 +1053,13 @@
                     return;
                 }
 
-                // Render suggestions
+                // Build and append a <li> for each matching city
                 filtered.forEach(city => {
                     const li = document.createElement('li');
                     li.className = 'list-group-item list-group-item-action bg-light text-dark border-secondary';
                     li.innerHTML = `<strong>${city.name_en}</strong>`;
 
-                    // Click to select
+                    // Selecting a suggestion fills the input and closes the dropdown
                     li.addEventListener('click', () => {
                         input.value = city.name_en;
                         suggestionsList.style.display = 'none';
@@ -949,36 +1071,48 @@
                 suggestionsList.style.display = 'block';
             });
 
-            // Hide suggestions when clicking outside
+            // Dismiss the autocomplete dropdown when the user clicks anywhere
+            // outside the search container (identified by its .position-relative ancestor).
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('.position-relative')) {
                     suggestionsList.style.display = 'none';
                 }
             });
 
+            // Build a lookup map keyed by location numeric ID (loc.value) for O(1) lookups
+            // inside the polling loop instead of scanning the full array every alert.
             const locationMap = Object.fromEntries(
                 locationsJSON.map(loc => [loc.value, {
-                    name_en: loc.name_en,
-                    zone: loc.zone,
-                    zone_en: loc.zone_en,
-                    lng: loc.lng,
-                    lat: loc.lat,
-                    countdown: loc.countdown
+                    name_en: loc.name_en, // English city/location name
+                    zone: loc.zone, // Hebrew zone name (used internally)
+                    zone_en: loc.zone_en, // English zone name (displayed in the table)
+                    lng: loc.lng, // Longitude — used for Google Maps link
+                    lat: loc.lat, // Latitude  — used for Google Maps link
+                    countdown: loc.countdown // Seconds until shelter must be reached
                 }])
             );
 
+            // ==================== PIKUD HAOREF POLLING ====================
+            // Core polling loop: fires every pikudHaorefInterval (1 second) and
+            // processes the latest active alerts from the Home Front Command API.
             const pikudHaorefPoll = async function () {
                 try {
+                    // Schedule the NEXT poll BEFORE awaiting the current fetch.
+                    // This guarantees the interval keeps running even if the fetch
+                    // throws or the server is slow — no missed ticks on error.
                     setTimeout(pikudHaorefPoll, pikudHaorefInterval);
 
                     const alert = await ajaxHandler("pikud_haoref");
 
                     if (alert) {
-                        window.alertsJSON = alert;
+                        window.alertsJSON = alert; // Expose raw response for debugging in the browser console
 
+                        // --- Error response handler ---
+                        // The server returns { error: '...' } when the Pikud HaOref fetch fails.
                         if (alert.error) {
                             pikudHaorefErrorCounter++
 
+                            // Reveal the error counter row only on the first error
                             if (!pikudHaorefError) {
                                 pikudHaorefError = true;
                                 $("#error_counter, #error_message").show();
@@ -986,7 +1120,9 @@
 
                             $("#pikud_haoref_error_counter").text(pikudHaorefErrorCounter);
 
+                            // Only append unique error messages to the modal list
                             if (errorLogs.findIndex(item => item.error === alert.error) === -1) {
+                                // 403 usually means the server is not running behind an Israeli IP
                                 if (alert.error.indexOf("Request failed with status code 403") > -1) {
                                     $("#pikud_haoref_error_messages").prepend("<li>403 Forbidden - Requires Israeli IP</li>");
                                 } else {
@@ -994,26 +1130,35 @@
                                 }
                             }
 
-                            incrementErrorCount(alert.error);
+                            incrementErrorCount(alert.error); // Track occurrence count in errorLogs
 
                             console.log("Pikud HaOref Error: " + alert.error);
-                            return;
+                            return; // Stop processing this poll tick; next one is already scheduled
                         }
 
+                        // alert is an array when there is at least one active alert
                         if (alert.length) {
-                            const alertType = alert[0].type;
-                            const alertCities = alert[0].cities;
-                            const instructions = alert[0].instructions;
+                            const alertType = alert[0].type; // API type code, e.g. 'missiles', 'newsFlash'
+                            const alertCities = alert[0].cities; // Array of city/location ID strings
+                            const instructions = alert[0].instructions; // Hebrew instruction text from the API
 
+                            // --- Early Warning (newsFlash) path ---
+                            // newsFlash is a pre-siren warning: the threat is detected but sirens
+                            // haven't sounded yet. It needs separate handling because locations
+                            // must be accumulated across polls (not deduplicated like rocket alerts).
                             if (alertType === "newsFlash") {
                                 const earlyWarningCity = localStorage.getItem("earlyWarningCity") || "undefined";
 
+                                // Hebrew string "האירוע הסתיים" means "The event has ended".
+                                // When the API sends this instruction, the early warning is over.
                                 if (instructions === "האירוע הסתיים") {
+                                    // Show the all-clear modal only when an early warning was actually active
                                     if (earlyWarningActive) {
                                         if (!earlyWarningModalExit._isShown) {
                                             earlyWarningModalExit.show();
                                         }
 
+                                        // Auto-dismiss the all-clear modal after 30 seconds
                                         setTimeout(() => {
                                             if (earlyWarningModalExit._isShown) {
                                                 earlyWarningModalExit.hide();
@@ -1021,18 +1166,23 @@
                                         }, 30000);
                                     }
 
+                                    // Reset all early-warning state
                                     earlyWarningLocations = [];
                                     earlyWarningActive = false;
                                     $("#earlyWarningLocations").text("");
 
                                     if (earlyWarningModalEnter._isShown) {
-                                        earlyWarningModalEnter.hide();
+                                        earlyWarningModalEnter.hide(); // Hide the danger modal
                                     }
                                 } else {
+                                    // Early warning is still active (or just started).
+                                    // Resolve each city ID to its English name for the affectedCity check.
                                     const checkIfCityAffected = alertCities.map(city => locationMap[city]?.name_en).includes(earlyWarningCity);
 
+                                    // Only increment counters once per warning event (earlyWarningActive guard)
                                     if (!earlyWarningActive) {
                                         if (checkIfCityAffected) {
+                                            // The user's saved city is in the alert — increment the specific counter
                                             totalEarlyWarningsSpecificCounter++
                                             $("#totalEarlyWarningsSpecificCounter").text(totalEarlyWarningsSpecificCounter);
                                             $("#total_early_warnings_specific_counter").show();
@@ -1044,26 +1194,32 @@
 
                                     earlyWarningActive = true;
 
+                                    // Make sure the all-clear modal is not overlapping the danger modal
                                     if (earlyWarningModalExit._isShown) {
                                         earlyWarningModalExit.hide();
                                     }
 
+                                    // Append newly affected cities to the modal's location list (no duplicates)
                                     for (let i = 0; i < alertCities.length; i++) {
                                         const city = alertCities[i];
 
                                         if (!earlyWarningLocations.includes(city)) {
                                             earlyWarningLocations.push(city);
-
+                                            // Use English name from locationMap; fall back to raw ID string if unmapped
                                             $("#earlyWarningLocations").append((locationMap[city]?.name_en || city) + ", ");
                                         }
                                     }
 
                                     if (!earlyWarningModalEnter._isShown) {
-                                        earlyWarningModalEnter.show();
+                                        earlyWarningModalEnter.show(); // Open the danger modal
                                     }
                                 }
 
+                                // --- Non-early-warning alert path (rockets, drones, earthquakes, etc.) ---
+                                // When a real siren-type alert comes in, any pending early warning is cleared
+                                // because the pre-siren phase is now superseded by the actual event.
                             } else if (alertType != "newsFlash") {
+                                // Reset early-warning state and close both early-warning modals
                                 earlyWarningLocations = [];
                                 earlyWarningActive = false;
                                 $("#earlyWarningLocations").text("");
@@ -1083,12 +1239,17 @@
                                     const alertTypeIcon = alertTypeDetails.icon;
                                     const timeStamp = moment().format("HH:mm:ss");
 
+                                    // Filter out locations already shown within the last 60 seconds
+                                    // to avoid flooding the table with duplicate rows during sustained alerts.
                                     const locations = extractNewLocations(alertCities);
 
                                     for (let i = 0; i < locations.length; i++) {
                                         const locationOriginal = locations[i];
 
+                                        // The API occasionally uses '' (two single-quotes) instead of ' (apostrophe)
+                                        // in location names. Normalise before looking up in locationMap.
                                         const locationKey = locations[i].replace("''", "'");
+                                        // Resolve location details from the pre-built O(1) index; fall back to raw values
                                         const location = locationMap[locationKey]?.name_en || locationOriginal;
                                         const zone = locationMap[locationKey]?.zone || "Unknown";
                                         const zone_en = locationMap[locationKey]?.zone_en || "Unknown";
@@ -1096,6 +1257,7 @@
                                         const lng = locationMap[locationKey]?.lng || "";
 
                                         if (location) {
+                                            // Increment the type-specific counter (rockets vs. drones)
                                             if (alertType === "missiles") {
                                                 rocketAlertCounter++
                                                 $("#rocketAlertCounter").text(rocketAlertCounter);
@@ -1104,11 +1266,14 @@
                                                 $("#droneAlertCounter").text(droneAlertCounter);
                                             }
 
+                                            // Combined total is rockets + drones (other types not counted here)
                                             $("#totalAlertsCounter").text(rocketAlertCounter + droneAlertCounter);
 
-                                            updateAlertedLocation(location);
-                                            updateAlertedZone(zone_en);
+                                            updateAlertedLocation(location); // Upsert into locations accumulator
+                                            updateAlertedZone(zone_en); // Upsert into zones accumulator
 
+                                            // If zone_en is 'Unknown' the location wasn't found in locationMap.
+                                            // Log it so the operator can investigate and update the city dataset.
                                             if (zone_en === "Unknown") {
 
                                                 console.log("Unmatched location:", alert[0]);
@@ -1116,17 +1281,23 @@
                                                 totalUnmatchedCitiesCounter++;
                                                 $("#totalUnmatchedCitiesCounter").text(totalUnmatchedCitiesCounter);
 
+                                                // Only add each unique unmatched name to the modal list once
                                                 if (!unmatchedCitiesLogs.includes(location)) {
                                                     unmatchedCitiesLogs.push(location);
                                                     $("#unmatched_cities_messages").prepend("<li>" + location + "</li>");
                                                 }
 
+                                                // Reveal the unmatched-cities counter row the first time
                                                 if (!unmatchedCitiesFlag) {
                                                     unmatchedCitiesFlag = true;
                                                     $("#unmatched_cities_counter, #unmatched_cities").show();
                                                 }
                                             }
 
+                                            // Prepend a new row to the alerts table.
+                                            // animate__fadeInDown gives a visual entry cue; alertNewRow and table-light
+                                            // trigger the 5-second highlight fade set up in the cleanup interval above.
+                                            // The location name links to Google Maps using the alert's coordinates.
                                             $("#pikud_haoref_alerts").prepend(`
                                                     <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
                                                         <td><font class='text-warning'>${timeStamp}</font></td>
@@ -1138,10 +1309,14 @@
                                         }
                                     }
 
+                                    // Rebuild the Locations and Zones counter tables after each missile/drone alert.
+                                    // Only these two types update the counters; other alert types (earthquakes, etc.)
+                                    // are intentionally excluded because they don't have the same location semantics.
                                     if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
-                                        //Update Alerted Locations Counter
-                                        $("#alerted_locations_counter").html("");
+                                        // --- Rebuild Alert Locations Counter ---
+                                        $("#alerted_locations_counter").html(""); // Clear existing rows before re-rendering
 
+                                        // Sort: highest count first; within the same count, sort alphabetically
                                         const sortalertedLocations = alertedLocations.toSorted((a, b) => {
                                             // First compare by counter (descending)
                                             if (b.counter !== a.counter) {
@@ -1166,9 +1341,10 @@
 
                                         $("#totalLocationsCounter").text(sortalertedLocations.length);
 
-                                        //Update Alerted Zones Counter
-                                        $("#alerted_zones_counter").html("");
+                                        // --- Rebuild Alert Zones Counter ---
+                                        $("#alerted_zones_counter").html(""); // Clear existing rows before re-rendering
 
+                                        // Same sort logic: count desc, then zone name asc
                                         const sortalertedZones = alertedZones.toSorted((a, b) => {
                                             // First compare by counter (descending)
                                             if (b.counter !== a.counter) {
@@ -1203,16 +1379,21 @@
                 }
             };
 
-            pikudHaorefPoll();
+            pikudHaorefPoll(); // Kick off the polling loop
 
-            //RSS service
-            const newsArray = [];
-            const rssInterval = 10000;
-            let currentRssFeedIndex = 0;
+            // ==================== RSS NEWS FEED SERVICE ====================
+            // Cycles through a list of RSS feeds (one per poll tick) and prepends
+            // new articles to the news table, deduplicating by published timestamp.
 
+            const newsArray = []; // Published timestamps already shown; prevents duplicate rows across polls
+            const rssInterval = 10000; // Fetch one feed every 10 seconds
+            let currentRssFeedIndex = 0; // Pointer into rssFeeds — advances round-robin each poll
+
+            // Registered RSS feeds. Each entry alternates on successive rssPoll() calls
+            // so all four sources are refreshed roughly every 40 seconds.
             const rssFeeds = [{
-                    codename: "RSSarutz7",
-                    realname: "Arutz 7",
+                    codename: "RSSarutz7", // Internal key (also used as cookie identifier)
+                    realname: "Arutz 7", // Display label shown in the news table
                     url: "https://www.israelnationalnews.com/Rss.aspx"
                 },
                 {
@@ -1232,23 +1413,25 @@
                 }
             ];
 
-
+            // Looks up the human-readable feed name by its internal codename.
             function getRealName (codename) {
                 const feed = rssFeeds.find(feed => feed.codename === codename);
                 return feed.realname;
             };
 
             const rssPoll = async function () {
-
+                // Capture the current feed before advancing the index, so
+                // the URL and codename stay in sync for this tick's request.
                 const rssFeedCodeName = rssFeeds[currentRssFeedIndex].codename;
                 const rssFeedURL = rssFeeds[currentRssFeedIndex].url;
 
+                // Advance the round-robin index; wrap back to 0 after the last feed
                 currentRssFeedIndex++;
-
                 if (currentRssFeedIndex === rssFeeds.length) {
                     currentRssFeedIndex = 0;
                 }
 
+                // Schedule the next poll BEFORE the async fetch (same pattern as pikudHaorefPoll)
                 setTimeout(rssPoll, rssInterval);
 
                 const news = await ajaxHandler("rss", rssFeedURL);
@@ -1257,23 +1440,27 @@
 
                     let reversedArray = [];
 
+                    // Extract only the fields needed for display
                     news.feed.items.forEach((item) => {
                         reversedArray.push({
-                            published: item.published,
+                            published: item.published, // Used as the dedup key in newsArray
                             title: item.title,
                             idpublished: item.id,
                             url: item.url
                         });
                     });
 
+                    // Reverse so that older items are prepended first; since each prepend
+                    // pushes earlier entries down, the final order is newest-on-top.
                     reversedArray = reversedArray.reverse();
 
                     reversedArray.forEach((item) => {
                         const published = item.published;
                         const timeStamp = moment().format("HH:mm");
 
+                        // Only add rows for articles not yet shown (dedup by published timestamp)
                         if (!newsArray.includes(published)) {
-                            newsArray.push(published);
+                            newsArray.push(published); // Mark as seen
 
                             $("#rss_alerts").prepend(`
                                     <tr class="animate__animated animate__fadeInDown animate__faster rssNewRow table-light">
@@ -1288,16 +1475,20 @@
 
             };
 
-            rssPoll();
+            rssPoll(); // Kick off the RSS polling loop
 
+            // ==================== APP VERSION CHECK ====================
+            // Calls the version_check service which runs `npm outdated` server-side
+            // and compares the local package version against the latest on the registry.
+            // If a newer version exists, the upgrade icon is revealed in the Summary table.
             async function checkAppVersion () {
                 try {
                     const versionCheck = await ajaxHandler("version_check");
 
                     if (versionCheck && versionCheck.updateAvailable) {
-                        const latestVersion = versionCheck.latestVersion;
+                        const latestVersion = versionCheck.latestVersion; // Available for display if needed
 
-                        $("#update_app_version").show();
+                        $("#update_app_version").show(); // Reveal the upgrade-available row
                     } else {
                         $("#update_app_version").hide();
                     }
@@ -1306,11 +1497,11 @@
                 }
             }
 
-            checkAppVersion();
+            checkAppVersion(); // Run immediately on page load
 
             setInterval(() => {
                 checkAppVersion();
-            }, 600000); // Check every 10 minutes
+            }, 600000); // Re-check every 10 minutes
 
         </script>
     </body>

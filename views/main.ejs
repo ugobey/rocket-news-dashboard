@@ -267,7 +267,7 @@
                Constrains the news table height to 38% of the viewport so it
                doesn't push the map off-screen on smaller displays.    */
             #rss_feed {
-                max-height: 25vh;
+                height: 25vh;
                 overflow-y: auto;
                 scrollbar-width: thin;
                 /* Firefox: use thin scrollbar variant */
@@ -656,9 +656,9 @@
 
                             <span class="text-white-50 small mb-3">Alerted at <strong id="earlyWarningOpenedAt">--:--:--</strong></span>
                             &nbsp;&middot;&nbsp;
-                            <span class="text-white-50 small mb-3">You have about <strong id="earlyWarningCountdown">5:00</strong> before missile sirens will sound</span>
+                            <span class="text-white-50 small mb-3">You have about <strong id="earlyWarningCountdown">7:00</strong> before missile sirens will sound</span>
                             <br /><br />
-                            This message will disappear automatically when sirens sound or the threat is no longer active.
+                            This message will disappear automatically when the threat is no longer active.
                             <br /><br />
                             <b>The following locations are affected:</b>
                             <br />
@@ -1258,7 +1258,7 @@
 
             // ==================== EARLY WARNING TIMER ====================
             let earlyWarningCountdownInterval = null;
-            const EARLY_WARNING_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+            const EARLY_WARNING_DURATION_MS = 7 * 60 * 1000; // 7 minutes
 
             function startEarlyWarningTimer () {
                 // Show the time the modal opened
@@ -1284,6 +1284,10 @@
 
                     if (remaining <= 0) {
                         clearEarlyWarningTimer();
+
+                        if (earlyWarningModalEnter._isShown) {
+                            earlyWarningModalEnter.hide(); // Hide the danger modal
+                        }
                     }
                 }
 
@@ -1571,6 +1575,9 @@
                     const alert = await ajaxHandler("pikud_haoref");
 
                     if (alert) {
+
+
+
                         window.alertsJSON = alert; // Expose raw response for debugging in the browser console
 
                         // --- Error response handler ---
@@ -1604,9 +1611,13 @@
 
                         // alert is an array when there is at least one active alert
                         if (alert.length) {
+
+
+
                             const alertType = alert[0].type; // API type code, e.g. 'missiles', 'newsFlash'
                             const alertCities = alert[0].cities; // Array of city/location ID strings
                             const instructions = alert[0].instructions; // Hebrew instruction text from the API
+                            const id = alert[0].id; // Unique alert ID (numeric string)
 
                             // --- Early Warning (newsFlash) path ---
                             // newsFlash is a pre-siren warning: the threat is detected but sirens
@@ -1618,8 +1629,10 @@
                                 // Hebrew string "האירוע הסתיים" means "The event has ended".
                                 // When the API sends this instruction, the early warning is over.
                                 if (instructions === "האירוע הסתיים") {
+                                    console.log("Pikud HaOref Early Warning End:", alert[0]);
+
                                     // Show the all-clear modal only when an early warning was actually active
-                                    if (earlyWarningActive) {
+                                    if (earlyWarningActive && typeof id !== "undefined") {
                                         if (!earlyWarningModalExit._isShown) {
                                             earlyWarningModalExit.show();
                                         }
@@ -1630,18 +1643,22 @@
                                                 earlyWarningModalExit.hide();
                                             }
                                         }, 30000);
+
+                                        // Reset all early-warning state
+                                        earlyWarningLocations = [];
+                                        earlyWarningActive = false;
+                                        $("#earlyWarningLocations").text("");
+
+                                        if (earlyWarningModalEnter._isShown) {
+                                            clearEarlyWarningTimer();
+                                            earlyWarningModalEnter.hide(); // Hide the danger modal
+                                        }
                                     }
 
-                                    // Reset all early-warning state
-                                    earlyWarningLocations = [];
-                                    earlyWarningActive = false;
-                                    $("#earlyWarningLocations").text("");
 
-                                    if (earlyWarningModalEnter._isShown) {
-                                        clearEarlyWarningTimer();
-                                        earlyWarningModalEnter.hide(); // Hide the danger modal
-                                    }
                                 } else {
+                                    console.log("Pikud HaOref Early Warning Start:", alert[0]);
+
                                     // Early warning is still active (or just started).
                                     // Resolve each city ID to its English name for the affectedCity check.
                                     const checkIfCityAffected = alertCities.map(city => locationMap[city]?.name_en).includes(earlyWarningCity);
@@ -1687,6 +1704,11 @@
                                 // When a real siren-type alert comes in, any pending early warning is cleared
                                 // because the pre-siren phase is now superseded by the actual event.
                             } else if (alertType != "newsFlash") {
+
+                                if (earlyWarningModalEnter._isShown) {
+                                    clearEarlyWarningTimer();
+                                    earlyWarningModalEnter.hide(); // Hide the danger modal
+                                }
 
                                 const alertTypeDetails = getAlertDetailsByCategory(alertType);
 

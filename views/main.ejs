@@ -1123,19 +1123,9 @@
             }
 
             updateClock(); // Run immediately to avoid a 1-second blank on page load
-            setInterval(updateClock, 1000); // Then keep updating every second
 
 
             // ==================== PERIODIC DOM MAINTENANCE ====================
-
-            // Cap the alert table at 500 rows to prevent unbounded DOM growth
-            // during long sessions with many incoming alerts.
-            setInterval(() => {
-                if (pikud_haoref_alerts.children.length > 500) {
-                    $('#pikud_haoref_alerts tr:last').remove(); // Remove the oldest (bottom) row
-                }
-            }, 1000);
-
             // After 5 seconds, strip the highlight classes added when a row first appears.
             // This gives users a brief visual cue for new rows without permanently
             // disrupting the table's uniform appearance.
@@ -1486,10 +1476,15 @@
             // processes the latest active alerts from the Home Front Command API.
             const pikudHaorefPoll = async function () {
                 try {
-                    // Schedule the NEXT poll BEFORE awaiting the current fetch.
-                    // This guarantees the interval keeps running even if the fetch
-                    // throws or the server is slow — no missed ticks on error.
-                    setTimeout(pikudHaorefPoll, pikudHaorefInterval);
+
+                    // Update the clock every second as part of this maintenance cycle
+                    updateClock();
+
+                    // Cap the alert table at 500 rows to prevent unbounded DOM growth
+                    // during long sessions with many incoming alerts.
+                    if (pikud_haoref_alerts.children.length > 500) {
+                        $('#pikud_haoref_alerts tr:last').remove(); // Remove the oldest (bottom) row
+                    }
 
                     const alert = await ajaxHandler("pikud_haoref");
 
@@ -1778,6 +1773,12 @@
                             }
                         }
                     }
+
+                    // Schedule the NEXT poll BEFORE awaiting the current fetch.
+                    // This guarantees the interval keeps running even if the fetch
+                    // throws or the server is slow — no missed ticks on error.
+                    setTimeout(pikudHaorefPoll, pikudHaorefInterval);
+
                 } catch (error) {
                     console.error("Error in Pikud HaOref Polling:", error);
                 }

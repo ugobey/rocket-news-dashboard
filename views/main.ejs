@@ -266,8 +266,8 @@
             /* ==================== RSS FEED SCROLL AREA ====================
                Constrains the news table height to 38% of the viewport so it
                doesn't push the map off-screen on smaller displays.    */
-            .rss-feed {
-                max-height: 38vh;
+            #rss_feed {
+                max-height: 25vh;
                 overflow-y: auto;
                 scrollbar-width: thin;
                 /* Firefox: use thin scrollbar variant */
@@ -614,7 +614,7 @@
                     </div>
 
                     <div id="newsBody" class="collapse show">
-                        <div class="card rss-feed">
+                        <div class="card" id="rss_feed">
                             <table class="table table-dark table-sm mb-0">
                                 <tbody id="rss_alerts"></tbody>
                             </table>
@@ -1950,6 +1950,70 @@
             };
 
             rssPoll(); // Kick off the RSS polling loop
+
+            // ==================== RSS AUTO-SCROLL ====================
+            // Wait 5s, slowly scroll #rss_feed to the bottom, jump to top, then repeat.
+            function startRssAutoScroll () {
+                const rssFeedElement = document.getElementById('rss_feed');
+                if (!rssFeedElement) {
+                    return;
+                }
+
+                const WAIT_BEFORE_SCROLL_MS = 5000;
+                const SCROLL_STEP_PX = 1; // Smaller = slower
+                const SCROLL_STEP_INTERVAL = 55; // ms between steps
+
+                let waitTimeoutId = null;
+                let scrollIntervalId = null;
+
+                function clearScrollTimers () {
+                    if (waitTimeoutId !== null) {
+                        clearTimeout(waitTimeoutId);
+                        waitTimeoutId = null;
+                    }
+
+                    if (scrollIntervalId !== null) {
+                        clearInterval(scrollIntervalId);
+                        scrollIntervalId = null;
+                    }
+                }
+
+                function runScrollCycle () {
+                    clearScrollTimers();
+
+                    waitTimeoutId = setTimeout(() => {
+                        scrollIntervalId = setInterval(() => {
+                            const maxScrollTop = rssFeedElement.scrollHeight - rssFeedElement.clientHeight;
+
+                            // Nothing to scroll
+                            if (maxScrollTop <= 0) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+                                runScrollCycle();
+                                return;
+                            }
+
+                            const nextScrollTop = Math.min(rssFeedElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
+                            rssFeedElement.scrollTop = nextScrollTop;
+
+                            // Reached bottom: wait 5s, then jump to top and restart cycle
+                            if (nextScrollTop >= maxScrollTop) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+
+                                waitTimeoutId = setTimeout(() => {
+                                    rssFeedElement.scrollTop = 0;
+                                    runScrollCycle();
+                                }, WAIT_BEFORE_SCROLL_MS);
+                            }
+                        }, SCROLL_STEP_INTERVAL);
+                    }, WAIT_BEFORE_SCROLL_MS);
+                }
+
+                runScrollCycle();
+            }
+
+            startRssAutoScroll();
 
             // ==================== APP VERSION CHECK ====================
             // Calls the version_check service which runs `npm outdated` server-side

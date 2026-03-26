@@ -29,7 +29,7 @@ const testAlertData = [
     },
     {
         type: "hostileAircraftIntrusion",
-        cities: ["שקף", "שרונה", "שער מנשה", "שלומציון"],
+        cities: ["שקף", "שרונה", "שער מנשה", "שלומציון", "משהד", "ניר משה"],
         instructions: "ירי רקטות וטילים",
         id: "134182459160000000",
     },
@@ -41,7 +41,7 @@ const testAlertData = [
     },
     {
         type: "hostileAircraftIntrusion",
-        cities: ["שדמות דבורה", "שדה נחמיה", "שדה יצחק"],
+        cities: ["שדמות דבורה", "שדה נחמיה", "שדה יצחק", "מלונות ים המלח מרכז"],
         instructions: "ירי רקטות וטילים",
         id: "134182459160000000",
     },

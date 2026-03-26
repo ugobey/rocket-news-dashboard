@@ -460,20 +460,18 @@
                     </div>
 
                     <div id="pikudBody" class="collapse show">
-                        <div class="card">
-                            <div class="table-responsive">
-                                <table class="table table-dark table-sm mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th width="10%">Time</th>
-                                            <th width="5%">Type</th>
-                                            <th>Location</th>
-                                            <th>Zone</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="pikud_haoref_alerts" class="fw-medium"></tbody>
-                                </table>
-                            </div>
+                        <div class="card table-responsive" id="pikud_haoref_feed" style="max-height: 93vh; overflow-y: auto">
+                            <table class="table table-dark table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th width="10%">Time</th>
+                                        <th width="5%">Type</th>
+                                        <th>Location</th>
+                                        <th>Zone</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pikud_haoref_alerts" class="fw-medium"></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -488,7 +486,7 @@
                         </div>
                     </div>
                     <div id="locationsBody" class="collapse show">
-                        <div class="card" style="max-height: 42vh; overflow-y: auto">
+                        <div class="card" id="locations_feed" style="max-height: 43vh; overflow-y: auto">
                             <table class="table table-dark table-sm mb-0">
                                 <tbody id="alerted_locations_counter"></tbody>
                             </table>
@@ -503,7 +501,7 @@
                         </div>
                     </div>
                     <div id="zonesBody" class="collapse show">
-                        <div class="card">
+                        <div class="card" id="zones_feed" style="max-height: 46vh; overflow-y: auto">
                             <table class="table table-dark table-sm mb-0">
                                 <tbody id="alerted_zones_counter"></tbody>
                             </table>
@@ -782,6 +780,41 @@
                                     </td>
                                     <td width="20%" class="text-end align-middle">
                                         <button class="btn btn-primary px-4 py-2 fw-semibold" id="saveCityButton"><i class="fa-solid fa-floppy-disk me-2"></i>Save</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="pt-3"><hr class="text-dark" /></td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle">
+                                        <span class="text-dark fw-medium">Pikud HaOref Auto-Scroll</span>
+                                    </td>
+                                    <td colspan="2" class="text-end">
+                                        <input class="form-check-input" type="checkbox" id="toggle_pikud_scroll" checked />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle">
+                                        <span class="text-dark fw-medium">Zones Auto-Scroll</span>
+                                    </td>
+                                    <td colspan="2" class="text-end">
+                                        <input class="form-check-input" type="checkbox" id="toggle_zones_scroll" checked />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle">
+                                        <span class="text-dark fw-medium">Locations Auto-Scroll</span>
+                                    </td>
+                                    <td colspan="2" class="text-end">
+                                        <input class="form-check-input" type="checkbox" id="toggle_locations_scroll" checked />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle">
+                                        <span class="text-dark fw-medium">RSS Feed Auto-Scroll</span>
+                                    </td>
+                                    <td colspan="2" class="text-end">
+                                        <input class="form-check-input" type="checkbox" id="toggle_rss_scroll" checked />
                                     </td>
                                 </tr>
                             </table>
@@ -1377,6 +1410,106 @@
                 }
 
                 settingsModal.hide();
+            });
+
+            // Auto-scroll toggle handlers
+            // Track which auto-scrollers are enabled and their interval IDs for stopping
+            let autoScrollStates = {
+                pikudHaoref: localStorage.getItem("autoScrollPikudHaoref") !== "false",
+                zones: localStorage.getItem("autoScrollZones") !== "false",
+                locations: localStorage.getItem("autoScrollLocations") !== "false",
+                rss: localStorage.getItem("autoScrollRss") !== "false"
+            };
+
+            // Global variables to track autoscroller intervals so they can be stopped
+            let rssAutoScrollEnabled = true;
+            let locationsAutoScrollEnabled = true;
+            let zonesAutoScrollEnabled = true;
+            let pikudHaorefAutoScrollEnabled = true;
+
+            // Initialize toggle states on load
+            document.addEventListener("DOMContentLoaded", () => {
+                $("#toggle_pikud_scroll").prop("checked", autoScrollStates.pikudHaoref);
+                $("#toggle_zones_scroll").prop("checked", autoScrollStates.zones);
+                $("#toggle_locations_scroll").prop("checked", autoScrollStates.locations);
+                $("#toggle_rss_scroll").prop("checked", autoScrollStates.rss);
+            });
+
+            // Stop functions for each autoscroller
+            function stopRssAutoScroll() {
+                rssAutoScrollEnabled = false;
+                const rssFeed = document.getElementById('rss_feed');
+                if (rssFeed) rssFeed.scrollTop = 0;
+            }
+
+            function stopAlertLocationsAutoScroll() {
+                locationsAutoScrollEnabled = false;
+                const locationsFeed = document.getElementById('locations_feed');
+                if (locationsFeed) locationsFeed.scrollTop = 0;
+            }
+
+            function stopAlertZonesAutoScroll() {
+                zonesAutoScrollEnabled = false;
+                const zonesFeed = document.getElementById('zones_feed');
+                if (zonesFeed) zonesFeed.scrollTop = 0;
+            }
+
+            function stopPikudHaorefAutoScroll() {
+                pikudHaorefAutoScrollEnabled = false;
+                const pikudFeed = document.getElementById('pikud_haoref_feed');
+                if (pikudFeed) pikudFeed.scrollTop = 0;
+            }
+
+            // Pikud HaOref auto-scroll toggle
+            $("#toggle_pikud_scroll").on("change", function () {
+                autoScrollStates.pikudHaoref = $(this).is(":checked");
+                localStorage.setItem("autoScrollPikudHaoref", autoScrollStates.pikudHaoref);
+                
+                if (autoScrollStates.pikudHaoref && typeof startPikudHaorefAutoScroll === "function") {
+                    pikudHaorefAutoScrollEnabled = true;
+                    startPikudHaorefAutoScroll();
+                } else {
+                    stopPikudHaorefAutoScroll();
+                }
+            });
+
+            // Zones auto-scroll toggle
+            $("#toggle_zones_scroll").on("change", function () {
+                autoScrollStates.zones = $(this).is(":checked");
+                localStorage.setItem("autoScrollZones", autoScrollStates.zones);
+                
+                if (autoScrollStates.zones && typeof startAlertZonesAutoScroll === "function") {
+                    zonesAutoScrollEnabled = true;
+                    startAlertZonesAutoScroll();
+                } else {
+                    stopAlertZonesAutoScroll();
+                }
+            });
+
+            // Locations auto-scroll toggle
+            $("#toggle_locations_scroll").on("change", function () {
+                autoScrollStates.locations = $(this).is(":checked");
+                localStorage.setItem("autoScrollLocations", autoScrollStates.locations);
+                
+                if (autoScrollStates.locations && typeof startAlertLocationsAutoScroll === "function") {
+                    locationsAutoScrollEnabled = true;
+                    startAlertLocationsAutoScroll();
+                } else {
+                    stopAlertLocationsAutoScroll();
+                }
+            });
+
+            // RSS auto-scroll toggle
+            $("#toggle_rss_scroll").on("change", function () {
+                autoScrollStates.rss = $(this).is(":checked");
+                localStorage.setItem("autoScrollRss", autoScrollStates.rss);
+                
+                if (autoScrollStates.rss && typeof startRssAutoScroll === "function") {
+                    rssAutoScrollEnabled = true;
+                    startRssAutoScroll();
+                } else {
+                    stopRssAutoScroll();
+                }
             });
 
             // ==================== ALERT TYPE LOOKUP ====================
@@ -2001,10 +2134,23 @@
                 }
 
                 function runScrollCycle () {
+                    // Stop if disabled
+                    if (!rssAutoScrollEnabled) {
+                        clearScrollTimers();
+                        return;
+                    }
+
                     clearScrollTimers();
 
                     waitTimeoutId = setTimeout(() => {
                         scrollIntervalId = setInterval(() => {
+                            // Check if disabled during scroll
+                            if (!rssAutoScrollEnabled) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+                                return;
+                            }
+
                             const maxScrollTop = rssFeedElement.scrollHeight - rssFeedElement.clientHeight;
 
                             // Nothing to scroll
@@ -2035,7 +2181,254 @@
                 runScrollCycle();
             }
 
-            startRssAutoScroll();
+            // Only start RSS auto-scroll if enabled in settings
+            if (localStorage.getItem("autoScrollRss") !== "false") {
+                startRssAutoScroll();
+            }
+
+            // ==================== ALERT LOCATIONS AUTO-SCROLL ====================
+            // Wait 5s, slowly scroll #locations_feed to the bottom, jump to top, then repeat.
+            function startAlertLocationsAutoScroll () {
+                const alertLocationsElement = document.getElementById('locations_feed');
+                if (!alertLocationsElement) {
+                    return;
+                }
+
+                const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
+                const WAIT_BEFORE_SCROLL_UP_MS = 1000;
+                const SCROLL_STEP_PX = 1; // Smaller = slower
+                const SCROLL_STEP_INTERVAL = 10; // ms between steps
+
+                let waitTimeoutId = null;
+                let scrollIntervalId = null;
+
+                function clearScrollTimers () {
+                    if (waitTimeoutId !== null) {
+                        clearTimeout(waitTimeoutId);
+                        waitTimeoutId = null;
+                    }
+
+                    if (scrollIntervalId !== null) {
+                        clearInterval(scrollIntervalId);
+                        scrollIntervalId = null;
+                    }
+                }
+
+                function runScrollCycle () {
+                    // Stop if disabled
+                    if (!locationsAutoScrollEnabled) {
+                        clearScrollTimers();
+                        return;
+                    }
+
+                    clearScrollTimers();
+
+                    waitTimeoutId = setTimeout(() => {
+                        scrollIntervalId = setInterval(() => {
+                            // Check if disabled during scroll
+                            if (!locationsAutoScrollEnabled) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+                                return;
+                            }
+
+                            const maxScrollTop = alertLocationsElement.scrollHeight - alertLocationsElement.clientHeight;
+
+                            // Nothing to scroll
+                            if (maxScrollTop <= 0) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+                                runScrollCycle();
+                                return;
+                            }
+
+                            const nextScrollTop = Math.min(alertLocationsElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
+                            alertLocationsElement.scrollTop = nextScrollTop;
+
+                            // Reached bottom: wait 5s, then jump to top and restart cycle
+                            if (nextScrollTop >= maxScrollTop) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+
+                                waitTimeoutId = setTimeout(() => {
+                                    alertLocationsElement.scrollTop = 0;
+                                    runScrollCycle();
+                                }, WAIT_BEFORE_SCROLL_UP_MS);
+                            }
+                        }, SCROLL_STEP_INTERVAL);
+                    }, WAIT_BEFORE_SCROLL_DOWN_MS);
+                }
+
+                runScrollCycle();
+            }
+
+            // Only start locations auto-scroll if enabled in settings
+            if (localStorage.getItem("autoScrollLocations") !== "false") {
+                startAlertLocationsAutoScroll();
+            }
+
+            // ==================== ALERT ZONES AUTO-SCROLL ====================
+            // Wait 5s, slowly scroll #zones_feed to the bottom, jump to top, then repeat.
+            function startAlertZonesAutoScroll () {
+                const alertZonesElement = document.getElementById('zones_feed');
+                if (!alertZonesElement) {
+                    return;
+                }
+
+                const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
+                const WAIT_BEFORE_SCROLL_UP_MS = 1000;
+                const SCROLL_STEP_PX = 1; // Smaller = slower
+                const SCROLL_STEP_INTERVAL = 10; // ms between steps
+
+                let waitTimeoutId = null;
+                let scrollIntervalId = null;
+
+                function clearScrollTimers () {
+                    if (waitTimeoutId !== null) {
+                        clearTimeout(waitTimeoutId);
+                        waitTimeoutId = null;
+                    }
+
+                    if (scrollIntervalId !== null) {
+                        clearInterval(scrollIntervalId);
+                        scrollIntervalId = null;
+                    }
+                }
+
+                function runScrollCycle () {
+                    // Stop if disabled
+                    if (!zonesAutoScrollEnabled) {
+                        clearScrollTimers();
+                        return;
+                    }
+
+                    clearScrollTimers();
+
+                    waitTimeoutId = setTimeout(() => {
+                        scrollIntervalId = setInterval(() => {
+                            // Check if disabled during scroll
+                            if (!zonesAutoScrollEnabled) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+                                return;
+                            }
+
+                            const maxScrollTop = alertZonesElement.scrollHeight - alertZonesElement.clientHeight;
+
+                            // Nothing to scroll
+                            if (maxScrollTop <= 0) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+                                runScrollCycle();
+                                return;
+                            }
+
+                            const nextScrollTop = Math.min(alertZonesElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
+                            alertZonesElement.scrollTop = nextScrollTop;
+
+                            // Reached bottom: wait 5s, then jump to top and restart cycle
+                            if (nextScrollTop >= maxScrollTop) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+
+                                waitTimeoutId = setTimeout(() => {
+                                    alertZonesElement.scrollTop = 0;
+                                    runScrollCycle();
+                                }, WAIT_BEFORE_SCROLL_UP_MS);
+                            }
+                        }, SCROLL_STEP_INTERVAL);
+                    }, WAIT_BEFORE_SCROLL_DOWN_MS);
+                }
+
+                runScrollCycle();
+            }
+
+            // Only start zones auto-scroll if enabled in settings
+            if (localStorage.getItem("autoScrollZones") !== "false") {
+                startAlertZonesAutoScroll();
+            }
+
+
+            // ==================== PIKUD HAOREF AUTO-SCROLL ====================
+            // Wait 5s, slowly scroll #pikud_haoref_feed to the bottom, jump to top, then repeat.
+            function startPikudHaorefAutoScroll () {
+                const pikudHaorefElement = document.getElementById('pikud_haoref_feed');
+                if (!pikudHaorefElement) {
+                    return;
+                }
+
+                const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
+                const WAIT_BEFORE_SCROLL_UP_MS = 1000;
+                const SCROLL_STEP_PX = 1; // Smaller = slower
+                const SCROLL_STEP_INTERVAL = 10; // ms between steps
+
+                let waitTimeoutId = null;
+                let scrollIntervalId = null;
+
+                function clearScrollTimers () {
+                    if (waitTimeoutId !== null) {
+                        clearTimeout(waitTimeoutId);
+                        waitTimeoutId = null;
+                    }
+
+                    if (scrollIntervalId !== null) {
+                        clearInterval(scrollIntervalId);
+                        scrollIntervalId = null;
+                    }
+                }
+
+                function runScrollCycle () {
+                    // Stop if disabled
+                    if (!pikudHaorefAutoScrollEnabled) {
+                        clearScrollTimers();
+                        return;
+                    }
+
+                    clearScrollTimers();
+
+                    waitTimeoutId = setTimeout(() => {
+                        scrollIntervalId = setInterval(() => {
+                            // Check if disabled during scroll
+                            if (!pikudHaorefAutoScrollEnabled) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+                                return;
+                            }
+
+                            const maxScrollTop = pikudHaorefElement.scrollHeight - pikudHaorefElement.clientHeight;
+
+                            // Nothing to scroll
+                            if (maxScrollTop <= 0) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+                                runScrollCycle();
+                                return;
+                            }
+
+                            const nextScrollTop = Math.min(pikudHaorefElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
+                            pikudHaorefElement.scrollTop = nextScrollTop;
+
+                            // Reached bottom: wait 5s, then jump to top and restart cycle
+                            if (nextScrollTop >= maxScrollTop) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+
+                                waitTimeoutId = setTimeout(() => {
+                                    pikudHaorefElement.scrollTop = 0;
+                                    runScrollCycle();
+                                }, WAIT_BEFORE_SCROLL_UP_MS);
+                            }
+                        }, SCROLL_STEP_INTERVAL);
+                    }, WAIT_BEFORE_SCROLL_DOWN_MS);
+                }
+
+                runScrollCycle();
+            }
+
+            // Only start pikud haoref auto-scroll if enabled in settings
+            if (localStorage.getItem("autoScrollPikudHaoref") !== "false") {
+                startPikudHaorefAutoScroll();
+            }
 
             // ==================== APP VERSION CHECK ====================
             // Calls the version_check service which runs `npm outdated` server-side

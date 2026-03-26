@@ -14,7 +14,7 @@
         <script src="/js/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
         <script src="/js/moment-2.30.1.min.js"></script>
 
-        <script defer src="https://maps.googleapis.com/maps/api/js?callback=initMap&libraries=marker&key=AIzaSyCSeMZ5AxUgSWHy6EedcgeXjRC2irszdUQ"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?callback=initMap&libraries=marker&key=AIzaSyCSeMZ5AxUgSWHy6EedcgeXjRC2irszdUQ&loading=async" async></script>
 
         <style>
             /* ==================== CSS CUSTOM PROPERTIES ====================
@@ -361,7 +361,25 @@
             }
 
             #earlyWarningModalEnter .modal-content {
+                max-height: calc(100vh - 1rem);
+                overflow: hidden;
                 min-height: 0;
+            }
+
+            #earlyWarningModalEnter .modal-body {
+                overflow: hidden;
+            }
+
+            #earlyWarningModalEnter .glass-inner {
+                max-height: calc(100vh - 11rem);
+                overflow: hidden;
+            }
+
+            #earlyWarningLocations {
+                max-height: min(42vh, 820px);
+                overflow-y: auto;
+                padding-right: 0.4rem;
+                word-break: break-word;
             }
 
             @media (max-width: 991.98px) {
@@ -369,6 +387,18 @@
                     bottom: 0.75rem;
                     left: 0.75rem;
                     width: calc(100vw - 1.5rem);
+                }
+
+                #earlyWarningModalEnter .modal-content {
+                    max-height: calc(100vh - 0.75rem);
+                }
+
+                #earlyWarningModalEnter .glass-inner {
+                    max-height: calc(100vh - 10.5rem);
+                }
+
+                #earlyWarningLocations {
+                    max-height: 42vh;
                 }
             }
 
@@ -921,7 +951,7 @@
                     });
 
                     // Start transparent so we can fade in
-                    pin.element.style.opacity = '0';
+                    pin.style.opacity = '0';
 
                     const marker = new google.maps.marker.AdvancedMarkerElement({
                         position: {
@@ -929,7 +959,7 @@
                             lng: city.lng
                         },
                         map: map,
-                        content: pin.element
+                        content: pin
                     });
 
                     // Fade the marker in after it is placed on the map
@@ -942,7 +972,7 @@
                     const infoWindow = new google.maps.InfoWindow({
                         content: `<h3>${city.name}</h3>`
                     });
-                    marker.addListener('click', () => {
+                    marker.addEventListener('gmp-click', () => {
                         infoWindow.open(map, marker);
                     });
 
@@ -1643,7 +1673,7 @@
                                         if (!earlyWarningLocations.includes(city)) {
                                             earlyWarningLocations.push(city);
                                             // Use English name from locationMap; fall back to raw ID string if unmapped
-                                            $("#earlyWarningLocations").append((locationMap[city]?.name_en || city) + ", ");
+                                            $("#earlyWarningLocations").prepend((locationMap[city]?.name_en || city) + ", ");
                                         }
                                     }
 
@@ -1657,7 +1687,7 @@
                                 // When a real siren-type alert comes in, any pending early warning is cleared
                                 // because the pre-siren phase is now superseded by the actual event.
                             } else if (alertType != "newsFlash") {
-                                
+
                                 const alertTypeDetails = getAlertDetailsByCategory(alertType);
 
                                 if (alertTypeDetails) {

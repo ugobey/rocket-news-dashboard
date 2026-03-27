@@ -1452,8 +1452,10 @@
             let unmatchedCitiesFlag = false; // True once the first unmatched city has been logged
             let earlyWarningActive = false; // True while an early-warning (newsFlash) alert is ongoing
             let testmode = false; // When true, the server returns hardcoded mock alert data
+            let testModeTimeoutHandle = null; // Auto-disables test mode after the configured timeout
 
             const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
+            const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
             const recentlyAlertedLocations = {}; // Dedup cache: location → Unix timestamp of last alert row added
 
             // ==================== EVENT HANDLERS ====================
@@ -1504,19 +1506,48 @@
             document.addEventListener("webkitfullscreenchange", updateFullscreenToggleUI);
             updateFullscreenToggleUI();
 
+            function setTestModeUI (enabled) {
+                if (enabled) {
+                    $("#test_mode").attr("title", "Turn off Test Mode");
+                    $("#test_mode").removeClass("fa-toggle-off text-muted").addClass("fa-toggle-on active");
+                } else {
+                    $("#test_mode").attr("title", "Turn on Test Mode");
+                    $("#test_mode").removeClass("fa-toggle-on active").addClass("fa-toggle-off");
+                }
+            }
+
+            function disableTestMode () {
+                testmode = false;
+
+                if (testModeTimeoutHandle !== null) {
+                    clearTimeout(testModeTimeoutHandle);
+                    testModeTimeoutHandle = null;
+                }
+
+                setTestModeUI(false);
+            }
+
+            function enableTestMode () {
+                testmode = true;
+                setTestModeUI(true);
+
+                if (testModeTimeoutHandle !== null) {
+                    clearTimeout(testModeTimeoutHandle);
+                }
+
+                // Safety timeout so test mode cannot stay active indefinitely.
+                testModeTimeoutHandle = setTimeout(function () {
+                    disableTestMode();
+                }, testModeDurationMs);
+            }
+
             // Test-mode toggle: flips the testmode boolean and swaps the icon between
             // fa-toggle-off (grey, inactive) and fa-toggle-on (green, active).
             $("#test_mode").on("click", function () {
                 if (testmode) {
-                    testmode = false;
-
-                    $("#test_mode").attr("title", "Turn on Test Mode");
-                    $("#test_mode").removeClass("fa-toggle-on active").addClass("fa-toggle-off");
+                    disableTestMode();
                 } else {
-                    testmode = true;
-
-                    $("#test_mode").attr("title", "Turn off Test Mode");
-                    $("#test_mode").removeClass("fa-toggle-off text-muted").addClass("fa-toggle-on active");
+                    enableTestMode();
                 }
             });
 

@@ -659,7 +659,7 @@
         <!-- Modals -->
 
         <!-- Early Warning Modal - Enter -->
-        <div class="modal fade" id="earlyWarningModalEnter" tabindex="-1" aria-labelledby="earlyWarningModalEnterLabel" inert>
+        <div class="modal fade" id="earlyWarningModalEnter" tabindex="-1" aria-labelledby="earlyWarningModalEnterLabel">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content glass-modal bg-danger text-white border-0">
                     <!-- Header -->
@@ -694,7 +694,7 @@
         </div>
 
         <!-- Early Warning Modal - Exit -->
-        <div class="modal fade" id="earlyWarningModalExit" tabindex="-1" aria-labelledby="earlyWarningModalExitLabel" inert>
+        <div class="modal fade" id="earlyWarningModalExit" tabindex="-1" aria-labelledby="earlyWarningModalExitLabel">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content glass-modal bg-success text-white border-0">
                     <!-- Header -->
@@ -721,7 +721,7 @@
         </div>
 
         <!-- Error Messages Modal -->
-        <div class="modal fade" id="errorMessagesModal" tabindex="-1" aria-labelledby="errorMessagesModalLabel" inert>
+        <div class="modal fade" id="errorMessagesModal" tabindex="-1" aria-labelledby="errorMessagesModalLabel">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content glass-modal bg-dark text-white border-0">
                     <!-- Header -->
@@ -748,7 +748,7 @@
         </div>
 
         <!-- Unmatched Cities Modal -->
-        <div class="modal fade" id="unmatchedCitiesModal" tabindex="-1" aria-labelledby="unmatchedCitiesModalLabel" inert>
+        <div class="modal fade" id="unmatchedCitiesModal" tabindex="-1" aria-labelledby="unmatchedCitiesModalLabel">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content glass-modal bg-dark text-white border-0">
                     <!-- Header -->
@@ -776,7 +776,7 @@
         </div>
 
         <!-- Settings Modal -->
-        <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" inert>
+        <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content glass-modal bg-dark">
                     <!-- Header -->
@@ -845,6 +845,14 @@
                                     </td>
                                     <td colspan="2">
                                         <input class="form-check-input" type="checkbox" id="toggle_rss_scroll" checked />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle">
+                                        <span class="text-white fw-medium">Early Warning Auto-Scroll</span>
+                                    </td>
+                                    <td colspan="2">
+                                        <input class="form-check-input" type="checkbox" id="toggle_early_warning_scroll" checked />
                                     </td>
                                 </tr>
                             </table>
@@ -1505,6 +1513,7 @@
             let zonesAutoScrollEnabled = true;
             let lastAlertedTimesAutoScrollEnabled = true;
             let rssAutoScrollEnabled = true;
+            let earlyWarningAutoScrollEnabled = true;
 
             // Initialize toggle states on load
             document.addEventListener("DOMContentLoaded", () => {
@@ -1513,6 +1522,7 @@
                 $("#toggle_locations_scroll").prop("checked", autoScrollStates.locations);
                 $("#toggle_last_alerted_times_scroll").prop("checked", autoScrollStates.lastAlertedTimes);
                 $("#toggle_rss_scroll").prop("checked", autoScrollStates.rss);
+                $("#toggle_early_warning_scroll").prop("checked", autoScrollStates.earlyWarning);
             });
 
             // Stop functions for each autoscroller
@@ -1544,6 +1554,12 @@
                 rssAutoScrollEnabled = false;
                 const rssFeed = document.getElementById('rss_feed');
                 if (rssFeed) rssFeed.scrollTop = 0;
+            }
+
+            function stopEarlyWarningAutoScroll () {
+                earlyWarningAutoScrollEnabled = false;
+                const earlyWarningFeed = document.getElementById('early_warning_feed');
+                if (earlyWarningFeed) earlyWarningFeed.scrollTop = 0;
             }
 
             // Pikud HaOref auto-scroll toggle
@@ -1610,6 +1626,20 @@
                     stopRssAutoScroll();
                 }
             });
+
+            // Early Warning auto-scroll toggle
+            $("#toggle_early_warning_scroll").on("change", function () {
+                autoScrollStates.earlyWarning = $(this).is(":checked");
+                localStorage.setItem("autoScrollEarlyWarning", autoScrollStates.earlyWarning);
+
+                if (autoScrollStates.earlyWarning && typeof startEarlyWarningAutoScroll === "function") {
+                    earlyWarningAutoScrollEnabled = true;
+                    startEarlyWarningAutoScroll();
+                } else {
+                    stopEarlyWarningAutoScroll();
+                }
+            });
+
 
             // ==================== ALERT TYPE LOOKUP ====================
             // Maps the API's string type codes to human-readable labels and icon paths.
@@ -2629,6 +2659,87 @@
             // Only start RSS auto-scroll if enabled in settings
             if (localStorage.getItem("autoScrollRss") !== "false") {
                 startRssAutoScroll();
+            }
+
+
+            // ==================== EARLY WARNING AUTO-SCROLL ====================
+            // Wait 5s, slowly scroll #earlyWarningLocations to the bottom, jump to top, then repeat.
+            function startEarlyWarningAutoScroll () {
+                const earlyWarningElement = document.getElementById('earlyWarningLocations');
+                if (!earlyWarningElement) {
+                    return;
+                }
+
+                const WAIT_BEFORE_SCROLL_MS = 5000;
+                const SCROLL_STEP_PX = 1; // Smaller = slower
+                const SCROLL_STEP_INTERVAL = 55; // ms between steps
+
+                let waitTimeoutId = null;
+                let scrollIntervalId = null;
+
+                function clearScrollTimers () {
+                    if (waitTimeoutId !== null) {
+                        clearTimeout(waitTimeoutId);
+                        waitTimeoutId = null;
+                    }
+
+                    if (scrollIntervalId !== null) {
+                        clearInterval(scrollIntervalId);
+                        scrollIntervalId = null;
+                    }
+                }
+
+                function runScrollCycle () {
+                    // Stop if disabled
+                    if (!earlyWarningAutoScrollEnabled) {
+                        clearScrollTimers();
+                        return;
+                    }
+
+                    clearScrollTimers();
+
+                    waitTimeoutId = setTimeout(() => {
+                        scrollIntervalId = setInterval(() => {
+                            // Check if disabled during scroll
+                            if (!earlyWarningAutoScrollEnabled) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+                                return;
+                            }
+
+                            const maxScrollTop = earlyWarningElement.scrollHeight - earlyWarningElement.clientHeight;
+
+                            // Nothing to scroll
+                            if (maxScrollTop <= 0) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+                                runScrollCycle();
+                                return;
+                            }
+
+                            const nextScrollTop = Math.min(earlyWarningElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
+                            earlyWarningElement.scrollTop = nextScrollTop;
+
+                            // Reached bottom: wait 5s, then jump to top and restart cycle
+                            if (nextScrollTop >= maxScrollTop) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+
+                                waitTimeoutId = setTimeout(() => {
+                                    earlyWarningElement.scrollTop = 0;
+                                    runScrollCycle();
+                                }, WAIT_BEFORE_SCROLL_MS);
+                            }
+                        }, SCROLL_STEP_INTERVAL);
+                    }, WAIT_BEFORE_SCROLL_MS);
+                }
+
+                runScrollCycle();
+            }
+
+            // Only start early warning auto-scroll if enabled in settings
+            if (localStorage.getItem("autoScrollEarlyWarning") !== "false") {
+                startEarlyWarningAutoScroll();
             }
 
 

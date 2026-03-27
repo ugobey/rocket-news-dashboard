@@ -1937,6 +1937,11 @@
                         $('#pikud_haoref_alerts tr:last').remove(); // Remove the oldest (bottom) row
                     }
 
+                    // Schedule the NEXT poll BEFORE awaiting the current fetch.
+                    // This guarantees the interval keeps running even if the fetch
+                    // throws or the server is slow — no missed ticks on error.
+                    setTimeout(pikudHaorefPoll, pikudHaorefInterval);
+
                     const alert = await ajaxHandler("pikud_haoref");
 
                     if (alert) {
@@ -1976,9 +1981,6 @@
 
                         // alert is an array when there is at least one active alert
                         if (alert.length) {
-
-
-
                             const alertType = alert[0].type; // API type code, e.g. 'missiles', 'newsFlash'
                             const alertCities = alert[0].cities; // Array of city/location ID strings
                             const instructions = alert[0].instructions; // Hebrew instruction text from the API
@@ -2233,10 +2235,7 @@
                         }
                     }
 
-                    // Schedule the NEXT poll BEFORE awaiting the current fetch.
-                    // This guarantees the interval keeps running even if the fetch
-                    // throws or the server is slow — no missed ticks on error.
-                    setTimeout(pikudHaorefPoll, pikudHaorefInterval);
+
 
                 } catch (error) {
                     console.error("Error in Pikud HaOref Polling:", error);

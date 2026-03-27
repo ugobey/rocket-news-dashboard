@@ -1953,12 +1953,6 @@
                                 // When a real siren-type alert comes in, any pending early warning is cleared
                                 // because the pre-siren phase is now superseded by the actual event.
                             } else if (alertType != "newsFlash") {
-
-                                if (earlyWarningModalEnter._isShown) {
-                                    clearEarlyWarningTimer();
-                                    earlyWarningModalEnter.hide(); // Hide the danger modal
-                                }
-
                                 const alertTypeDetails = getAlertDetailsByCategory(alertType);
 
                                 if (alertTypeDetails) {
@@ -1966,12 +1960,11 @@
                                     const alertTypeIcon = alertTypeDetails.icon;
                                     const timeStamp = moment().format("HH:mm:ss");
 
-                                    // Track minute-rounded time for the "Last Alerted Times" tile
-                                    updateLastAlertedTimes(timeStamp);
-
                                     // Filter out locations already shown within the last 60 seconds
                                     // to avoid flooding the table with duplicate rows during sustained alerts.
                                     const locations = extractNewLocations(alertCities);
+
+                                    let alertedTimesAdded = false; // Flag to ensure we only update lastAlertedTimes once per alert, even if multiple new locations
 
                                     for (let i = 0; i < locations.length; i++) {
                                         const locationOriginal = locations[i];
@@ -2044,6 +2037,13 @@
                                                     <td>${zone_en}</td>
                                                 </tr>
                                             `);
+
+                                            if (!alertedTimesAdded) {
+                                                alertedTimesAdded = true;
+
+                                                // Track minute-rounded time for the "Last Alerted Times" tile
+                                                updateLastAlertedTimes(timeStamp);
+                                            }
                                         }
                                     }
 

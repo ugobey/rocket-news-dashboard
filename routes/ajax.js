@@ -7,6 +7,14 @@ const fs = require("fs");
 
 const pikudHaoref = require("pikud-haoref-api");
 
+let HttpsProxyAgent;
+
+async function main() {
+    ({ HttpsProxyAgent } = await import("https-proxy-agent"));
+}
+
+main();
+
 const { parseFeed } = require("@rowanmanning/feed-parser");
 
 const { exec } = require("node:child_process");
@@ -110,11 +118,21 @@ function generateRandomAlertByRegion() {
 
 router.use("/", async function (req, res) {
     try {
+        const forwardedPortHeader = req.headers["x-forwarded-port"];
+        const forwardedPort = Array.isArray(forwardedPortHeader) ? forwardedPortHeader[0] : forwardedPortHeader;
+        const requestPort = Number.parseInt((forwardedPort || "").toString().split(",")[0], 10) || req.socket.localPort;
+
         const getService = req.body.service;
         const testmode = req.body.testmode;
 
         if (getService === "pikud_haoref") {
-            const options = {};
+            let options = {};
+
+            if (requestPort != 8080) {
+                options = {
+                    httpAgent: new HttpsProxyAgent("http://51.85.49.118:21479"),
+                };
+            }
 
             pikudHaoref.getActiveAlerts(function (err, alert) {
                 if (err) {

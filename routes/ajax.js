@@ -135,25 +135,28 @@ router.use("/", async function (req, res) {
                 };
             }
 
-            pikudHaoref.getActiveAlerts(function (err, alert) {
-                if (err) {
-                    console.log(service_name, err);
-                    //fs.appendFileSync("./logs/pikudHaoref_errors.txt", err + "\n\n");
-
-                    res.statusCode = 200;
-                    res.write(JSON.stringify({ error: err.toString() }));
-                    res.end();
-                    return;
-                }
-
-                if (testmode === "true") {
-                    alert = generateRandomAlertByCity();
-                }
+            if (testmode === "true") {
+                const alert = generateRandomAlertByCity();
 
                 res.statusCode = 200;
                 res.write(JSON.stringify(alert));
                 res.end();
-            }, options);
+            } else {
+                pikudHaoref.getActiveAlerts(function (err, alert) {
+                    if (err) {
+                        console.log(service_name, err);
+
+                        res.statusCode = 200;
+                        res.write(JSON.stringify({ error: err.toString() }));
+                        res.end();
+                        return;
+                    }
+
+                    res.statusCode = 200;
+                    res.write(JSON.stringify(alert));
+                    res.end();
+                }, options);
+            }
         } else if (getService === "rss") {
             const rssFeed = req.body.rssfeed;
 

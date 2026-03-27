@@ -1,6 +1,6 @@
 const parameters = process.argv;
 
-const webServerPort = 8080;
+const webServerPort = process.env.PORT || 8080;
 
 const express = require("express");
 const path = require("path");
@@ -33,7 +33,7 @@ try {
         bodyParser.urlencoded({
             extended: true,
             limit: "1000mb",
-        })
+        }),
     );
 
     app.use(express.static(path.join(__dirname, "public")));
@@ -51,7 +51,7 @@ try {
         function (req, res, next) {
             next();
         },
-        ajax
+        ajax,
     );
 
     app.use(
@@ -59,7 +59,7 @@ try {
         function (req, res, next) {
             next();
         },
-        main
+        main,
     );
 
     app.use(
@@ -67,7 +67,7 @@ try {
         function (req, res, next) {
             res.redirect("/main");
         },
-        main
+        main,
     );
 
     // catch 404 and forward to error handler

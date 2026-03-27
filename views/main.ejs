@@ -598,7 +598,6 @@
                         </div>
                     </div>
 
-                   
 
                     <!-- Last Alerted Times -->
                     <div id="lastAlertedTimesTile" class="card table-card header-primary text-white mt-3 mb-3">
@@ -1367,6 +1366,7 @@
             let unmatchedCitiesLogs = []; // Location names that couldn't be found in locationMap
             let earlyWarningLocations = []; // Cities currently under an active early-warning (newsFlash)
             let alertedCitiesObj = []; // Cities that have received alerts this session
+            let lastAlertedTimes = []; // Last 10 unique times when alerts occurred (HH:mm:ss format)
 
             // Summary counters reflected in the Alerts Summary table
             let rocketAlertCounter = 0; // Missile alert rows received
@@ -1639,6 +1639,37 @@
                 }
             }
 
+            // Track and display the last 10 unique times when alerts occurred.
+            // Only adds a time if it's not already in the list (ensures uniqueness).
+            function updateLastAlertedTimes (timeStamp) {
+                // Only add if this time hasn't been recorded yet
+                if (!lastAlertedTimes.includes(timeStamp)) {
+                    lastAlertedTimes.unshift(timeStamp); // Add to the beginning
+                    
+                    // Keep only the last 10 unique times
+                    if (lastAlertedTimes.length > 10) {
+                        lastAlertedTimes.pop();
+                    }
+
+                    // Update the UI with the new list
+                    renderLastAlertedTimes();
+                }
+            }
+
+            // Render the last alerted times to the UI
+            function renderLastAlertedTimes () {
+                const container = $('#last_alerted_times');
+                container.empty();
+
+                lastAlertedTimes.forEach(time => {
+                    container.append(`
+                        <tr>
+                            <td><span class="text-info">${time}</span></td>
+                        </tr>
+                    `);
+                });
+            }
+
             // ==================== LOCATION DATA & CITY AUTOCOMPLETE ====================
 
             // locationsJSON is injected server-side by EJS from the pikud-haoref-api package.
@@ -1871,7 +1902,10 @@
                                 if (alertTypeDetails) {
                                     const alertTypeText = alertTypeDetails.text;
                                     const alertTypeIcon = alertTypeDetails.icon;
-                                    const timeStamp = moment().format("HH:mm:ss");
+                                    const timeStamp = moment().format("HH:mm");
+
+                                    // Track this alert time in the last alerted times list
+                                    updateLastAlertedTimes(timeStamp);
 
                                     // Filter out locations already shown within the last 60 seconds
                                     // to avoid flooding the table with duplicate rows during sustained alerts.

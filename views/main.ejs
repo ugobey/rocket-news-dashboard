@@ -1536,7 +1536,7 @@
 
             function stopLastAlertedTimesAutoScroll () {
                 lastAlertedTimesAutoScrollEnabled = false;
-                const timesFeed = document.getElementById('last_alerted_times');
+                const timesFeed = document.getElementById('last_alerted_times_feed');
                 if (timesFeed) timesFeed.scrollTop = 0;
             }
 
@@ -2472,9 +2472,9 @@
 
 
             // ==================== LAST ALERTED TIMES AUTO-SCROLL ====================
-            // Wait 5s, slowly scroll #last_alerted_times to the bottom, jump to top, then repeat.
+            // Wait 5s, slowly scroll #last_alerted_times_feed to the bottom, jump to top, then repeat.
             function startLastAlertedTimesAutoScroll () {
-                const lastAlertedTimesElement = document.getElementById('last_alerted_times');
+                const lastAlertedTimesElement = document.getElementById('last_alerted_times_feed');
                 if (!lastAlertedTimesElement) {
                     return;
                 }
@@ -2500,7 +2500,7 @@
 
                 function runScrollCycle () {
                     // Stop if disabled
-                    if (!rssAutoScrollEnabled) {
+                    if (!lastAlertedTimesAutoScrollEnabled) {
                         clearScrollTimers();
                         return;
                     }
@@ -2510,7 +2510,7 @@
                     waitTimeoutId = setTimeout(() => {
                         scrollIntervalId = setInterval(() => {
                             // Check if disabled during scroll
-                            if (!rssAutoScrollEnabled) {
+                            if (!lastAlertedTimesAutoScrollEnabled) {
                                 clearInterval(scrollIntervalId);
                                 scrollIntervalId = null;
                                 return;

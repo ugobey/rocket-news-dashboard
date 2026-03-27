@@ -14,32 +14,68 @@ const { exec } = require("node:child_process");
 const pkg = require("../package.json");
 const localAppVersion = pkg.version;
 
+const locations = require("../locations_by_zone");
+
+const arava = locations.arava;
+const beitSheanValley = locations.beitSheanValley;
+const beitShemesh = locations.beitShemesh;
+const bikaa = locations.bikaa;
+const centerNegev = locations.centerNegev;
+const confrontationLine = locations.confrontationLine;
+const dan = locations.dan;
+const deadSea = locations.deadSea;
+const dromHashfela = locations.dromHashfela;
+const eilat = locations.eilat;
+const gazaEnvelope = locations.gazaEnvelope;
+const golan = locations.golan;
+const haifa = locations.haifa;
+const haShfela = locations.haShfela;
+const hefer = locations.hefer;
+const hofHaCarmel = locations.hofHaCarmel;
+const jerusalem = locations.jerusalem;
+const katzrin = locations.katzrin;
+const krayot = locations.krayot;
+const lachish = locations.lachish;
+const lowerGalilee = locations.lowerGalilee;
+const menashe = locations.menashe;
+const sharon = locations.sharon;
+const shomron = locations.shomron;
+const southNegev = locations.southNegev;
+const tavor = locations.tavor;
+const upperGalilee = locations.upperGalilee;
+const wadiAra = locations.wadiAra;
+const westLachish = locations.westLachish;
+const westNegev = locations.westNegev;
+const yarkon = locations.yarkon;
+const yearotHaCarmel = locations.yearotHaCarmel;
+const yehuda = locations.yehuda;
+
 const testAlertData = [
     //Dan Missile Alert
     {
         type: "missiles",
-        cities: ["אור יהודה", "אזור", "בחלק מהאזורים בארץ", "בני ברק", "בת ים", "גבעת השלושה", "גבעת שמואל", "גבעתיים", "גני תקווה", "גת רימון", "הרצליה - מערב", "הרצליה - מרכז וגליל ים", "חולון", "יהוד מונוסון", "כפר סירקין", "כפר שמריהו"],
+        cities: dan,
         instructions: "ירי רקטות וטילים",
         id: "134182459160000000",
     },
     //Dan Hostile Aircraft Intrusion Alert
     {
         type: "hostileAircraftIntrusion",
-        cities: ["מגשימים", "מעש", "מקווה ישראל", "מתחם גלילות", "מתחם פי גלילות", "סביון", "פארק אריאל שרון", "פתח תקווה", "קריית אונו", "רמת גן - מזרח", "רמת גן - מערב", "רמת השרון", "תל אביב - דרום העיר ויפו", "תל אביב - מזרח", "תל אביב - מרכז העיר", "תל אביב - עבר הירקון"],
+        cities: dan,
         instructions: "ירי רקטות וטילים",
         id: "134182459160000000",
     },
     //Gaza Envelope Rocket Alert
     {
         type: "missiles",
-        cities: ["חוף זיקים", "חניון רעים אנדרטת הנובה", "יבול", "יד מרדכי", "יכיני", "יתד", "כיסופים", "כפר מימון ותושיה", "כפר עזה", "כרם שלום", "כרמיה", "מבטחים, עמיעוז, ישע", "מגן", "מטווח ניר עם", "מפלסים", "נווה"],
+        cities: gazaEnvelope,
         instructions: "ירי רקטות וטילים",
         id: "134182459160000000",
     },
     //Upper Galilee Hostile Aircraft Intrusion Alert
     {
         type: "hostileAircraftIntrusion",
-        cities: ["מגדל תפן", "מזרעה", "מחניים", "מירון", "מנחת מחניים", "מרכז אזורי מרום גליל", "מרכז אזורי רמת כורזים", "משמר הירדן", "נחף", "נס עמים", "נתיב השיירה", "סאג'ור", "ספסופה - כפר חושן", "עין אל אסד", "עין המפרץ", "עכו", "עכו - אזור תעשייה", "עכו - רמות ים"],
+        cities: upperGalilee,
         instructions: "ירי רקטות וטילים",
         id: "134182459160000000",
     },

@@ -833,6 +833,14 @@
                                 </tr>
                                 <tr>
                                     <td class="align-middle">
+                                        <span class="text-white fw-medium">Last Alerted Times Auto-Scroll</span>
+                                    </td>
+                                    <td colspan="2">
+                                        <input class="form-check-input" type="checkbox" id="toggle_last_alerted_times_scroll" checked />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle">
                                         <span class="text-white fw-medium">RSS Feed Auto-Scroll</span>
                                     </td>
                                     <td colspan="2">
@@ -1487,28 +1495,31 @@
                 pikudHaoref: localStorage.getItem("autoScrollPikudHaoref") !== "false",
                 zones: localStorage.getItem("autoScrollZones") !== "false",
                 locations: localStorage.getItem("autoScrollLocations") !== "false",
+                lastAlertedTimes: localStorage.getItem("autoScrollLastAlertedTimes") !== "false",
                 rss: localStorage.getItem("autoScrollRss") !== "false"
             };
 
             // Global variables to track autoscroller intervals so they can be stopped
-            let rssAutoScrollEnabled = true;
+            let pikudHaorefAutoScrollEnabled = true;
             let locationsAutoScrollEnabled = true;
             let zonesAutoScrollEnabled = true;
-            let pikudHaorefAutoScrollEnabled = true;
+            let lastAlertedTimesAutoScrollEnabled = true;
+            let rssAutoScrollEnabled = true;
 
             // Initialize toggle states on load
             document.addEventListener("DOMContentLoaded", () => {
                 $("#toggle_pikud_scroll").prop("checked", autoScrollStates.pikudHaoref);
                 $("#toggle_zones_scroll").prop("checked", autoScrollStates.zones);
                 $("#toggle_locations_scroll").prop("checked", autoScrollStates.locations);
+                $("#toggle_last_alerted_times_scroll").prop("checked", autoScrollStates.lastAlertedTimes);
                 $("#toggle_rss_scroll").prop("checked", autoScrollStates.rss);
             });
 
             // Stop functions for each autoscroller
-            function stopRssAutoScroll () {
-                rssAutoScrollEnabled = false;
-                const rssFeed = document.getElementById('rss_feed');
-                if (rssFeed) rssFeed.scrollTop = 0;
+            function stopPikudHaorefAutoScroll () {
+                pikudHaorefAutoScrollEnabled = false;
+                const pikudFeed = document.getElementById('pikud_haoref_feed');
+                if (pikudFeed) pikudFeed.scrollTop = 0;
             }
 
             function stopAlertLocationsAutoScroll () {
@@ -1523,10 +1534,16 @@
                 if (zonesFeed) zonesFeed.scrollTop = 0;
             }
 
-            function stopPikudHaorefAutoScroll () {
-                pikudHaorefAutoScrollEnabled = false;
-                const pikudFeed = document.getElementById('pikud_haoref_feed');
-                if (pikudFeed) pikudFeed.scrollTop = 0;
+            function stopLastAlertedTimesAutoScroll () {
+                lastAlertedTimesAutoScrollEnabled = false;
+                const timesFeed = document.getElementById('last_alerted_times');
+                if (timesFeed) timesFeed.scrollTop = 0;
+            }
+
+            function stopRssAutoScroll () {
+                rssAutoScrollEnabled = false;
+                const rssFeed = document.getElementById('rss_feed');
+                if (rssFeed) rssFeed.scrollTop = 0;
             }
 
             // Pikud HaOref auto-scroll toggle
@@ -1565,6 +1582,19 @@
                     startAlertLocationsAutoScroll();
                 } else {
                     stopAlertLocationsAutoScroll();
+                }
+            });
+
+            // Last Alerted Times auto-scroll toggle
+            $("#toggle_last_alerted_times_scroll").on("change", function () {
+                autoScrollStates.lastAlertedTimes = $(this).is(":checked");
+                localStorage.setItem("autoScrollLastAlertedTimes", autoScrollStates.lastAlertedTimes);
+
+                if (autoScrollStates.lastAlertedTimes && typeof startLastAlertedTimesAutoScroll === "function") {
+                    lastAlertedTimesAutoScrollEnabled = true;
+                    startLastAlertedTimesAutoScroll();
+                } else {
+                    stopLastAlertedTimesAutoScroll();
                 }
             });
 
@@ -2195,17 +2225,20 @@
 
             rssPoll(); // Kick off the RSS polling loop
 
-            // ==================== RSS AUTO-SCROLL ====================
-            // Wait 5s, slowly scroll #rss_feed to the bottom, jump to top, then repeat.
-            function startRssAutoScroll () {
-                const rssFeedElement = document.getElementById('rss_feed');
-                if (!rssFeedElement) {
+            // ==================== AUTOSCROLLERS ======================
+
+            // ==================== PIKUD HAOREF AUTO-SCROLL ====================
+            // Wait 5s, slowly scroll #pikud_haoref_feed to the bottom, jump to top, then repeat.
+            function startPikudHaorefAutoScroll () {
+                const pikudHaorefElement = document.getElementById('pikud_haoref_feed');
+                if (!pikudHaorefElement) {
                     return;
                 }
 
-                const WAIT_BEFORE_SCROLL_MS = 5000;
+                const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
+                const WAIT_BEFORE_SCROLL_UP_MS = 1000;
                 const SCROLL_STEP_PX = 1; // Smaller = slower
-                const SCROLL_STEP_INTERVAL = 55; // ms between steps
+                const SCROLL_STEP_INTERVAL = 10; // ms between steps
 
                 let waitTimeoutId = null;
                 let scrollIntervalId = null;
@@ -2224,7 +2257,7 @@
 
                 function runScrollCycle () {
                     // Stop if disabled
-                    if (!rssAutoScrollEnabled) {
+                    if (!pikudHaorefAutoScrollEnabled) {
                         clearScrollTimers();
                         return;
                     }
@@ -2234,13 +2267,13 @@
                     waitTimeoutId = setTimeout(() => {
                         scrollIntervalId = setInterval(() => {
                             // Check if disabled during scroll
-                            if (!rssAutoScrollEnabled) {
+                            if (!pikudHaorefAutoScrollEnabled) {
                                 clearInterval(scrollIntervalId);
                                 scrollIntervalId = null;
                                 return;
                             }
 
-                            const maxScrollTop = rssFeedElement.scrollHeight - rssFeedElement.clientHeight;
+                            const maxScrollTop = pikudHaorefElement.scrollHeight - pikudHaorefElement.clientHeight;
 
                             // Nothing to scroll
                             if (maxScrollTop <= 0) {
@@ -2250,8 +2283,8 @@
                                 return;
                             }
 
-                            const nextScrollTop = Math.min(rssFeedElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
-                            rssFeedElement.scrollTop = nextScrollTop;
+                            const nextScrollTop = Math.min(pikudHaorefElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
+                            pikudHaorefElement.scrollTop = nextScrollTop;
 
                             // Reached bottom: wait 5s, then jump to top and restart cycle
                             if (nextScrollTop >= maxScrollTop) {
@@ -2259,20 +2292,20 @@
                                 scrollIntervalId = null;
 
                                 waitTimeoutId = setTimeout(() => {
-                                    rssFeedElement.scrollTop = 0;
+                                    pikudHaorefElement.scrollTop = 0;
                                     runScrollCycle();
-                                }, WAIT_BEFORE_SCROLL_MS);
+                                }, WAIT_BEFORE_SCROLL_UP_MS);
                             }
                         }, SCROLL_STEP_INTERVAL);
-                    }, WAIT_BEFORE_SCROLL_MS);
+                    }, WAIT_BEFORE_SCROLL_DOWN_MS);
                 }
 
                 runScrollCycle();
             }
 
-            // Only start RSS auto-scroll if enabled in settings
-            if (localStorage.getItem("autoScrollRss") !== "false") {
-                startRssAutoScroll();
+            // Only start pikud haoref auto-scroll if enabled in settings
+            if (localStorage.getItem("autoScrollPikudHaoref") !== "false") {
+                startPikudHaorefAutoScroll();
             }
 
             // ==================== ALERT LOCATIONS AUTO-SCROLL ====================
@@ -2438,18 +2471,17 @@
             }
 
 
-            // ==================== PIKUD HAOREF AUTO-SCROLL ====================
-            // Wait 5s, slowly scroll #pikud_haoref_feed to the bottom, jump to top, then repeat.
-            function startPikudHaorefAutoScroll () {
-                const pikudHaorefElement = document.getElementById('pikud_haoref_feed');
-                if (!pikudHaorefElement) {
+            // ==================== LAST ALERTED TIMES AUTO-SCROLL ====================
+            // Wait 5s, slowly scroll #last_alerted_times to the bottom, jump to top, then repeat.
+            function startLastAlertedTimesAutoScroll () {
+                const lastAlertedTimesElement = document.getElementById('last_alerted_times');
+                if (!lastAlertedTimesElement) {
                     return;
                 }
 
-                const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
-                const WAIT_BEFORE_SCROLL_UP_MS = 1000;
+                const WAIT_BEFORE_SCROLL_MS = 5000;
                 const SCROLL_STEP_PX = 1; // Smaller = slower
-                const SCROLL_STEP_INTERVAL = 10; // ms between steps
+                const SCROLL_STEP_INTERVAL = 55; // ms between steps
 
                 let waitTimeoutId = null;
                 let scrollIntervalId = null;
@@ -2468,7 +2500,7 @@
 
                 function runScrollCycle () {
                     // Stop if disabled
-                    if (!pikudHaorefAutoScrollEnabled) {
+                    if (!rssAutoScrollEnabled) {
                         clearScrollTimers();
                         return;
                     }
@@ -2478,13 +2510,13 @@
                     waitTimeoutId = setTimeout(() => {
                         scrollIntervalId = setInterval(() => {
                             // Check if disabled during scroll
-                            if (!pikudHaorefAutoScrollEnabled) {
+                            if (!rssAutoScrollEnabled) {
                                 clearInterval(scrollIntervalId);
                                 scrollIntervalId = null;
                                 return;
                             }
 
-                            const maxScrollTop = pikudHaorefElement.scrollHeight - pikudHaorefElement.clientHeight;
+                            const maxScrollTop = lastAlertedTimesElement.scrollHeight - lastAlertedTimesElement.clientHeight;
 
                             // Nothing to scroll
                             if (maxScrollTop <= 0) {
@@ -2494,8 +2526,8 @@
                                 return;
                             }
 
-                            const nextScrollTop = Math.min(pikudHaorefElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
-                            pikudHaorefElement.scrollTop = nextScrollTop;
+                            const nextScrollTop = Math.min(lastAlertedTimesElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
+                            lastAlertedTimesElement.scrollTop = nextScrollTop;
 
                             // Reached bottom: wait 5s, then jump to top and restart cycle
                             if (nextScrollTop >= maxScrollTop) {
@@ -2503,21 +2535,104 @@
                                 scrollIntervalId = null;
 
                                 waitTimeoutId = setTimeout(() => {
-                                    pikudHaorefElement.scrollTop = 0;
+                                    lastAlertedTimesElement.scrollTop = 0;
                                     runScrollCycle();
-                                }, WAIT_BEFORE_SCROLL_UP_MS);
+                                }, WAIT_BEFORE_SCROLL_MS);
                             }
                         }, SCROLL_STEP_INTERVAL);
-                    }, WAIT_BEFORE_SCROLL_DOWN_MS);
+                    }, WAIT_BEFORE_SCROLL_MS);
                 }
 
                 runScrollCycle();
             }
 
-            // Only start pikud haoref auto-scroll if enabled in settings
-            if (localStorage.getItem("autoScrollPikudHaoref") !== "false") {
-                startPikudHaorefAutoScroll();
+            // Only start last alerted times auto-scroll if enabled in settings
+            if (localStorage.getItem("autoScrollLastAlertedTimes") !== "false") {
+                startLastAlertedTimesAutoScroll();
             }
+
+            // ==================== RSS AUTO-SCROLL ====================
+            // Wait 5s, slowly scroll #rss_feed to the bottom, jump to top, then repeat.
+            function startRssAutoScroll () {
+                const rssFeedElement = document.getElementById('rss_feed');
+                if (!rssFeedElement) {
+                    return;
+                }
+
+                const WAIT_BEFORE_SCROLL_MS = 5000;
+                const SCROLL_STEP_PX = 1; // Smaller = slower
+                const SCROLL_STEP_INTERVAL = 55; // ms between steps
+
+                let waitTimeoutId = null;
+                let scrollIntervalId = null;
+
+                function clearScrollTimers () {
+                    if (waitTimeoutId !== null) {
+                        clearTimeout(waitTimeoutId);
+                        waitTimeoutId = null;
+                    }
+
+                    if (scrollIntervalId !== null) {
+                        clearInterval(scrollIntervalId);
+                        scrollIntervalId = null;
+                    }
+                }
+
+                function runScrollCycle () {
+                    // Stop if disabled
+                    if (!rssAutoScrollEnabled) {
+                        clearScrollTimers();
+                        return;
+                    }
+
+                    clearScrollTimers();
+
+                    waitTimeoutId = setTimeout(() => {
+                        scrollIntervalId = setInterval(() => {
+                            // Check if disabled during scroll
+                            if (!rssAutoScrollEnabled) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+                                return;
+                            }
+
+                            const maxScrollTop = rssFeedElement.scrollHeight - rssFeedElement.clientHeight;
+
+                            // Nothing to scroll
+                            if (maxScrollTop <= 0) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+                                runScrollCycle();
+                                return;
+                            }
+
+                            const nextScrollTop = Math.min(rssFeedElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
+                            rssFeedElement.scrollTop = nextScrollTop;
+
+                            // Reached bottom: wait 5s, then jump to top and restart cycle
+                            if (nextScrollTop >= maxScrollTop) {
+                                clearInterval(scrollIntervalId);
+                                scrollIntervalId = null;
+
+                                waitTimeoutId = setTimeout(() => {
+                                    rssFeedElement.scrollTop = 0;
+                                    runScrollCycle();
+                                }, WAIT_BEFORE_SCROLL_MS);
+                            }
+                        }, SCROLL_STEP_INTERVAL);
+                    }, WAIT_BEFORE_SCROLL_MS);
+                }
+
+                runScrollCycle();
+            }
+
+            // Only start RSS auto-scroll if enabled in settings
+            if (localStorage.getItem("autoScrollRss") !== "false") {
+                startRssAutoScroll();
+            }
+
+
+
 
             // ==================== APP VERSION CHECK ====================
             // Calls the version_check service which runs `npm outdated` server-side

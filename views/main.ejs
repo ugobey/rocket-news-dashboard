@@ -1937,14 +1937,9 @@
                         $('#pikud_haoref_alerts tr:last').remove(); // Remove the oldest (bottom) row
                     }
 
-
-
                     const alert = await ajaxHandler("pikud_haoref");
 
                     if (alert) {
-
-
-
                         window.alertsJSON = alert; // Expose raw response for debugging in the browser console
 
                         // --- Error response handler ---
@@ -2229,12 +2224,13 @@
                                 }
                             }
                         }
-
-                        // This guarantees the interval keeps running even if the fetch
-                        setTimeout(pikudHaorefPoll, pikudHaorefInterval);
                     }
                 } catch (error) {
                     console.error("Error in Pikud HaOref Polling:", error);
+
+                } finally {
+                    // Schedule the next poll regardless of success or failure to ensure continuous operation
+                    setTimeout(pikudHaorefPoll, pikudHaorefInterval);
                 }
             };
 

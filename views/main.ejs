@@ -876,6 +876,8 @@
                 lng: 34.7818
             };
             const defaultMapZoom = 8;
+            let zoomAnimationInterval = null;
+            let viewportUpdateToken = 0;
 
             // Active city alerts keyed by a stable city identifier.
             // A city remains here while its marker is active, then is removed on timeout.
@@ -913,35 +915,88 @@
                 return markerElement;
             }
 
+            function stopSmoothZoomAnimation () {
+                if (zoomAnimationInterval !== null) {
+                    clearInterval(zoomAnimationInterval);
+                    zoomAnimationInterval = null;
+                }
+            }
+
+            function smoothZoomTo (targetZoom) {
+                if (!map) {
+                    return;
+                }
+
+                const roundedTarget = Math.round(targetZoom);
+                const currentZoom = map.getZoom();
+
+                stopSmoothZoomAnimation();
+
+                if (currentZoom === undefined || currentZoom === null) {
+                    map.setZoom(roundedTarget);
+                    return;
+                }
+
+                if (currentZoom === roundedTarget) {
+                    return;
+                }
+
+                const direction = currentZoom < roundedTarget ? 1 : -1;
+                zoomAnimationInterval = setInterval(() => {
+                    const current = map.getZoom();
+                    if (current === undefined || current === null) {
+                        stopSmoothZoomAnimation();
+                        return;
+                    }
+
+                    const next = current + direction;
+                    const reached = direction > 0 ? next >= roundedTarget : next <= roundedTarget;
+
+                    map.setZoom(reached ? roundedTarget : next);
+
+                    if (reached) {
+                        stopSmoothZoomAnimation();
+                    }
+                }, 50);
+            }
+
             // Keeps all active markers visible as markers are added/removed.
             function fitMapToActiveMarkers () {
                 if (!map) {
                     return;
                 }
 
+                const updateToken = ++viewportUpdateToken;
+                stopSmoothZoomAnimation();
+
                 const visibleMarkers = allMarkers.filter(marker => marker && marker.map);
 
                 if (visibleMarkers.length === 0) {
-                    map.setCenter(defaultMapCenter);
-                    map.setZoom(defaultMapZoom);
+                    map.panTo(defaultMapCenter);
+                    smoothZoomTo(defaultMapZoom);
                     return;
                 }
 
                 if (visibleMarkers.length === 1) {
-                    map.setCenter(visibleMarkers[0].position);
-                    map.setZoom(12);
+                    map.panTo(visibleMarkers[0].position);
+                    smoothZoomTo(12);
                     return;
                 }
 
                 const bounds = new google.maps.LatLngBounds();
                 visibleMarkers.forEach(marker => bounds.extend(marker.position));
+
                 map.fitBounds(bounds, {
-                    padding: 60
+                    padding: 80
                 });
 
-                google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
+                google.maps.event.addListenerOnce(map, 'idle', () => {
+                    if (updateToken !== viewportUpdateToken) {
+                        return;
+                    }
+
                     if (map.getZoom() > 16) {
-                        map.setZoom(12);
+                        smoothZoomTo(16);
                     }
                 });
             }

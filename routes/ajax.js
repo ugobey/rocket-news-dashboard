@@ -50,247 +50,61 @@ const yarkon = locations.yarkon;
 const yearotHaCarmel = locations.yearotHaCarmel;
 const yehuda = locations.yehuda;
 
-const testAlertData = [
-    //Dan Missile Alert
-    {
-        type: "missiles",
-        cities: dan,
-        instructions: "ירי רקטות וטילים",
-        id: "134182459160000000",
-    },
-    //Dan Hostile Aircraft Intrusion Alert
-    {
-        type: "hostileAircraftIntrusion",
-        cities: dan,
-        instructions: "ירי רקטות וטילים",
-        id: "134182459160000000",
-    },
-    //Gaza Envelope Rocket Alert
-    {
-        type: "missiles",
-        cities: gazaEnvelope,
-        instructions: "ירי רקטות וטילים",
-        id: "134182459160000000",
-    },
-    //Upper Galilee Hostile Aircraft Intrusion Alert
-    {
-        type: "hostileAircraftIntrusion",
-        cities: upperGalilee,
-        instructions: "ירי רקטות וטילים",
-        id: "134182459160000000",
-    },
-    //Early Warning Started Alert
-    {
-        type: "newsFlash",
-        cities: [
-            "בענה",
-            "דיר אל-אסד",
-            "הר חלוץ",
-            "עמוקה",
-            "כסרא סמיע",
-            "מכמנים - כמאנה מערבית",
-            "חוסנייה",
-            "יבנה",
-            "גאולים",
-            "בת שלמה",
-            "בת הדר",
-            "בקוע",
-            "ליל",
-            "כוכב יעקב",
-            "כוכב השחר",
-            "סער",
-            "עין ורד",
-            "לבון",
-            "נחף",
-            "פורת",
-            "פני קדם",
-            "פנימיית עין כרם",
-            "פסגות",
-            "פסוטה",
-            "פעמי תש'ז",
-            "פצאל",
-            "פקיעין",
-            "פקיעין החדשה",
-            "פרדס חנה כרכור",
-            "פרדסיה",
-            "פרוד",
-            "פרי גן",
-            "פתח תקווה",
-            "פתחיה",
-            "צאלים",
-            "צבעון",
-            "צובה",
-            "צוחר, אוהד",
-            "צומת אלמוג",
-            "צומת הגוש",
-            "צופים",
-            "צופית",
-            "צופר",
-            "צוקים",
-            "צור הדסה",
-            "צור יצחק",
-            "צור משה",
-            "צור נתן",
-            "צוריאל",
-            "צורית גילון",
-            "ציפורי",
-            "צלפון",
-            "צמח",
-            "צפריה",
-            "צפרירים",
-            "צפת - נוף כנרת",
-            "צפת - עיר",
-            "צפת - עכברה",
-            "צרופה",
-            "צרעה",
-            "קבוצת גבע",
-            "קבוצת יבנה",
-            "קדומים",
-            "קדימה צורן",
-            "קדיתא",
-            "קדם ערבה",
-            "קדמה",
-            "קדמת צבי",
-            "קדר",
-            "קדר דרום",
-            "קדרון",
-            "קדרים",
-            "קדש ברנע",
-            "קוממיות",
-            "קורנית",
-            "קטורה",
-            "קיבוץ דן",
-            "קיבוץ מגידו",
-            "קידה",
-            "קיסריה",
-            "קלחים",
-            "קליה",
-            "קלנסווה",
-            "קלע אלון",
-            "קסר א-סר",
-            "קציר",
-            "קצרין",
-            "קצרין - אזור תעשייה",
-            "קריית אונו",
-            "קריית אתא",
-            "קריית ביאליק",
-            "קריית גת, כרמי גת",
-            "קריית חינוך מרחבים",
-            "קריית טבעון - בית זייד",
-            "קריית ים",
-            "קריית יערים",
-            "קריית מוצקין",
-            "קריית מלאכי",
-            "קריית נטפים",
-            "קריית ענבים",
-            "קריית עקרון",
-            "קריית שמונה",
-            "קרית ארבע",
-            "קרני שומרון",
-            "קשת",
-            "ראמה",
-            "ראס אל-עין",
-            "ראס עלי",
-            "ראש הנקרה",
-            "ראש העין",
-            "ראש פינה",
-            "ראש צורים",
-            "ראשון לציון - מזרח",
-            "ראשון לציון - מערב",
-            "רבבה",
-            "רבדים",
-            "רביבים",
-            "רביד",
-            "רגבה",
-            "רגבים",
-            "רהט",
-            "רווחה",
-            "רוויה",
-            "רוחמה",
-            "רומת אל הייב",
-            "רועי",
-            "רותם",
-            "רחוב",
-            "רחובות",
-            "רחלים",
-            "ריחן",
-            "ריינה",
-            "רימונים",
-            "רינתיה",
-            "רכסים",
-            "רם און",
-            "רמות",
-            "רמות השבים",
-            "רמות מאיר",
-            "רמות מנשה",
-            "רמות נפתלי",
-            "רמלה",
-            "רמת גן - מזרח",
-            "רמת גן - מערב",
-            "רמת דוד",
-            "רמת הכובש",
-            "רמת השופט",
-            "רמת השרון",
-            "רמת טראמפ",
-            "רמת יוחנן",
-            "רמת ישי",
-            "רמת מגרון",
-            "רמת מגשימים",
-            "רמת צבי",
-            "רמת רזיאל",
-            "רנן",
-            "רעים",
-            "רעננה",
-            "רקפת",
-            "רשפון",
-            "רשפים, שלוחות, שלפים",
-            "רתמים",
-            "שאנטי במדבר",
-            "שאר ישוב",
-            "שבות רחל",
-            "שבי דרום",
-            "שבי ציון",
-            "שבי שומרון",
-            "שגב שלום",
-            "שדה אילן",
-            "שדה אליהו",
-            "שדה אליעזר",
-            "שדה אפרים",
-            "שדה בועז",
-            "שדה בוקר",
-            "שדה בר",
-            "שדה דוד",
-            "שדה ורבורג",
-            "שדה יואב",
-            "שדה יעקב",
-            "שדה יצחק",
-            "שדה משה",
-            "שדה נחום",
-            "שדה נחמיה",
-            "שדה ניצן",
-            "שדה עוזיהו",
-            "שדה צבי",
-            "שדות ים",
-            "שדות מיכה",
-            "שדי אברהם",
-            "שדי חמד",
-            "שדי תרומות",
-            "שדמה",
-            "שדמות דבורה",
-            "שדמות מחולה",
-            "שדרות, איבים",
-        ],
-        instructions: "",
-        id: "134182459160000000",
-    },
-    //Early Warning Ended Alert
-    {
-        type: "newsFlash",
-        cities: ["שדמות דבורה", "שדה נחמיה", "שדה יצחק"],
-        instructions: "האירוע הסתיים",
-        id: "134182459160000000",
-    },
-];
+function generateRandomAlertByCity() {
+    // Randomly select an alert type for testing purposes. In a real scenario, the API would provide the actual alert type.
+    const alertTypes = ["missiles", "hostileAircraftIntrusion", "newsFlash"];
+    // For testing, we can randomly select an alert type. In a real implementation, this would come from the API response.
+    const randomType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
+
+    // Combine all cities into one array for random selection
+    const allCities = [...arava, ...beitSheanValley, ...beitShemesh, ...bikaa, ...centerNegev, ...confrontationLine, ...dan, ...deadSea, ...dromHashfela, ...eilat, ...gazaEnvelope, ...golan, ...haifa, ...haShfela, ...hefer, ...hofHaCarmel, ...jerusalem, ...katzrin, ...krayot, ...lachish, ...lowerGalilee, ...menashe, ...sharon, ...shomron, ...southNegev, ...tavor, ...upperGalilee, ...wadiAra, ...westLachish, ...westNegev, ...yarkon, ...yearotHaCarmel, ...yehuda];
+
+    // For testing purposes, we can randomly select a few cities from the list to simulate an alert affecting multiple locations. In a real scenario, the API would provide the actual affected cities.
+    const randomCities = allCities.sort(() => 0.5 - Math.random()).slice(0, Math.floor(Math.random() * 10) + 1);
+
+    // For news flash alerts, we can randomly select an instruction from a predefined list. In a real scenario, the API would provide the actual instructions.
+    const randomNewsFlashTypes = ["האירוע הסתיים", "ירי רקטות וטילים"];
+
+    // For testing, we can randomly select an instruction for news flash alerts. In a real implementation, this would come from the API response.
+    const instructions = randomType === "newsFlash" ? randomNewsFlashTypes[Math.floor(Math.random() * randomNewsFlashTypes.length)] : null;
+
+    // Return a simulated alert object with the randomly selected type, cities, and instructions. In a real implementation, this would be the actual response from the API.
+    return [
+        {
+            type: randomType,
+            cities: randomCities,
+            instructions: instructions,
+            id: Date.now().toString(),
+        },
+    ];
+}
+
+function generateRandomAlertByRegion() {
+    // Randomly select an alert type for testing purposes. In a real scenario, the API would provide the actual alert type.
+    const alertTypes = ["missiles", "hostileAircraftIntrusion", "newsFlash"];
+    // For testing, we can randomly select an alert type. In a real implementation, this would come from the API response.
+    const randomType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
+
+    // Select a random region (zone) and randomize its cities
+    const regions = [arava, beitSheanValley, beitShemesh, bikaa, centerNegev, confrontationLine, dan, deadSea, dromHashfela, eilat, gazaEnvelope, golan, haifa, haShfela, hefer, hofHaCarmel, jerusalem, katzrin, krayot, lachish, lowerGalilee, menashe, sharon, shomron, southNegev, tavor, upperGalilee, wadiAra, westLachish, westNegev, yarkon, yearotHaCarmel, yehuda];
+    const randomRegion = regions[Math.floor(Math.random() * regions.length)];
+
+    // For news flash alerts, we can randomly select an instruction from a predefined list. In a real scenario, the API would provide the actual instructions.
+    const randomNewsFlashTypes = ["האירוע הסתיים", "ירי רקטות וטילים"];
+
+    // For testing, we can randomly select an instruction for news flash alerts. In a real implementation, this would come from the API response.
+    const instructions = randomType === "newsFlash" ? randomNewsFlashTypes[Math.floor(Math.random() * randomNewsFlashTypes.length)] : null;
+
+    // Return a simulated alert object with the randomly selected type, cities, and instructions. In a real implementation, this would be the actual response from the API.
+    return [
+        {
+            type: randomType,
+            cities: randomRegion,
+            instructions: instructions,
+            id: Date.now().toString(),
+        },
+    ];
+}
 
 router.use("/", async function (req, res) {
     try {
@@ -312,7 +126,7 @@ router.use("/", async function (req, res) {
                 }
 
                 if (testmode === "true") {
-                    alert = [testAlertData[Math.floor(Math.random() * testAlertData.length)]];
+                    alert = generateRandomAlertByRegion();
                 }
 
                 res.statusCode = 200;

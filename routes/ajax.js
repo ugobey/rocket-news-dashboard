@@ -119,7 +119,7 @@ router.use("/", async function (req, res) {
             pikudHaoref.getActiveAlerts(function (err, alert) {
                 if (err) {
                     console.log(service_name, err);
-                    fs.appendFileSync("./logs/pikudHaoref_errors.txt", err + "\n\n");
+                    //fs.appendFileSync("./logs/pikudHaoref_errors.txt", err + "\n\n");
 
                     res.statusCode = 200;
                     res.write(JSON.stringify({ error: err.toString() }));

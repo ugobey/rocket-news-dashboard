@@ -510,8 +510,9 @@
                 </div>
 
                 <!-- ==================== SUMMARY ==================== -->
-                <div id="alertsSummaryTile" class="col-lg-3 col-xl-2">
-                    <div class="card table-card header-primary text-white mb-3">
+                <div class="col-lg-3 col-xl-2">
+                    <!-- Alerts Summary -->
+                    <div id="alertsSummaryTile" class="card table-card header-primary text-white mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#summaryBody" style="cursor: pointer">
                             <span><i class="fa-solid fa-chart-pie me-2"></i>Alerts Summary</span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
@@ -592,6 +593,26 @@
                                             <i class="fa-solid fa-cloud-arrow-up fa-xl icon-btn text-warning" style="cursor: pointer" title="Update it on your server"></i>
                                         </td>
                                     </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                   
+
+                    <!-- Last Alerted Times -->
+                    <div id="lastAlertedTimesTile" class="card table-card header-primary text-white mt-3 mb-3">
+                        <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#lastAlertedTimesBody" style="cursor: pointer">
+                            <span><i class="fa-solid fa-clock me-2"></i>Last Alerted Times</span>
+                            <i class="fa-solid fa-chevron-down collapse-icon"></i>
+                        </div>
+                    </div>
+
+                    <div id="lastAlertedTimesBody" class="collapse show">
+                        <div class="card">
+                            <table class="table table-dark table-sm mb-0">
+                                <tbody id="last_alerted_times">
+                                    
                                 </tbody>
                             </table>
                         </div>
@@ -783,7 +804,9 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td colspan="3" class="pt-3"><hr class="text-white" /></td>
+                                    <td colspan="3" class="pt-3">
+                                        <hr class="text-white" />
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td class="align-middle">
@@ -1436,25 +1459,25 @@
             });
 
             // Stop functions for each autoscroller
-            function stopRssAutoScroll() {
+            function stopRssAutoScroll () {
                 rssAutoScrollEnabled = false;
                 const rssFeed = document.getElementById('rss_feed');
                 if (rssFeed) rssFeed.scrollTop = 0;
             }
 
-            function stopAlertLocationsAutoScroll() {
+            function stopAlertLocationsAutoScroll () {
                 locationsAutoScrollEnabled = false;
                 const locationsFeed = document.getElementById('locations_feed');
                 if (locationsFeed) locationsFeed.scrollTop = 0;
             }
 
-            function stopAlertZonesAutoScroll() {
+            function stopAlertZonesAutoScroll () {
                 zonesAutoScrollEnabled = false;
                 const zonesFeed = document.getElementById('zones_feed');
                 if (zonesFeed) zonesFeed.scrollTop = 0;
             }
 
-            function stopPikudHaorefAutoScroll() {
+            function stopPikudHaorefAutoScroll () {
                 pikudHaorefAutoScrollEnabled = false;
                 const pikudFeed = document.getElementById('pikud_haoref_feed');
                 if (pikudFeed) pikudFeed.scrollTop = 0;
@@ -1464,7 +1487,7 @@
             $("#toggle_pikud_scroll").on("change", function () {
                 autoScrollStates.pikudHaoref = $(this).is(":checked");
                 localStorage.setItem("autoScrollPikudHaoref", autoScrollStates.pikudHaoref);
-                
+
                 if (autoScrollStates.pikudHaoref && typeof startPikudHaorefAutoScroll === "function") {
                     pikudHaorefAutoScrollEnabled = true;
                     startPikudHaorefAutoScroll();
@@ -1477,7 +1500,7 @@
             $("#toggle_zones_scroll").on("change", function () {
                 autoScrollStates.zones = $(this).is(":checked");
                 localStorage.setItem("autoScrollZones", autoScrollStates.zones);
-                
+
                 if (autoScrollStates.zones && typeof startAlertZonesAutoScroll === "function") {
                     zonesAutoScrollEnabled = true;
                     startAlertZonesAutoScroll();
@@ -1490,7 +1513,7 @@
             $("#toggle_locations_scroll").on("change", function () {
                 autoScrollStates.locations = $(this).is(":checked");
                 localStorage.setItem("autoScrollLocations", autoScrollStates.locations);
-                
+
                 if (autoScrollStates.locations && typeof startAlertLocationsAutoScroll === "function") {
                     locationsAutoScrollEnabled = true;
                     startAlertLocationsAutoScroll();
@@ -1503,7 +1526,7 @@
             $("#toggle_rss_scroll").on("change", function () {
                 autoScrollStates.rss = $(this).is(":checked");
                 localStorage.setItem("autoScrollRss", autoScrollStates.rss);
-                
+
                 if (autoScrollStates.rss && typeof startRssAutoScroll === "function") {
                     rssAutoScrollEnabled = true;
                     startRssAutoScroll();

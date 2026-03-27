@@ -130,7 +130,7 @@ router.use("/", async function (req, res) {
 
             if (requestPort != 8080) {
                 options = {
-                    httpsAgent: new HttpsProxyAgent("http://185.241.5.57:3128"),
+                    httpsAgent: new HttpsProxyAgent("http://51.85.49.118:21479"),
                 };
             }
 

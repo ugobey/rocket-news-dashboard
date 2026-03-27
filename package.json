@@ -3,6 +3,9 @@
   "version": "2.7.0",
   "description": "Shows rocket alerts and RSS news on a dashboard",
   "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
   "author": "Uri Gobey",
   "license": "ISC",
   "dependencies": {

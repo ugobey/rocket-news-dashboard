@@ -1937,10 +1937,7 @@
                         $('#pikud_haoref_alerts tr:last').remove(); // Remove the oldest (bottom) row
                     }
 
-                    // Schedule the NEXT poll BEFORE awaiting the current fetch.
-                    // This guarantees the interval keeps running even if the fetch
-                    // throws or the server is slow — no missed ticks on error.
-                    setTimeout(pikudHaorefPoll, pikudHaorefInterval);
+
 
                     const alert = await ajaxHandler("pikud_haoref");
 
@@ -1976,178 +1973,176 @@
                             incrementErrorCount(alert.error); // Track occurrence count in errorLogs
 
                             console.log("Pikud HaOref Error: " + alert.error);
-                            return; // Stop processing this poll tick; next one is already scheduled
-                        }
+                        } else {
+                            // alert is an array when there is at least one active alert
+                            if (alert.length) {
+                                const alertType = alert[0].type; // API type code, e.g. 'missiles', 'newsFlash'
+                                const alertCities = alert[0].cities; // Array of city/location ID strings
+                                const instructions = alert[0].instructions; // Hebrew instruction text from the API
+                                const id = alert[0].id; // Unique alert ID (numeric string)
 
-                        // alert is an array when there is at least one active alert
-                        if (alert.length) {
-                            const alertType = alert[0].type; // API type code, e.g. 'missiles', 'newsFlash'
-                            const alertCities = alert[0].cities; // Array of city/location ID strings
-                            const instructions = alert[0].instructions; // Hebrew instruction text from the API
-                            const id = alert[0].id; // Unique alert ID (numeric string)
+                                // --- Early Warning (newsFlash) path ---
+                                // newsFlash is a pre-siren warning: the threat is detected but sirens
+                                // haven't sounded yet. It needs separate handling because locations
+                                // must be accumulated across polls (not deduplicated like rocket alerts).
+                                if (alertType === "newsFlash") {
+                                    const earlyWarningCity = localStorage.getItem("earlyWarningCity") || "undefined";
 
-                            // --- Early Warning (newsFlash) path ---
-                            // newsFlash is a pre-siren warning: the threat is detected but sirens
-                            // haven't sounded yet. It needs separate handling because locations
-                            // must be accumulated across polls (not deduplicated like rocket alerts).
-                            if (alertType === "newsFlash") {
-                                const earlyWarningCity = localStorage.getItem("earlyWarningCity") || "undefined";
+                                    // Hebrew string "האירוע הסתיים" means "The event has ended".
+                                    // When the API sends this instruction, the early warning is over.
+                                    if (instructions === "האירוע הסתיים") {
+                                        //console.log("Pikud HaOref Early Warning End:", alert[0]);
 
-                                // Hebrew string "האירוע הסתיים" means "The event has ended".
-                                // When the API sends this instruction, the early warning is over.
-                                if (instructions === "האירוע הסתיים") {
-                                    //console.log("Pikud HaOref Early Warning End:", alert[0]);
-
-                                    // Show the all-clear modal only when an early warning was actually active
-                                    if (earlyWarningActive && typeof id !== "undefined") {
-                                        if (!earlyWarningModalExit._isShown) {
-                                            earlyWarningModalExit.show();
-                                        }
-
-                                        // Auto-dismiss the all-clear modal after 10 seconds
-                                        setTimeout(() => {
-                                            if (earlyWarningModalExit._isShown) {
-                                                earlyWarningModalExit.hide();
-                                            }
-                                        }, 10000);
-
-                                        // Reset all early-warning state
-                                        earlyWarningLocations = [];
-                                        earlyWarningActive = false;
-                                        $("#earlyWarningLocations").text("");
-
-                                        if (earlyWarningModalEnter._isShown) {
-                                            clearEarlyWarningTimer();
-                                            earlyWarningModalEnter.hide(); // Hide the danger modal
-                                        }
-                                    }
-
-
-                                } else {
-                                    //console.log("Pikud HaOref Early Warning Start:", alert[0]);
-
-                                    // Early warning is still active (or just started).
-                                    // Resolve each city ID to its English name for the affectedCity check.
-                                    const checkIfCityAffected = alertCities.map(city => locationMap[city]?.name_en).includes(earlyWarningCity);
-
-                                    // Only increment counters once per warning event (earlyWarningActive guard)
-                                    if (!earlyWarningActive) {
-                                        if (checkIfCityAffected) {
-                                            // The user's saved city is in the alert — increment the specific counter
-                                            totalEarlyWarningsSpecificCounter++
-                                            $("#totalEarlyWarningsSpecificCounter").text(totalEarlyWarningsSpecificCounter);
-                                            $("#total_early_warnings_specific_counter").show();
-                                        }
-
-                                        totalEarlyWarningsAllCounter++
-                                        $("#totalEarlyWarningsAllCounter").text(totalEarlyWarningsAllCounter);
-                                    }
-
-                                    earlyWarningActive = true;
-
-                                    // Make sure the all-clear modal is not overlapping the danger modal
-                                    if (earlyWarningModalExit._isShown) {
-                                        earlyWarningModalExit.hide();
-                                    }
-
-                                    // Append newly affected cities to the modal's location list (no duplicates)
-                                    for (let i = 0; i < alertCities.length; i++) {
-                                        const city = alertCities[i];
-
-                                        if (!earlyWarningLocations.includes(city)) {
-                                            earlyWarningLocations.push(city);
-                                            // Use English name from locationMap; fall back to raw ID string if unmapped
-                                            $("#earlyWarningLocations").prepend((locationMap[city]?.name_en || city) + ", ");
-                                        }
-                                    }
-
-                                    if (!earlyWarningModalEnter._isShown) {
-                                        startEarlyWarningTimer();
-                                        earlyWarningModalEnter.show(); // Open the danger modal
-                                    }
-                                }
-
-                                // --- Non-early-warning alert path (rockets, drones, earthquakes, etc.) ---
-                                // When a real siren-type alert comes in, any pending early warning is cleared
-                                // because the pre-siren phase is now superseded by the actual event.
-                            } else if (alertType != "newsFlash") {
-                                const alertTypeDetails = getAlertDetailsByCategory(alertType);
-
-                                if (alertTypeDetails) {
-                                    const alertTypeText = alertTypeDetails.text;
-                                    const alertTypeIcon = alertTypeDetails.icon;
-                                    const timeStamp = moment().format("HH:mm:ss");
-
-                                    // Filter out locations already shown within the last 60 seconds
-                                    // to avoid flooding the table with duplicate rows during sustained alerts.
-                                    const locations = extractNewLocations(alertCities);
-
-                                    let alertedTimesAdded = false; // Flag to ensure we only update lastAlertedTimes once per alert, even if multiple new locations
-
-                                    for (let i = 0; i < locations.length; i++) {
-                                        const locationOriginal = locations[i];
-
-                                        // The API occasionally uses '' (two single-quotes) instead of ' (apostrophe)
-                                        // in location names. Normalise before looking up in locationMap.
-                                        const locationKey = locations[i].replace("''", "'");
-                                        // Resolve location details from the pre-built O(1) index; fall back to raw values
-                                        const location = locationMap[locationKey]?.name_en || locationOriginal;
-                                        const zone = locationMap[locationKey]?.zone || "Unknown";
-                                        const zone_en = locationMap[locationKey]?.zone_en || "Unknown";
-                                        const lat = locationMap[locationKey]?.lat || "";
-                                        const lng = locationMap[locationKey]?.lng || "";
-
-                                        alertedCitiesObj.push({
-                                            name: location,
-                                            lat: lat,
-                                            lng: lng,
-                                            duration: 60000,
-                                            type: alertType
-                                        });
-
-                                        if (location) {
-                                            // Increment the type-specific counter (rockets vs. drones)
-                                            if (alertType === "missiles") {
-                                                rocketAlertCounter++
-                                                $("#rocketAlertCounter").text(rocketAlertCounter);
-                                            } else if (alertType === "hostileAircraftIntrusion") {
-                                                droneAlertCounter++
-                                                $("#droneAlertCounter").text(droneAlertCounter);
+                                        // Show the all-clear modal only when an early warning was actually active
+                                        if (earlyWarningActive && typeof id !== "undefined") {
+                                            if (!earlyWarningModalExit._isShown) {
+                                                earlyWarningModalExit.show();
                                             }
 
-                                            // Combined total is rockets + drones (other types not counted here)
-                                            $("#totalAlertsCounter").text(rocketAlertCounter + droneAlertCounter);
+                                            // Auto-dismiss the all-clear modal after 10 seconds
+                                            setTimeout(() => {
+                                                if (earlyWarningModalExit._isShown) {
+                                                    earlyWarningModalExit.hide();
+                                                }
+                                            }, 10000);
 
-                                            updateAlertedLocation(location); // Upsert into locations accumulator
-                                            updateAlertedZone(zone_en); // Upsert into zones accumulator
+                                            // Reset all early-warning state
+                                            earlyWarningLocations = [];
+                                            earlyWarningActive = false;
+                                            $("#earlyWarningLocations").text("");
 
-                                            // If zone_en is 'Unknown' the location wasn't found in locationMap.
-                                            // Log it so the operator can investigate and update the city dataset.
-                                            if (zone_en === "Unknown") {
+                                            if (earlyWarningModalEnter._isShown) {
+                                                clearEarlyWarningTimer();
+                                                earlyWarningModalEnter.hide(); // Hide the danger modal
+                                            }
+                                        }
 
-                                                console.log("Unmatched location:", alert[0]);
 
-                                                totalUnmatchedCitiesCounter++;
-                                                $("#totalUnmatchedCitiesCounter").text(totalUnmatchedCitiesCounter);
+                                    } else {
+                                        //console.log("Pikud HaOref Early Warning Start:", alert[0]);
 
-                                                // Only add each unique unmatched name to the modal list once
-                                                if (!unmatchedCitiesLogs.includes(location)) {
-                                                    unmatchedCitiesLogs.push(location);
-                                                    $("#unmatched_cities_messages").prepend("<li>" + location + "</li>");
+                                        // Early warning is still active (or just started).
+                                        // Resolve each city ID to its English name for the affectedCity check.
+                                        const checkIfCityAffected = alertCities.map(city => locationMap[city]?.name_en).includes(earlyWarningCity);
+
+                                        // Only increment counters once per warning event (earlyWarningActive guard)
+                                        if (!earlyWarningActive) {
+                                            if (checkIfCityAffected) {
+                                                // The user's saved city is in the alert — increment the specific counter
+                                                totalEarlyWarningsSpecificCounter++
+                                                $("#totalEarlyWarningsSpecificCounter").text(totalEarlyWarningsSpecificCounter);
+                                                $("#total_early_warnings_specific_counter").show();
+                                            }
+
+                                            totalEarlyWarningsAllCounter++
+                                            $("#totalEarlyWarningsAllCounter").text(totalEarlyWarningsAllCounter);
+                                        }
+
+                                        earlyWarningActive = true;
+
+                                        // Make sure the all-clear modal is not overlapping the danger modal
+                                        if (earlyWarningModalExit._isShown) {
+                                            earlyWarningModalExit.hide();
+                                        }
+
+                                        // Append newly affected cities to the modal's location list (no duplicates)
+                                        for (let i = 0; i < alertCities.length; i++) {
+                                            const city = alertCities[i];
+
+                                            if (!earlyWarningLocations.includes(city)) {
+                                                earlyWarningLocations.push(city);
+                                                // Use English name from locationMap; fall back to raw ID string if unmapped
+                                                $("#earlyWarningLocations").prepend((locationMap[city]?.name_en || city) + ", ");
+                                            }
+                                        }
+
+                                        if (!earlyWarningModalEnter._isShown) {
+                                            startEarlyWarningTimer();
+                                            earlyWarningModalEnter.show(); // Open the danger modal
+                                        }
+                                    }
+
+                                    // --- Non-early-warning alert path (rockets, drones, earthquakes, etc.) ---
+                                    // When a real siren-type alert comes in, any pending early warning is cleared
+                                    // because the pre-siren phase is now superseded by the actual event.
+                                } else if (alertType != "newsFlash") {
+                                    const alertTypeDetails = getAlertDetailsByCategory(alertType);
+
+                                    if (alertTypeDetails) {
+                                        const alertTypeText = alertTypeDetails.text;
+                                        const alertTypeIcon = alertTypeDetails.icon;
+                                        const timeStamp = moment().format("HH:mm:ss");
+
+                                        // Filter out locations already shown within the last 60 seconds
+                                        // to avoid flooding the table with duplicate rows during sustained alerts.
+                                        const locations = extractNewLocations(alertCities);
+
+                                        let alertedTimesAdded = false; // Flag to ensure we only update lastAlertedTimes once per alert, even if multiple new locations
+
+                                        for (let i = 0; i < locations.length; i++) {
+                                            const locationOriginal = locations[i];
+
+                                            // The API occasionally uses '' (two single-quotes) instead of ' (apostrophe)
+                                            // in location names. Normalise before looking up in locationMap.
+                                            const locationKey = locations[i].replace("''", "'");
+                                            // Resolve location details from the pre-built O(1) index; fall back to raw values
+                                            const location = locationMap[locationKey]?.name_en || locationOriginal;
+                                            const zone = locationMap[locationKey]?.zone || "Unknown";
+                                            const zone_en = locationMap[locationKey]?.zone_en || "Unknown";
+                                            const lat = locationMap[locationKey]?.lat || "";
+                                            const lng = locationMap[locationKey]?.lng || "";
+
+                                            alertedCitiesObj.push({
+                                                name: location,
+                                                lat: lat,
+                                                lng: lng,
+                                                duration: 60000,
+                                                type: alertType
+                                            });
+
+                                            if (location) {
+                                                // Increment the type-specific counter (rockets vs. drones)
+                                                if (alertType === "missiles") {
+                                                    rocketAlertCounter++
+                                                    $("#rocketAlertCounter").text(rocketAlertCounter);
+                                                } else if (alertType === "hostileAircraftIntrusion") {
+                                                    droneAlertCounter++
+                                                    $("#droneAlertCounter").text(droneAlertCounter);
                                                 }
 
-                                                // Reveal the unmatched-cities counter row the first time
-                                                if (!unmatchedCitiesFlag) {
-                                                    unmatchedCitiesFlag = true;
-                                                    $("#unmatched_cities_counter, #unmatched_cities").show();
-                                                }
-                                            }
+                                                // Combined total is rockets + drones (other types not counted here)
+                                                $("#totalAlertsCounter").text(rocketAlertCounter + droneAlertCounter);
 
-                                            // Prepend a new row to the alerts table.
-                                            // animate__fadeInDown gives a visual entry cue; alertNewRow and table-light
-                                            // trigger the 5-second highlight fade set up in the cleanup interval above.
-                                            // The location name links to Google Maps using the alert's coordinates.
-                                            $("#pikud_haoref_alerts").prepend(`
+                                                updateAlertedLocation(location); // Upsert into locations accumulator
+                                                updateAlertedZone(zone_en); // Upsert into zones accumulator
+
+                                                // If zone_en is 'Unknown' the location wasn't found in locationMap.
+                                                // Log it so the operator can investigate and update the city dataset.
+                                                if (zone_en === "Unknown") {
+
+                                                    console.log("Unmatched location:", alert[0]);
+
+                                                    totalUnmatchedCitiesCounter++;
+                                                    $("#totalUnmatchedCitiesCounter").text(totalUnmatchedCitiesCounter);
+
+                                                    // Only add each unique unmatched name to the modal list once
+                                                    if (!unmatchedCitiesLogs.includes(location)) {
+                                                        unmatchedCitiesLogs.push(location);
+                                                        $("#unmatched_cities_messages").prepend("<li>" + location + "</li>");
+                                                    }
+
+                                                    // Reveal the unmatched-cities counter row the first time
+                                                    if (!unmatchedCitiesFlag) {
+                                                        unmatchedCitiesFlag = true;
+                                                        $("#unmatched_cities_counter, #unmatched_cities").show();
+                                                    }
+                                                }
+
+                                                // Prepend a new row to the alerts table.
+                                                // animate__fadeInDown gives a visual entry cue; alertNewRow and table-light
+                                                // trigger the 5-second highlight fade set up in the cleanup interval above.
+                                                // The location name links to Google Maps using the alert's coordinates.
+                                                $("#pikud_haoref_alerts").prepend(`
                                                 <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
                                                     <td><font class='text-warning'>${timeStamp}</font></td>
                                                     <td><img src="${alertTypeIcon}" style="width:20px; height:20px;" title="${alertTypeText}"></td>
@@ -2156,87 +2151,88 @@
                                                 </tr>
                                             `);
 
-                                            if (!alertedTimesAdded) {
-                                                alertedTimesAdded = true;
+                                                if (!alertedTimesAdded) {
+                                                    alertedTimesAdded = true;
 
-                                                // Track minute-rounded time for the "Last Alerted Times" tile
-                                                updateLastAlertedTimes(timeStamp);
+                                                    // Track minute-rounded time for the "Last Alerted Times" tile
+                                                    updateLastAlertedTimes(timeStamp);
+                                                }
                                             }
                                         }
-                                    }
 
-                                    addCitiesToMap(alertedCitiesObj); // Add new cities to the map with popups, one at a time
+                                        addCitiesToMap(alertedCitiesObj); // Add new cities to the map with popups, one at a time
 
-                                    alertedCitiesObj = []; // Clear the batch array after processing
+                                        alertedCitiesObj = []; // Clear the batch array after processing
 
-                                    // Rebuild the Locations and Zones counter tables after each missile/drone alert.
-                                    // Only these two types update the counters; other alert types (earthquakes, etc.)
-                                    // are intentionally excluded because they don't have the same location semantics.
-                                    if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
-                                        // --- Rebuild Alert Locations Counter ---
-                                        $("#alerted_locations_counter").html(""); // Clear existing rows before re-rendering
+                                        // Rebuild the Locations and Zones counter tables after each missile/drone alert.
+                                        // Only these two types update the counters; other alert types (earthquakes, etc.)
+                                        // are intentionally excluded because they don't have the same location semantics.
+                                        if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
+                                            // --- Rebuild Alert Locations Counter ---
+                                            $("#alerted_locations_counter").html(""); // Clear existing rows before re-rendering
 
-                                        // Sort: highest count first; within the same count, sort alphabetically
-                                        const sortalertedLocations = alertedLocations.toSorted((a, b) => {
-                                            // First compare by counter (descending)
-                                            if (b.counter !== a.counter) {
-                                                return b.counter - a.counter;
-                                            }
+                                            // Sort: highest count first; within the same count, sort alphabetically
+                                            const sortalertedLocations = alertedLocations.toSorted((a, b) => {
+                                                // First compare by counter (descending)
+                                                if (b.counter !== a.counter) {
+                                                    return b.counter - a.counter;
+                                                }
 
-                                            // If counters are equal → compare locations alphabetically (ascending)
-                                            return a.location.localeCompare(b.location);
-                                        });
+                                                // If counters are equal → compare locations alphabetically (ascending)
+                                                return a.location.localeCompare(b.location);
+                                            });
 
-                                        for (let i = 0; i < sortalertedLocations.length; i++) {
-                                            const location = sortalertedLocations[i].location
-                                            const counter = sortalertedLocations[i].counter;
+                                            for (let i = 0; i < sortalertedLocations.length; i++) {
+                                                const location = sortalertedLocations[i].location
+                                                const counter = sortalertedLocations[i].counter;
 
-                                            $("#alerted_locations_counter").append(`
+                                                $("#alerted_locations_counter").append(`
                                                 <tr>
                                                     <td width="95%"><font class='text-white'>${location}</font></td>
                                                     <td>${counter}</td>
                                                 </tr>
                                             `);
-                                        }
-
-                                        $("#totalLocationsCounter").text(sortalertedLocations.length);
-
-                                        // --- Rebuild Alert Zones Counter ---
-                                        $("#alerted_zones_counter").html(""); // Clear existing rows before re-rendering
-
-                                        // Same sort logic: count desc, then zone name asc
-                                        const sortalertedZones = alertedZones.toSorted((a, b) => {
-                                            // First compare by counter (descending)
-                                            if (b.counter !== a.counter) {
-                                                return b.counter - a.counter;
                                             }
 
-                                            // If counters are equal → compare zones alphabetically (ascending)
-                                            return a.zone.localeCompare(b.zone);
-                                        });
+                                            $("#totalLocationsCounter").text(sortalertedLocations.length);
 
-                                        for (let i = 0; i < sortalertedZones.length; i++) {
-                                            const zone = sortalertedZones[i].zone
-                                            const counter = sortalertedZones[i].counter;
+                                            // --- Rebuild Alert Zones Counter ---
+                                            $("#alerted_zones_counter").html(""); // Clear existing rows before re-rendering
 
-                                            $("#alerted_zones_counter").append(`
+                                            // Same sort logic: count desc, then zone name asc
+                                            const sortalertedZones = alertedZones.toSorted((a, b) => {
+                                                // First compare by counter (descending)
+                                                if (b.counter !== a.counter) {
+                                                    return b.counter - a.counter;
+                                                }
+
+                                                // If counters are equal → compare zones alphabetically (ascending)
+                                                return a.zone.localeCompare(b.zone);
+                                            });
+
+                                            for (let i = 0; i < sortalertedZones.length; i++) {
+                                                const zone = sortalertedZones[i].zone
+                                                const counter = sortalertedZones[i].counter;
+
+                                                $("#alerted_zones_counter").append(`
                                                 <tr>
                                                     <td width="95%"><font class='text-white'>${zone}</font></td>
                                                     <td>${counter}</td>
                                                 </tr>
                                             `);
+                                            }
+
+                                            $("#totalZonesCounter").text(sortalertedZones.length);
                                         }
 
-                                        $("#totalZonesCounter").text(sortalertedZones.length);
                                     }
-
                                 }
                             }
                         }
+
+                        // This guarantees the interval keeps running even if the fetch
+                        setTimeout(pikudHaorefPoll, pikudHaorefInterval);
                     }
-
-
-
                 } catch (error) {
                     console.error("Error in Pikud HaOref Polling:", error);
                 }

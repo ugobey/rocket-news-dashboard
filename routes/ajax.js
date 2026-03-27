@@ -128,12 +128,14 @@ router.use("/", async function (req, res) {
         if (getService === "pikud_haoref") {
             let options = {};
 
-            console.log(requestPort)
+            console.log("options", options);
 
             if (requestPort != 8080) {
                 options = {
                     httpAgent: new HttpsProxyAgent("http://51.85.49.118:21479"),
                 };
+
+                console.log("options", options);
             }
 
             pikudHaoref.getActiveAlerts(function (err, alert) {

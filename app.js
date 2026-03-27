@@ -13,8 +13,6 @@ const errorHandler = sharedFunction.errorHandler;
 
 errorHandler("Rocket Alert / News Dashboard", "Service Started");
 
-console.log("test1233333");
-
 try {
     const app = express();
 

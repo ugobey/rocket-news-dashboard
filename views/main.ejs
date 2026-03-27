@@ -266,12 +266,6 @@
             /* ==================== RSS FEED SCROLL AREA ====================
                Constrains the news table height to 38% of the viewport so it
                doesn't push the map off-screen on smaller displays.    */
-            #rss_feed {
-                height: 25vh;
-                overflow-y: auto;
-                scrollbar-width: thin;
-                /* Firefox: use thin scrollbar variant */
-            }
 
             .scrollable::-webkit-scrollbar {
                 width: 6px;
@@ -460,8 +454,8 @@
                     </div>
 
                     <div id="pikudBody" class="collapse show">
-                        <div class="card table-responsive" id="pikud_haoref_feed" style="max-height: 93vh; overflow-y: auto">
-                            <table class="table table-dark table-sm mb-0">
+                        <div class="card table-responsive" id="pikud_haoref_feed" style="max-height: 93vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #222529 transparent">
+                            <table class=" table table-dark table-sm mb-0">
                                 <thead>
                                     <tr>
                                         <th width="10%">Time</th>
@@ -486,8 +480,8 @@
                         </div>
                     </div>
                     <div id="locationsBody" class="collapse show">
-                        <div class="card" id="locations_feed" style="max-height: 43vh; overflow-y: auto">
-                            <table class="table table-dark table-sm mb-0">
+                        <div class="card" id="locations_feed" style="max-height: 43vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #222529 transparent">
+                            <table class=" table table-dark table-sm mb-0">
                                 <tbody id="alerted_locations_counter"></tbody>
                             </table>
                         </div>
@@ -501,8 +495,8 @@
                         </div>
                     </div>
                     <div id="zonesBody" class="collapse show">
-                        <div class="card" id="zones_feed" style="max-height: 46vh; overflow-y: auto">
-                            <table class="table table-dark table-sm mb-0">
+                        <div class="card" id="zones_feed" style="max-height: 46vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #222529 transparent">
+                            <table class=" table table-dark table-sm mb-0">
                                 <tbody id="alerted_zones_counter"></tbody>
                             </table>
                         </div>
@@ -578,6 +572,12 @@
                                         </td>
                                     </tr>
                                     <tr>
+                                        <td><span class="text-light">Fullscreen</span></td>
+                                        <td class="text-end">
+                                            <i id="toggle_fullscreen" class="fa-solid fa-expand fa-xl icon-btn text-light" style="cursor: pointer; transition: all 0.3s ease" title="Enter Fullscreen"></i>
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <td><span class="text-light">Settings</span></td>
                                         <td class="text-end">
                                             <i id="open_settings" class="fa-solid fa-gear fa-xl icon-btn text-light" style="cursor: pointer; transition: all 0.3s ease" title="Open Settings"></i>
@@ -602,16 +602,16 @@
                     <!-- Last Alerted Times -->
                     <div id="lastAlertedTimesTile" class="card table-card header-primary text-white mt-3 mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#lastAlertedTimesBody" style="cursor: pointer">
-                            <span><i class="fa-solid fa-clock me-2"></i>Last 20 Alerted Times</span>
+                            <span><i class="fa-solid fa-clock me-2"></i>Last Alerted Times</span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
                         </div>
                     </div>
 
                     <div id="lastAlertedTimesBody" class="collapse show">
-                        <div class="card">
-                            <table class="table table-dark table-sm mb-0">
+                        <div class="card" id="last_alerted_times_feed" style="max-height: 46vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #222529 transparent">
+                            <table class=" table table-dark table-sm mb-0">
                                 <tbody id="last_alerted_times">
-                                    
+
                                 </tbody>
                             </table>
                         </div>
@@ -632,7 +632,7 @@
                     </div>
 
                     <div id="newsBody" class="collapse show">
-                        <div class="card" id="rss_feed">
+                        <div class="card" id="rss_feed" style="max-height: 25vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #222529 transparent">
                             <table class="table table-dark table-sm mb-0">
                                 <tbody id="rss_alerts"></tbody>
                             </table>
@@ -708,7 +708,7 @@
                         <div class="glass-inner p-4 rounded-4">
                             You can now exit the bomb shelter.
                             <br /><br />
-                            This message will disappear automatically after 30 seconds.
+                            This message will disappear automatically after 10 seconds.
                         </div>
                     </div>
 
@@ -1366,7 +1366,7 @@
             let unmatchedCitiesLogs = []; // Location names that couldn't be found in locationMap
             let earlyWarningLocations = []; // Cities currently under an active early-warning (newsFlash)
             let alertedCitiesObj = []; // Cities that have received alerts this session
-            let lastAlertedTimes = []; // Last 10 unique times when alerts occurred (HH:mm format)
+            let lastAlertedTimes = []; // Last unique times when alerts occurred (HH:mm format)
 
             // Summary counters reflected in the Alerts Summary table
             let rocketAlertCounter = 0; // Missile alert rows received
@@ -1386,6 +1386,52 @@
             const recentlyAlertedLocations = {}; // Dedup cache: location → Unix timestamp of last alert row added
 
             // ==================== EVENT HANDLERS ====================
+
+            function isFullscreenActive () {
+                return Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+            }
+
+            function updateFullscreenToggleUI () {
+                const icon = $("#toggle_fullscreen");
+
+                if (!icon.length) {
+                    return;
+                }
+
+                if (isFullscreenActive()) {
+                    icon.attr("title", "Exit Fullscreen");
+                    icon.removeClass("fa-expand").addClass("fa-compress");
+                } else {
+                    icon.attr("title", "Enter Fullscreen");
+                    icon.removeClass("fa-compress").addClass("fa-expand");
+                }
+            }
+
+            $("#toggle_fullscreen").on("click", async function () {
+                try {
+                    if (!isFullscreenActive()) {
+                        const rootElement = document.documentElement;
+
+                        if (rootElement.requestFullscreen) {
+                            await rootElement.requestFullscreen();
+                        } else if (rootElement.webkitRequestFullscreen) {
+                            rootElement.webkitRequestFullscreen();
+                        }
+                    } else if (document.exitFullscreen) {
+                        await document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    }
+                } catch (error) {
+                    console.log("Fullscreen toggle failed:", error);
+                } finally {
+                    updateFullscreenToggleUI();
+                }
+            });
+
+            document.addEventListener("fullscreenchange", updateFullscreenToggleUI);
+            document.addEventListener("webkitfullscreenchange", updateFullscreenToggleUI);
+            updateFullscreenToggleUI();
 
             // Test-mode toggle: flips the testmode boolean and swaps the icon between
             // fa-toggle-off (grey, inactive) and fa-toggle-on (green, active).
@@ -1639,35 +1685,21 @@
                 }
             }
 
-            // Track and display the last 20 unique times when alerts occurred.
+            // Track and display the last unique times when alerts occurred.
             // Only adds a time if it's not already in the list (ensures uniqueness).
             function updateLastAlertedTimes (timeStamp) {
+                const time = timeStamp.slice(0, -3);
+
                 // Only add if this time hasn't been recorded yet
-                if (!lastAlertedTimes.includes(timeStamp)) {
-                    lastAlertedTimes.unshift(timeStamp); // Add to the beginning
-                    
-                    // Keep only the last 20 unique times
-                    if (lastAlertedTimes.length > 20) {
-                        lastAlertedTimes.pop();
-                    }
+                if (!lastAlertedTimes.includes(time)) {
+                    lastAlertedTimes.push(time);
 
-                    // Update the UI with the new list
-                    renderLastAlertedTimes();
-                }
-            }
-
-            // Render the last alerted times to the UI
-            function renderLastAlertedTimes () {
-                const container = $('#last_alerted_times');
-                container.empty();
-
-                lastAlertedTimes.forEach(time => {
-                    container.append(`
+                    $('#last_alerted_times').prepend(`
                         <tr>
-                            <td><span class="text-info">${time}</span></td>
+                            <td><span class="text-white">${time}</span></td>
                         </tr>
                     `);
-                });
+                }
             }
 
             // ==================== LOCATION DATA & CITY AUTOCOMPLETE ====================
@@ -1816,7 +1848,7 @@
                                 // Hebrew string "האירוע הסתיים" means "The event has ended".
                                 // When the API sends this instruction, the early warning is over.
                                 if (instructions === "האירוע הסתיים") {
-                                    console.log("Pikud HaOref Early Warning End:", alert[0]);
+                                    //console.log("Pikud HaOref Early Warning End:", alert[0]);
 
                                     // Show the all-clear modal only when an early warning was actually active
                                     if (earlyWarningActive && typeof id !== "undefined") {
@@ -1824,12 +1856,12 @@
                                             earlyWarningModalExit.show();
                                         }
 
-                                        // Auto-dismiss the all-clear modal after 30 seconds
+                                        // Auto-dismiss the all-clear modal after 10 seconds
                                         setTimeout(() => {
                                             if (earlyWarningModalExit._isShown) {
                                                 earlyWarningModalExit.hide();
                                             }
-                                        }, 30000);
+                                        }, 10000);
 
                                         // Reset all early-warning state
                                         earlyWarningLocations = [];
@@ -1844,7 +1876,7 @@
 
 
                                 } else {
-                                    console.log("Pikud HaOref Early Warning Start:", alert[0]);
+                                    //console.log("Pikud HaOref Early Warning Start:", alert[0]);
 
                                     // Early warning is still active (or just started).
                                     // Resolve each city ID to its English name for the affectedCity check.
@@ -1902,11 +1934,10 @@
                                 if (alertTypeDetails) {
                                     const alertTypeText = alertTypeDetails.text;
                                     const alertTypeIcon = alertTypeDetails.icon;
-                                    const timeStampWithSeconds = moment().format("HH:mm:ss");
-                                    const timeStampWithMinutes = moment().format("HH:mm");
+                                    const timeStamp = moment().format("HH:mm:ss");
 
                                     // Track minute-rounded time for the "Last Alerted Times" tile
-                                    updateLastAlertedTimes(timeStampWithMinutes);
+                                    updateLastAlertedTimes(timeStamp);
 
                                     // Filter out locations already shown within the last 60 seconds
                                     // to avoid flooding the table with duplicate rows during sustained alerts.
@@ -1977,7 +2008,7 @@
                                             // The location name links to Google Maps using the alert's coordinates.
                                             $("#pikud_haoref_alerts").prepend(`
                                                 <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
-                                                    <td><font class='text-warning'>${timeStampWithSeconds}</font></td>
+                                                    <td><font class='text-warning'>${timeStamp}</font></td>
                                                     <td><img src="${alertTypeIcon}" style="width:20px; height:20px;" title="${alertTypeText}"></td>
                                                     <td><a href="https://www.google.com/maps/search/${lat},${lng}" target="_blank">${location}</a></td>
                                                     <td>${zone_en}</td>

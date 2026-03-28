@@ -896,6 +896,8 @@
                 lng: 35.0998
             };
             const defaultMapZoom = 9;
+            const clusteredMarkersZoom = 12;
+            const clusteredMarkerSpanThreshold = 0.02;
             let zoomAnimationInterval = null;
             let viewportUpdateToken = 0;
 
@@ -1005,6 +1007,19 @@
 
                 const bounds = new google.maps.LatLngBounds();
                 visibleMarkers.forEach(marker => bounds.extend(marker.position));
+
+                const northEast = bounds.getNorthEast();
+                const southWest = bounds.getSouthWest();
+                const latSpan = Math.abs(northEast.lat() - southWest.lat());
+                const lngSpan = Math.abs(northEast.lng() - southWest.lng());
+
+                // When markers are tightly clustered, fitBounds tends to over-zoom.
+                // Use a stable center+zoom instead to avoid zoom oscillation.
+                if (latSpan <= clusteredMarkerSpanThreshold && lngSpan <= clusteredMarkerSpanThreshold) {
+                    map.panTo(bounds.getCenter());
+                    smoothZoomTo(clusteredMarkersZoom);
+                    return;
+                }
 
                 map.fitBounds(bounds, {
                     padding: 90

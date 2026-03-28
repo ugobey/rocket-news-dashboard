@@ -40,6 +40,11 @@
             html {
                 font-size: 14px;
                 /* Slightly smaller base for dense data tables */
+                scrollbar-width: none;
+            }
+
+            html::-webkit-scrollbar {
+                display: none;
             }
 
             body {
@@ -242,10 +247,6 @@
                .live-clock  — pill badge in the alert panel header showing HH:MM:SS
                .stat-number — large bold number used in the Summary counter table */
             .live-clock {
-                background: rgba(0, 0, 0, 0.5);
-                padding: 6px 14px;
-                border-radius: 10px;
-                font-size: 0.77rem;
                 letter-spacing: 1px;
             }
 
@@ -276,6 +277,12 @@
                 border-radius: 20px;
             }
 
+            .tile {
+                /* Utility class for scrollable card bodies */
+                scrollbar-width: thin;
+                scrollbar-color: #222529 transparent
+            }
+
             /* ==================== ICON BUTTONS & COLLAPSE CHEVRON ====================
                .icon-btn       — subtle scale+rotate pop on hover for clickable icons
                .collapse-icon  — chevron that rotates -90° when its section is collapsed */
@@ -298,29 +305,31 @@
             }
 
             /* ==================== INTERACTIVE SUMMARY ICONS ====================
-               Test Mode toggle: grey (off) → green (on) when testmode is active.
-               Settings gear:   brightens and rotates slightly on hover.          */
-            #test_mode {
-                font-size: 2.1rem;
-                color: #64748b;
-                /* Muted grey = off state */
-            }
-
-            #test_mode.active {
-                color: #22c55e !important;
-                /* Bright green = test mode on */
-                transform: rotate(0deg);
-            }
+                Test Mode, Fullscreen, and Settings icons in the Summary panel get
+                a more pronounced hover effect to indicate they're clickable. */
 
             #test_mode:hover {
-                color: #86efac;
                 transform: scale(1.15);
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            #fullscreen:hover {
+                transform: scale(1.15);
+                cursor: pointer;
+                transition: all 0.3s ease;
             }
 
             #open_settings:hover {
-                color: #60a5fa;
                 transform: scale(1.15) rotate(20deg);
-                /* Spinning gear effect */
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            #update_app_version:hover {
+                transform: scale(1.15) rotate(20deg);
+                cursor: pointer;
+                transition: all 0.3s ease;
             }
 
             /* General icon button improvements */
@@ -454,7 +463,7 @@
                     </div>
 
                     <div id="pikudBody" class="collapse show">
-                        <div class="card table-responsive" id="pikud_haoref_feed" style="max-height: 93vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #222529 transparent">
+                        <div class="card table-responsive tile" id="pikud_haoref_feed" style="max-height: 93vh; overflow-y: auto;">
                             <table class=" table table-dark table-sm mb-0">
                                 <thead>
                                     <tr>
@@ -480,7 +489,7 @@
                         </div>
                     </div>
                     <div id="locationsBody" class="collapse show">
-                        <div class="card" id="locations_feed" style="max-height: 43vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #222529 transparent">
+                        <div class="card table-responsive tile" id="locations_feed" style="max-height: 43vh; overflow-y: auto;">
                             <table class=" table table-dark table-sm mb-0">
                                 <tbody id="alerted_locations_counter"></tbody>
                             </table>
@@ -495,7 +504,7 @@
                         </div>
                     </div>
                     <div id="zonesBody" class="collapse show">
-                        <div class="card" id="zones_feed" style="max-height: 46vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #222529 transparent">
+                        <div class="card table-responsive tile" id="zones_feed" style="max-height: 46vh; overflow-y: auto;">
                             <table class=" table table-dark table-sm mb-0">
                                 <tbody id="alerted_zones_counter"></tbody>
                             </table>
@@ -514,7 +523,7 @@
                     </div>
 
                     <div id="summaryBody" class="collapse show">
-                        <div class="card">
+                        <div class="card table-responsive tile">
                             <table class="table table-dark table-sm mb-0">
                                 <tbody id="alerts_summary">
                                     <tr>
@@ -562,25 +571,25 @@
                                     <tr id="error_message" style="display: none">
                                         <td><span class="text-violet-400">Open Error Messages</span></td>
                                         <td class="text-end">
-                                            <i id="show_error_messages" class="fa-solid fa-arrow-up-right-from-square fa-xl icon-btn text-danger" style="cursor: pointer" title="Show Error Messages"></i>
+                                            <i id="show_error_messages" class="fa-solid fa-arrow-up-right-from-square fa-xl text-danger" style="cursor: pointer" title="Show Error Messages"></i>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td><span class="text-light">Test Mode</span></td>
                                         <td class="text-end">
-                                            <i id="test_mode" class="fa-solid fa-toggle-off fa-xl icon-btn" style="cursor: pointer; transition: all 0.3s ease" title="Turn ON Test Mode"></i>
+                                            <i id="test_mode" class="fa-solid fa-play fa-xl text-light" title="Turn ON Test Mode"></i>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td><span class="text-light">Fullscreen</span></td>
                                         <td class="text-end">
-                                            <i id="toggle_fullscreen" class="fa-solid fa-expand fa-xl icon-btn text-light" style="cursor: pointer; transition: all 0.3s ease" title="Enter Fullscreen"></i>
+                                            <i id="fullscreen" class="fa-solid fa-expand fa-xl text-light" title="Enter Fullscreen"></i>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td><span class="text-light">Settings</span></td>
                                         <td class="text-end">
-                                            <i id="open_settings" class="fa-solid fa-gear fa-xl icon-btn text-light" style="cursor: pointer; transition: all 0.3s ease" title="Open Settings"></i>
+                                            <i id="open_settings" class="fa-solid fa-gear fa-xl text-light" title="Open Settings"></i>
                                         </td>
                                     </tr>
                                     <tr>
@@ -590,7 +599,7 @@
                                     <tr id="update_app_version" style="display: none">
                                         <td><span class="text-violet-400">App Update Available</span></td>
                                         <td class="text-end">
-                                            <i class="fa-solid fa-cloud-arrow-up fa-xl icon-btn text-warning" style="cursor: pointer" title="Update it on your server"></i>
+                                            <i class="fa-solid fa-cloud-arrow-up fa-xl text-warning" title="Update it on your server"></i>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -600,7 +609,7 @@
 
 
                     <!-- Last Alerted Times -->
-                    <div id="lastAlertedTimesTile" class="card table-card header-primary text-white mt-3 mb-3">
+                    <div id="lastAlertedTimesTile" class="card table-card header-danger text-white mt-3 mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#lastAlertedTimesBody" style="cursor: pointer">
                             <span><i class="fa-solid fa-clock me-2"></i>Last Alerted Times</span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
@@ -608,7 +617,7 @@
                     </div>
 
                     <div id="lastAlertedTimesBody" class="collapse show">
-                        <div class="card" id="last_alerted_times_feed" style="max-height: 46vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #222529 transparent">
+                        <div class="card table-responsive tile" id="last_alerted_times_feed" style="max-height: 46vh; overflow-y: auto;">
                             <table class=" table table-dark table-sm mb-0">
                                 <tbody id="last_alerted_times">
 
@@ -632,7 +641,7 @@
                     </div>
 
                     <div id="newsBody" class="collapse show">
-                        <div class="card" id="rss_feed" style="max-height: 25vh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #222529 transparent">
+                        <div class="card table-responsive tile" id="rss_feed" style="max-height: 25vh; overflow-y: auto;">
                             <table class="table table-dark table-sm mb-0">
                                 <tbody id="rss_alerts"></tbody>
                             </table>
@@ -640,15 +649,15 @@
                     </div>
 
                     <!-- Map -->
-                    <div id="mapTile" class="card table-card header-danger text-white mt-3">
+                    <div id="mapTile" class="card table-card header-danger text-white mt-3 mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#mapBody" style="cursor: pointer">
                             <span><i class="fa-solid fa-map-location-dot me-2"></i>Map Alerts</span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
                         </div>
                     </div>
 
-                    <div id="mapBody" class="collapse show mt-2">
-                        <div class="card overflow-hidden" style="border-radius: 16px">
+                    <div id="mapBody" class="collapse show">
+                        <div class="card table-responsive tile overflow-hidden" style="border-radius: 16px">
                             <div id="map"></div>
                         </div>
                     </div>
@@ -674,7 +683,7 @@
 
                             <span class="text-white-50 small mb-3">Alerted at <strong id="earlyWarningOpenedAt">--:--:--</strong></span>
                             &nbsp;&middot;&nbsp;
-                            <span class="text-white-50 small mb-3">You have about <strong id="earlyWarningCountdown">7:00</strong> before missile sirens will sound</span>
+                            <span class="text-white-50 small mb-3">On average there is about <strong id="earlyWarningCountdown">5:00</strong> before missile sirens will sound</span>
                             <br /><br />
                             This message will disappear automatically when the threat is no longer active.
                             <br /><br />
@@ -872,10 +881,10 @@
             let map;
             let allMarkers = []; // Keeps all active markers
             const defaultMapCenter = {
-                lat: 32.0853,
-                lng: 34.7818
+                lat: 31.5326,
+                lng: 35.0998
             };
-            const defaultMapZoom = 8;
+            const defaultMapZoom = 9;
             let zoomAnimationInterval = null;
             let viewportUpdateToken = 0;
 
@@ -987,7 +996,7 @@
                 visibleMarkers.forEach(marker => bounds.extend(marker.position));
 
                 map.fitBounds(bounds, {
-                    padding: 80
+                    padding: 90
                 });
 
                 google.maps.event.addListenerOnce(map, 'idle', () => {
@@ -995,8 +1004,8 @@
                         return;
                     }
 
-                    if (map.getZoom() > 16) {
-                        smoothZoomTo(16);
+                    if (map.getZoom() > 13) {
+                        smoothZoomTo(13);
                     }
                 });
             }
@@ -1102,7 +1111,10 @@
                         infoWindow.open(map, marker);
                     });
 
-                    const duration = Number(city.duration) > 0 ? Number(city.duration) : 10000;
+                    let duration = 10000; // Default duration of 10 seconds
+                    if (!testmode) {
+                        duration = Number(city.duration) > 0 ? Number(city.duration) : duration;
+                    }
 
                     // Store active city record so repeated API cycles can ignore duplicates.
                     const activeRecord = {
@@ -1384,7 +1396,7 @@
 
             // ==================== EARLY WARNING TIMER ====================
             let earlyWarningCountdownInterval = null;
-            const EARLY_WARNING_DURATION_MS = 7 * 60 * 1000; // 7 minutes
+            const EARLY_WARNING_DURATION_MS = 5 * 60 * 1000; // 5 minutes
 
             function startEarlyWarningTimer () {
                 // Show the time the modal opened
@@ -1465,7 +1477,7 @@
             }
 
             function updateFullscreenToggleUI () {
-                const icon = $("#toggle_fullscreen");
+                const icon = $("#fullscreen");
 
                 if (!icon.length) {
                     return;
@@ -1480,7 +1492,7 @@
                 }
             }
 
-            $("#toggle_fullscreen").on("click", async function () {
+            $("#fullscreen").on("click", async function () {
                 try {
                     if (!isFullscreenActive()) {
                         const rootElement = document.documentElement;
@@ -1509,10 +1521,10 @@
             function setTestModeUI (enabled) {
                 if (enabled) {
                     $("#test_mode").attr("title", "Turn off Test Mode");
-                    $("#test_mode").removeClass("fa-toggle-off text-muted").addClass("fa-toggle-on active");
+                    $("#test_mode").removeClass("fa-play text-light").addClass("fa-stop text-danger");
                 } else {
                     $("#test_mode").attr("title", "Turn on Test Mode");
-                    $("#test_mode").removeClass("fa-toggle-on active").addClass("fa-toggle-off");
+                    $("#test_mode").removeClass("fa-stop text-danger").addClass("fa-play text-light");
                 }
             }
 
@@ -1542,7 +1554,7 @@
             }
 
             // Test-mode toggle: flips the testmode boolean and swaps the icon between
-            // fa-toggle-off (grey, inactive) and fa-toggle-on (green, active).
+            // fa-play (grey, inactive) and fa-stop (green, active).
             $("#test_mode").on("click", function () {
                 if (testmode) {
                     disableTestMode();
@@ -2345,7 +2357,7 @@
                 const WAIT_BEFORE_SCROLL_DOWN_MS = 10000;
                 const WAIT_BEFORE_SCROLL_UP_MS = 1000;
                 const SCROLL_STEP_PX = 1; // Smaller = slower
-                const SCROLL_STEP_INTERVAL = 10; // ms between steps
+                const SCROLL_STEP_INTERVAL = 20; // ms between steps
 
                 let waitTimeoutId = null;
                 let scrollIntervalId = null;
@@ -2426,7 +2438,7 @@
                 const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
                 const WAIT_BEFORE_SCROLL_UP_MS = 1000;
                 const SCROLL_STEP_PX = 1; // Smaller = slower
-                const SCROLL_STEP_INTERVAL = 10; // ms between steps
+                const SCROLL_STEP_INTERVAL = 20; // ms between steps
 
                 let waitTimeoutId = null;
                 let scrollIntervalId = null;
@@ -2507,7 +2519,7 @@
                 const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
                 const WAIT_BEFORE_SCROLL_UP_MS = 1000;
                 const SCROLL_STEP_PX = 1; // Smaller = slower
-                const SCROLL_STEP_INTERVAL = 10; // ms between steps
+                const SCROLL_STEP_INTERVAL = 20; // ms between steps
 
                 let waitTimeoutId = null;
                 let scrollIntervalId = null;
@@ -2586,9 +2598,10 @@
                     return;
                 }
 
-                const WAIT_BEFORE_SCROLL_MS = 5000;
+                const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
+                const WAIT_BEFORE_SCROLL_UP_MS = 1000;
                 const SCROLL_STEP_PX = 1; // Smaller = slower
-                const SCROLL_STEP_INTERVAL = 55; // ms between steps
+                const SCROLL_STEP_INTERVAL = 20; // ms between steps
 
                 let waitTimeoutId = null;
                 let scrollIntervalId = null;
@@ -2644,10 +2657,10 @@
                                 waitTimeoutId = setTimeout(() => {
                                     lastAlertedTimesElement.scrollTop = 0;
                                     runScrollCycle();
-                                }, WAIT_BEFORE_SCROLL_MS);
+                                }, WAIT_BEFORE_SCROLL_UP_MS);
                             }
                         }, SCROLL_STEP_INTERVAL);
-                    }, WAIT_BEFORE_SCROLL_MS);
+                    }, WAIT_BEFORE_SCROLL_DOWN_MS);
                 }
 
                 runScrollCycle();
@@ -2666,7 +2679,8 @@
                     return;
                 }
 
-                const WAIT_BEFORE_SCROLL_MS = 5000;
+                const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
+                const WAIT_BEFORE_SCROLL_UP_MS = 5000;
                 const SCROLL_STEP_PX = 1; // Smaller = slower
                 const SCROLL_STEP_INTERVAL = 55; // ms between steps
 
@@ -2724,10 +2738,10 @@
                                 waitTimeoutId = setTimeout(() => {
                                     rssFeedElement.scrollTop = 0;
                                     runScrollCycle();
-                                }, WAIT_BEFORE_SCROLL_MS);
+                                }, WAIT_BEFORE_SCROLL_UP_MS);
                             }
                         }, SCROLL_STEP_INTERVAL);
-                    }, WAIT_BEFORE_SCROLL_MS);
+                    }, WAIT_BEFORE_SCROLL_DOWN_MS);
                 }
 
                 runScrollCycle();
@@ -2747,7 +2761,8 @@
                     return;
                 }
 
-                const WAIT_BEFORE_SCROLL_MS = 5000;
+                const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
+                const WAIT_BEFORE_SCROLL_UP_MS = 1000;
                 const SCROLL_STEP_PX = 1; // Smaller = slower
                 const SCROLL_STEP_INTERVAL = 55; // ms between steps
 
@@ -2805,10 +2820,10 @@
                                 waitTimeoutId = setTimeout(() => {
                                     earlyWarningElement.scrollTop = 0;
                                     runScrollCycle();
-                                }, WAIT_BEFORE_SCROLL_MS);
+                                }, WAIT_BEFORE_SCROLL_UP_MS);
                             }
                         }, SCROLL_STEP_INTERVAL);
-                    }, WAIT_BEFORE_SCROLL_MS);
+                    }, WAIT_BEFORE_SCROLL_DOWN_MS);
                 }
 
                 runScrollCycle();

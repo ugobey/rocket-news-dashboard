@@ -136,7 +136,7 @@ router.use("/", async function (req, res) {
             }
 
             if (testmode === "true") {
-                const alert = generateRandomAlertByCity();
+                const alert = generateRandomAlertByRegion();
 
                 res.statusCode = 200;
                 res.write(JSON.stringify(alert));

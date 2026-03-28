@@ -1843,23 +1843,6 @@
                 }
             }
 
-            // Track and display the last unique times when alerts occurred.
-            // Only adds a time if it's not already in the list (ensures uniqueness).
-            function updateLastAlertedTimes (timeStamp) {
-                const time = timeStamp.slice(0, -3);
-
-                // Only add if this time hasn't been recorded yet
-                if (!lastAlertedTimes.includes(time)) {
-                    lastAlertedTimes.push(time);
-
-                    $('#last_alerted_times').prepend(`
-                        <tr>
-                            <td><span class="text-white">${time}</span></td>
-                        </tr>
-                    `);
-                }
-            }
-
             // ==================== LOCATION DATA & CITY AUTOCOMPLETE ====================
 
             // locationsJSON is injected server-side by EJS from the pikud-haoref-api package.
@@ -2158,11 +2141,31 @@
                                                 </tr>
                                             `);
 
+                                                if (pikudHaorefScroller) {
+                                                    pikudHaorefScroller.reset();
+                                                }
+
                                                 if (!alertedTimesAdded) {
                                                     alertedTimesAdded = true;
 
-                                                    // Track minute-rounded time for the "Last Alerted Times" tile
-                                                    updateLastAlertedTimes(timeStamp);
+                                                    // Track and display the last unique times when alerts occurred.
+                                                    // Only adds a time if it's not already in the list (ensures uniqueness).
+                                                    const time = timeStamp.slice(0, -3);
+
+                                                    // Only add if this time hasn't been recorded yet
+                                                    if (!lastAlertedTimes.includes(time)) {
+                                                        lastAlertedTimes.push(time);
+
+                                                        $('#last_alerted_times').prepend(`
+                                                            <tr>
+                                                                <td><span class="text-white">${time}</span></td>
+                                                            </tr>
+                                                        `);
+
+                                                        if (lastAlertedTimesScroller) {
+                                                            lastAlertedTimesScroller.reset();
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -2201,6 +2204,10 @@
                                             `);
                                             }
 
+                                            if (alertLocationsScroller) {
+                                                alertLocationsScroller.reset();
+                                            }
+
                                             $("#totalLocationsCounter").text(sortalertedLocations.length);
 
                                             // --- Rebuild Alert Zones Counter ---
@@ -2230,6 +2237,10 @@
                                             }
 
                                             $("#totalZonesCounter").text(sortalertedZones.length);
+
+                                            if (alertZonesScroller) {
+                                                alertZonesScroller.reset();
+                                            }
                                         }
 
                                     }
@@ -2336,6 +2347,10 @@
                                     <td><a href="${item.url}" target="_blank">${item.title}</a></td>
                                 </tr>
                             `);
+
+                            if (rssScroller) {
+                                rssScroller.reset();
+                            }
                         }
                     });
                 }
@@ -2358,7 +2373,14 @@
             //   waitBeforeScrollUp   — ms to wait at bottom before reset (default: 1000)
             //   scrollStepPx         — pixels moved per tick              (default: 1)
             //   scrollStepInterval   — ms between each tick               (default: 20)
-            function createAutoScroller ({ elementId, isEnabled, waitBeforeScrollDown = 5000, waitBeforeScrollUp = 1000, scrollStepPx = 1, scrollStepInterval = 20 }) {
+            function createAutoScroller ({
+                elementId,
+                isEnabled,
+                waitBeforeScrollDown = 5000,
+                waitBeforeScrollUp = 1000,
+                scrollStepPx = 1,
+                scrollStepInterval = 20
+            }) {
                 const element = document.getElementById(elementId);
                 if (!element) {
                     return;
@@ -2423,11 +2445,22 @@
                 }
 
                 runScrollCycle();
+
+                // Return a reset handle so callers can jump back to top and restart
+                return {
+                    reset () {
+                        clearScrollTimers();
+                        element.scrollTop = 0;
+                        runScrollCycle();
+                    }
+                };
             }
 
             // ==================== PIKUD HAOREF AUTO-SCROLL ====================
+            let pikudHaorefScroller = null; // Exposed so the polling loop can reset it on new rows
+
             function startPikudHaorefAutoScroll () {
-                createAutoScroller({
+                pikudHaorefScroller = createAutoScroller({
                     elementId: 'pikud_haoref_feed',
                     isEnabled: () => pikudHaorefAutoScrollEnabled,
                     waitBeforeScrollDown: 10000,
@@ -2442,8 +2475,10 @@
             }
 
             // ==================== ALERT LOCATIONS AUTO-SCROLL ====================
+            let alertLocationsScroller = null; // Exposed so the polling loop can reset it on new rows
+
             function startAlertLocationsAutoScroll () {
-                createAutoScroller({
+                alertLocationsScroller = createAutoScroller({
                     elementId: 'locations_feed',
                     isEnabled: () => locationsAutoScrollEnabled,
                     waitBeforeScrollDown: 5000,
@@ -2458,8 +2493,10 @@
             }
 
             // ==================== ALERT ZONES AUTO-SCROLL ====================
+            let alertZonesScroller = null; // Exposed so the polling loop can reset it on new rows
+
             function startAlertZonesAutoScroll () {
-                createAutoScroller({
+                alertZonesScroller = createAutoScroller({
                     elementId: 'zones_feed',
                     isEnabled: () => zonesAutoScrollEnabled,
                     waitBeforeScrollDown: 5000,
@@ -2474,8 +2511,10 @@
             }
 
             // ==================== LAST ALERTED TIMES AUTO-SCROLL ====================
+            let lastAlertedTimesScroller = null; // Exposed so the polling loop can reset it on new rows
+
             function startLastAlertedTimesAutoScroll () {
-                createAutoScroller({
+                lastAlertedTimesScroller = createAutoScroller({
                     elementId: 'last_alerted_times_feed',
                     isEnabled: () => lastAlertedTimesAutoScrollEnabled,
                     waitBeforeScrollDown: 5000,
@@ -2490,8 +2529,10 @@
             }
 
             // ==================== RSS AUTO-SCROLL ====================
+            let rssScroller = null; // Exposed so the polling loop can reset it on new rows
+
             function startRssAutoScroll () {
-                createAutoScroller({
+                rssScroller = createAutoScroller({
                     elementId: 'rss_feed',
                     isEnabled: () => rssAutoScrollEnabled,
                     waitBeforeScrollDown: 5000,

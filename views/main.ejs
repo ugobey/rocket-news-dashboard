@@ -2346,18 +2346,23 @@
 
             // ==================== AUTOSCROLLERS ======================
 
-            // ==================== PIKUD HAOREF AUTO-SCROLL ====================
-            // Wait 5s, slowly scroll #pikud_haoref_feed to the bottom, jump to top, then repeat.
-            function startPikudHaorefAutoScroll () {
-                const pikudHaorefElement = document.getElementById('pikud_haoref_feed');
-                if (!pikudHaorefElement) {
+            // ==================== AUTOSCROLLER FACTORY ====================
+            // Single reusable autoscroller. Waits, slowly scrolls an element to the
+            // bottom, jumps back to top, then repeats — stopping whenever isEnabled()
+            // returns false.
+            //
+            // Options:
+            //   elementId            — ID of the scrollable container
+            //   isEnabled            — function() → bool; scroll pauses when false
+            //   waitBeforeScrollDown — ms to wait before scrolling down  (default: 5000)
+            //   waitBeforeScrollUp   — ms to wait at bottom before reset (default: 1000)
+            //   scrollStepPx         — pixels moved per tick              (default: 1)
+            //   scrollStepInterval   — ms between each tick               (default: 20)
+            function createAutoScroller ({ elementId, isEnabled, waitBeforeScrollDown = 5000, waitBeforeScrollUp = 1000, scrollStepPx = 1, scrollStepInterval = 20 }) {
+                const element = document.getElementById(elementId);
+                if (!element) {
                     return;
                 }
-
-                const WAIT_BEFORE_SCROLL_DOWN_MS = 10000;
-                const WAIT_BEFORE_SCROLL_UP_MS = 1000;
-                const SCROLL_STEP_PX = 1; // Smaller = slower
-                const SCROLL_STEP_INTERVAL = 20; // ms between steps
 
                 let waitTimeoutId = null;
                 let scrollIntervalId = null;
@@ -2375,8 +2380,7 @@
                 }
 
                 function runScrollCycle () {
-                    // Stop if disabled
-                    if (!pikudHaorefAutoScrollEnabled) {
+                    if (!isEnabled()) {
                         clearScrollTimers();
                         return;
                     }
@@ -2385,14 +2389,13 @@
 
                     waitTimeoutId = setTimeout(() => {
                         scrollIntervalId = setInterval(() => {
-                            // Check if disabled during scroll
-                            if (!pikudHaorefAutoScrollEnabled) {
+                            if (!isEnabled()) {
                                 clearInterval(scrollIntervalId);
                                 scrollIntervalId = null;
                                 return;
                             }
 
-                            const maxScrollTop = pikudHaorefElement.scrollHeight - pikudHaorefElement.clientHeight;
+                            const maxScrollTop = element.scrollHeight - element.clientHeight;
 
                             // Nothing to scroll
                             if (maxScrollTop <= 0) {
@@ -2402,434 +2405,118 @@
                                 return;
                             }
 
-                            const nextScrollTop = Math.min(pikudHaorefElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
-                            pikudHaorefElement.scrollTop = nextScrollTop;
+                            const nextScrollTop = Math.min(element.scrollTop + scrollStepPx, maxScrollTop);
+                            element.scrollTop = nextScrollTop;
 
-                            // Reached bottom: wait 5s, then jump to top and restart cycle
+                            // Reached bottom: wait, then jump to top and restart cycle
                             if (nextScrollTop >= maxScrollTop) {
                                 clearInterval(scrollIntervalId);
                                 scrollIntervalId = null;
 
                                 waitTimeoutId = setTimeout(() => {
-                                    pikudHaorefElement.scrollTop = 0;
+                                    element.scrollTop = 0;
                                     runScrollCycle();
-                                }, WAIT_BEFORE_SCROLL_UP_MS);
+                                }, waitBeforeScrollUp);
                             }
-                        }, SCROLL_STEP_INTERVAL);
-                    }, WAIT_BEFORE_SCROLL_DOWN_MS);
+                        }, scrollStepInterval);
+                    }, waitBeforeScrollDown);
                 }
 
                 runScrollCycle();
             }
 
-            // Only start pikud haoref auto-scroll if enabled in settings
+            // ==================== PIKUD HAOREF AUTO-SCROLL ====================
+            function startPikudHaorefAutoScroll () {
+                createAutoScroller({
+                    elementId: 'pikud_haoref_feed',
+                    isEnabled: () => pikudHaorefAutoScrollEnabled,
+                    waitBeforeScrollDown: 10000,
+                    waitBeforeScrollUp: 1000,
+                    scrollStepPx: 1,
+                    scrollStepInterval: 20
+                });
+            }
+
             if (localStorage.getItem("autoScrollPikudHaoref") !== "false") {
                 startPikudHaorefAutoScroll();
             }
 
             // ==================== ALERT LOCATIONS AUTO-SCROLL ====================
-            // Wait 5s, slowly scroll #locations_feed to the bottom, jump to top, then repeat.
             function startAlertLocationsAutoScroll () {
-                const alertLocationsElement = document.getElementById('locations_feed');
-                if (!alertLocationsElement) {
-                    return;
-                }
-
-                const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
-                const WAIT_BEFORE_SCROLL_UP_MS = 1000;
-                const SCROLL_STEP_PX = 1; // Smaller = slower
-                const SCROLL_STEP_INTERVAL = 20; // ms between steps
-
-                let waitTimeoutId = null;
-                let scrollIntervalId = null;
-
-                function clearScrollTimers () {
-                    if (waitTimeoutId !== null) {
-                        clearTimeout(waitTimeoutId);
-                        waitTimeoutId = null;
-                    }
-
-                    if (scrollIntervalId !== null) {
-                        clearInterval(scrollIntervalId);
-                        scrollIntervalId = null;
-                    }
-                }
-
-                function runScrollCycle () {
-                    // Stop if disabled
-                    if (!locationsAutoScrollEnabled) {
-                        clearScrollTimers();
-                        return;
-                    }
-
-                    clearScrollTimers();
-
-                    waitTimeoutId = setTimeout(() => {
-                        scrollIntervalId = setInterval(() => {
-                            // Check if disabled during scroll
-                            if (!locationsAutoScrollEnabled) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-                                return;
-                            }
-
-                            const maxScrollTop = alertLocationsElement.scrollHeight - alertLocationsElement.clientHeight;
-
-                            // Nothing to scroll
-                            if (maxScrollTop <= 0) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-                                runScrollCycle();
-                                return;
-                            }
-
-                            const nextScrollTop = Math.min(alertLocationsElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
-                            alertLocationsElement.scrollTop = nextScrollTop;
-
-                            // Reached bottom: wait 5s, then jump to top and restart cycle
-                            if (nextScrollTop >= maxScrollTop) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-
-                                waitTimeoutId = setTimeout(() => {
-                                    alertLocationsElement.scrollTop = 0;
-                                    runScrollCycle();
-                                }, WAIT_BEFORE_SCROLL_UP_MS);
-                            }
-                        }, SCROLL_STEP_INTERVAL);
-                    }, WAIT_BEFORE_SCROLL_DOWN_MS);
-                }
-
-                runScrollCycle();
+                createAutoScroller({
+                    elementId: 'locations_feed',
+                    isEnabled: () => locationsAutoScrollEnabled,
+                    waitBeforeScrollDown: 5000,
+                    waitBeforeScrollUp: 1000,
+                    scrollStepPx: 1,
+                    scrollStepInterval: 20
+                });
             }
 
-            // Only start locations auto-scroll if enabled in settings
             if (localStorage.getItem("autoScrollLocations") !== "false") {
                 startAlertLocationsAutoScroll();
             }
 
             // ==================== ALERT ZONES AUTO-SCROLL ====================
-            // Wait 5s, slowly scroll #zones_feed to the bottom, jump to top, then repeat.
             function startAlertZonesAutoScroll () {
-                const alertZonesElement = document.getElementById('zones_feed');
-                if (!alertZonesElement) {
-                    return;
-                }
-
-                const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
-                const WAIT_BEFORE_SCROLL_UP_MS = 1000;
-                const SCROLL_STEP_PX = 1; // Smaller = slower
-                const SCROLL_STEP_INTERVAL = 20; // ms between steps
-
-                let waitTimeoutId = null;
-                let scrollIntervalId = null;
-
-                function clearScrollTimers () {
-                    if (waitTimeoutId !== null) {
-                        clearTimeout(waitTimeoutId);
-                        waitTimeoutId = null;
-                    }
-
-                    if (scrollIntervalId !== null) {
-                        clearInterval(scrollIntervalId);
-                        scrollIntervalId = null;
-                    }
-                }
-
-                function runScrollCycle () {
-                    // Stop if disabled
-                    if (!zonesAutoScrollEnabled) {
-                        clearScrollTimers();
-                        return;
-                    }
-
-                    clearScrollTimers();
-
-                    waitTimeoutId = setTimeout(() => {
-                        scrollIntervalId = setInterval(() => {
-                            // Check if disabled during scroll
-                            if (!zonesAutoScrollEnabled) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-                                return;
-                            }
-
-                            const maxScrollTop = alertZonesElement.scrollHeight - alertZonesElement.clientHeight;
-
-                            // Nothing to scroll
-                            if (maxScrollTop <= 0) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-                                runScrollCycle();
-                                return;
-                            }
-
-                            const nextScrollTop = Math.min(alertZonesElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
-                            alertZonesElement.scrollTop = nextScrollTop;
-
-                            // Reached bottom: wait 5s, then jump to top and restart cycle
-                            if (nextScrollTop >= maxScrollTop) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-
-                                waitTimeoutId = setTimeout(() => {
-                                    alertZonesElement.scrollTop = 0;
-                                    runScrollCycle();
-                                }, WAIT_BEFORE_SCROLL_UP_MS);
-                            }
-                        }, SCROLL_STEP_INTERVAL);
-                    }, WAIT_BEFORE_SCROLL_DOWN_MS);
-                }
-
-                runScrollCycle();
+                createAutoScroller({
+                    elementId: 'zones_feed',
+                    isEnabled: () => zonesAutoScrollEnabled,
+                    waitBeforeScrollDown: 5000,
+                    waitBeforeScrollUp: 1000,
+                    scrollStepPx: 1,
+                    scrollStepInterval: 20
+                });
             }
 
-            // Only start zones auto-scroll if enabled in settings
             if (localStorage.getItem("autoScrollZones") !== "false") {
                 startAlertZonesAutoScroll();
             }
 
-
             // ==================== LAST ALERTED TIMES AUTO-SCROLL ====================
-            // Wait 5s, slowly scroll #last_alerted_times_feed to the bottom, jump to top, then repeat.
             function startLastAlertedTimesAutoScroll () {
-                const lastAlertedTimesElement = document.getElementById('last_alerted_times_feed');
-                if (!lastAlertedTimesElement) {
-                    return;
-                }
-
-                const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
-                const WAIT_BEFORE_SCROLL_UP_MS = 1000;
-                const SCROLL_STEP_PX = 1; // Smaller = slower
-                const SCROLL_STEP_INTERVAL = 20; // ms between steps
-
-                let waitTimeoutId = null;
-                let scrollIntervalId = null;
-
-                function clearScrollTimers () {
-                    if (waitTimeoutId !== null) {
-                        clearTimeout(waitTimeoutId);
-                        waitTimeoutId = null;
-                    }
-
-                    if (scrollIntervalId !== null) {
-                        clearInterval(scrollIntervalId);
-                        scrollIntervalId = null;
-                    }
-                }
-
-                function runScrollCycle () {
-                    // Stop if disabled
-                    if (!lastAlertedTimesAutoScrollEnabled) {
-                        clearScrollTimers();
-                        return;
-                    }
-
-                    clearScrollTimers();
-
-                    waitTimeoutId = setTimeout(() => {
-                        scrollIntervalId = setInterval(() => {
-                            // Check if disabled during scroll
-                            if (!lastAlertedTimesAutoScrollEnabled) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-                                return;
-                            }
-
-                            const maxScrollTop = lastAlertedTimesElement.scrollHeight - lastAlertedTimesElement.clientHeight;
-
-                            // Nothing to scroll
-                            if (maxScrollTop <= 0) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-                                runScrollCycle();
-                                return;
-                            }
-
-                            const nextScrollTop = Math.min(lastAlertedTimesElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
-                            lastAlertedTimesElement.scrollTop = nextScrollTop;
-
-                            // Reached bottom: wait 5s, then jump to top and restart cycle
-                            if (nextScrollTop >= maxScrollTop) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-
-                                waitTimeoutId = setTimeout(() => {
-                                    lastAlertedTimesElement.scrollTop = 0;
-                                    runScrollCycle();
-                                }, WAIT_BEFORE_SCROLL_UP_MS);
-                            }
-                        }, SCROLL_STEP_INTERVAL);
-                    }, WAIT_BEFORE_SCROLL_DOWN_MS);
-                }
-
-                runScrollCycle();
+                createAutoScroller({
+                    elementId: 'last_alerted_times_feed',
+                    isEnabled: () => lastAlertedTimesAutoScrollEnabled,
+                    waitBeforeScrollDown: 5000,
+                    waitBeforeScrollUp: 1000,
+                    scrollStepPx: 1,
+                    scrollStepInterval: 20
+                });
             }
 
-            // Only start last alerted times auto-scroll if enabled in settings
             if (localStorage.getItem("autoScrollLastAlertedTimes") !== "false") {
                 startLastAlertedTimesAutoScroll();
             }
 
             // ==================== RSS AUTO-SCROLL ====================
-            // Wait 5s, slowly scroll #rss_feed to the bottom, jump to top, then repeat.
             function startRssAutoScroll () {
-                const rssFeedElement = document.getElementById('rss_feed');
-                if (!rssFeedElement) {
-                    return;
-                }
-
-                const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
-                const WAIT_BEFORE_SCROLL_UP_MS = 5000;
-                const SCROLL_STEP_PX = 1; // Smaller = slower
-                const SCROLL_STEP_INTERVAL = 55; // ms between steps
-
-                let waitTimeoutId = null;
-                let scrollIntervalId = null;
-
-                function clearScrollTimers () {
-                    if (waitTimeoutId !== null) {
-                        clearTimeout(waitTimeoutId);
-                        waitTimeoutId = null;
-                    }
-
-                    if (scrollIntervalId !== null) {
-                        clearInterval(scrollIntervalId);
-                        scrollIntervalId = null;
-                    }
-                }
-
-                function runScrollCycle () {
-                    // Stop if disabled
-                    if (!rssAutoScrollEnabled) {
-                        clearScrollTimers();
-                        return;
-                    }
-
-                    clearScrollTimers();
-
-                    waitTimeoutId = setTimeout(() => {
-                        scrollIntervalId = setInterval(() => {
-                            // Check if disabled during scroll
-                            if (!rssAutoScrollEnabled) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-                                return;
-                            }
-
-                            const maxScrollTop = rssFeedElement.scrollHeight - rssFeedElement.clientHeight;
-
-                            // Nothing to scroll
-                            if (maxScrollTop <= 0) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-                                runScrollCycle();
-                                return;
-                            }
-
-                            const nextScrollTop = Math.min(rssFeedElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
-                            rssFeedElement.scrollTop = nextScrollTop;
-
-                            // Reached bottom: wait 5s, then jump to top and restart cycle
-                            if (nextScrollTop >= maxScrollTop) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-
-                                waitTimeoutId = setTimeout(() => {
-                                    rssFeedElement.scrollTop = 0;
-                                    runScrollCycle();
-                                }, WAIT_BEFORE_SCROLL_UP_MS);
-                            }
-                        }, SCROLL_STEP_INTERVAL);
-                    }, WAIT_BEFORE_SCROLL_DOWN_MS);
-                }
-
-                runScrollCycle();
+                createAutoScroller({
+                    elementId: 'rss_feed',
+                    isEnabled: () => rssAutoScrollEnabled,
+                    waitBeforeScrollDown: 5000,
+                    waitBeforeScrollUp: 5000,
+                    scrollStepPx: 1,
+                    scrollStepInterval: 55
+                });
             }
 
-            // Only start RSS auto-scroll if enabled in settings
             if (localStorage.getItem("autoScrollRss") !== "false") {
                 startRssAutoScroll();
             }
 
-
             // ==================== EARLY WARNING AUTO-SCROLL ====================
-            // Wait 5s, slowly scroll #earlyWarningLocations to the bottom, jump to top, then repeat.
             function startEarlyWarningAutoScroll () {
-                const earlyWarningElement = document.getElementById('earlyWarningLocations');
-                if (!earlyWarningElement) {
-                    return;
-                }
-
-                const WAIT_BEFORE_SCROLL_DOWN_MS = 5000;
-                const WAIT_BEFORE_SCROLL_UP_MS = 1000;
-                const SCROLL_STEP_PX = 1; // Smaller = slower
-                const SCROLL_STEP_INTERVAL = 55; // ms between steps
-
-                let waitTimeoutId = null;
-                let scrollIntervalId = null;
-
-                function clearScrollTimers () {
-                    if (waitTimeoutId !== null) {
-                        clearTimeout(waitTimeoutId);
-                        waitTimeoutId = null;
-                    }
-
-                    if (scrollIntervalId !== null) {
-                        clearInterval(scrollIntervalId);
-                        scrollIntervalId = null;
-                    }
-                }
-
-                function runScrollCycle () {
-                    // Stop if disabled
-                    if (!earlyWarningAutoScrollEnabled) {
-                        clearScrollTimers();
-                        return;
-                    }
-
-                    clearScrollTimers();
-
-                    waitTimeoutId = setTimeout(() => {
-                        scrollIntervalId = setInterval(() => {
-                            // Check if disabled during scroll
-                            if (!earlyWarningAutoScrollEnabled) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-                                return;
-                            }
-
-                            const maxScrollTop = earlyWarningElement.scrollHeight - earlyWarningElement.clientHeight;
-
-                            // Nothing to scroll
-                            if (maxScrollTop <= 0) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-                                runScrollCycle();
-                                return;
-                            }
-
-                            const nextScrollTop = Math.min(earlyWarningElement.scrollTop + SCROLL_STEP_PX, maxScrollTop);
-                            earlyWarningElement.scrollTop = nextScrollTop;
-
-                            // Reached bottom: wait 5s, then jump to top and restart cycle
-                            if (nextScrollTop >= maxScrollTop) {
-                                clearInterval(scrollIntervalId);
-                                scrollIntervalId = null;
-
-                                waitTimeoutId = setTimeout(() => {
-                                    earlyWarningElement.scrollTop = 0;
-                                    runScrollCycle();
-                                }, WAIT_BEFORE_SCROLL_UP_MS);
-                            }
-                        }, SCROLL_STEP_INTERVAL);
-                    }, WAIT_BEFORE_SCROLL_DOWN_MS);
-                }
-
-                runScrollCycle();
+                createAutoScroller({
+                    elementId: 'earlyWarningLocations',
+                    isEnabled: () => earlyWarningAutoScrollEnabled,
+                    waitBeforeScrollDown: 5000,
+                    waitBeforeScrollUp: 1000,
+                    scrollStepPx: 1,
+                    scrollStepInterval: 55
+                });
             }
 
-            // Only start early warning auto-scroll if enabled in settings
             if (localStorage.getItem("autoScrollEarlyWarning") !== "false") {
                 startEarlyWarningAutoScroll();
             }

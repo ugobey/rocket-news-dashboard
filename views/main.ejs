@@ -864,6 +864,17 @@
                                         <input class="form-check-input" type="checkbox" id="toggle_early_warning_scroll" checked />
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td class="align-middle">
+                                        <span class="text-white fw-medium">Test Mode Type</span>
+                                    </td>
+                                    <td colspan="2">
+                                        <select class="form-select" id="test_mode_type">
+                                            <option value="alertByCity">Alert by City</option>
+                                            <option value="alertByRegion">Alert by Region</option>
+                                        </select>
+                                    </td>
+                                </tr>
                             </table>
                         </div>
                     </div>
@@ -1463,7 +1474,7 @@
             let pikudHaorefError = false; // True once the first Pikud HaOref error has occurred
             let unmatchedCitiesFlag = false; // True once the first unmatched city has been logged
             let earlyWarningActive = false; // True while an early-warning (newsFlash) alert is ongoing
-            let testmode = false; // When true, the server returns hardcoded mock alert data
+            let testmode = null; // When true, the server returns hardcoded mock alert data
             let testModeTimeoutHandle = null; // Auto-disables test mode after the configured timeout
 
             const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
@@ -1529,7 +1540,7 @@
             }
 
             function disableTestMode () {
-                testmode = false;
+                testmode = null;
 
                 if (testModeTimeoutHandle !== null) {
                     clearTimeout(testModeTimeoutHandle);
@@ -1540,7 +1551,7 @@
             }
 
             function enableTestMode () {
-                testmode = true;
+                testmode = $("#test_mode_type").val();
                 setTestModeUI(true);
 
                 if (testModeTimeoutHandle !== null) {
@@ -1597,12 +1608,14 @@
 
             // Auto-scroll toggle handlers
             // Track which auto-scrollers are enabled and their interval IDs for stopping
-            let autoScrollStates = {
+            const settingStates = {
                 pikudHaoref: localStorage.getItem("autoScrollPikudHaoref") !== "false",
                 zones: localStorage.getItem("autoScrollZones") !== "false",
                 locations: localStorage.getItem("autoScrollLocations") !== "false",
                 lastAlertedTimes: localStorage.getItem("autoScrollLastAlertedTimes") !== "false",
-                rss: localStorage.getItem("autoScrollRss") !== "false"
+                rss: localStorage.getItem("autoScrollRss") !== "false",
+                earlyWarning: localStorage.getItem("autoScrollEarlyWarning") !== "false",
+                testModeType: localStorage.getItem("testModeType") || "alertByCity"
             };
 
             // Global variables to track autoscroller intervals so they can be stopped
@@ -1615,12 +1628,13 @@
 
             // Initialize toggle states on load
             document.addEventListener("DOMContentLoaded", () => {
-                $("#toggle_pikud_scroll").prop("checked", autoScrollStates.pikudHaoref);
-                $("#toggle_zones_scroll").prop("checked", autoScrollStates.zones);
-                $("#toggle_locations_scroll").prop("checked", autoScrollStates.locations);
-                $("#toggle_last_alerted_times_scroll").prop("checked", autoScrollStates.lastAlertedTimes);
-                $("#toggle_rss_scroll").prop("checked", autoScrollStates.rss);
-                $("#toggle_early_warning_scroll").prop("checked", autoScrollStates.earlyWarning);
+                $("#toggle_pikud_scroll").prop("checked", settingStates.pikudHaoref);
+                $("#toggle_zones_scroll").prop("checked", settingStates.zones);
+                $("#toggle_locations_scroll").prop("checked", settingStates.locations);
+                $("#toggle_last_alerted_times_scroll").prop("checked", settingStates.lastAlertedTimes);
+                $("#toggle_rss_scroll").prop("checked", settingStates.rss);
+                $("#toggle_early_warning_scroll").prop("checked", settingStates.earlyWarning);
+                $("#test_mode_type").val(settingStates.testModeType);
             });
 
             // Stop functions for each autoscroller
@@ -1662,10 +1676,10 @@
 
             // Pikud HaOref auto-scroll toggle
             $("#toggle_pikud_scroll").on("change", function () {
-                autoScrollStates.pikudHaoref = $(this).is(":checked");
-                localStorage.setItem("autoScrollPikudHaoref", autoScrollStates.pikudHaoref);
+                settingStates.pikudHaoref = $(this).is(":checked");
+                localStorage.setItem("autoScrollPikudHaoref", settingStates.pikudHaoref);
 
-                if (autoScrollStates.pikudHaoref && typeof startPikudHaorefAutoScroll === "function") {
+                if (settingStates.pikudHaoref && typeof startPikudHaorefAutoScroll === "function") {
                     pikudHaorefAutoScrollEnabled = true;
                     startPikudHaorefAutoScroll();
                 } else {
@@ -1675,10 +1689,10 @@
 
             // Zones auto-scroll toggle
             $("#toggle_zones_scroll").on("change", function () {
-                autoScrollStates.zones = $(this).is(":checked");
-                localStorage.setItem("autoScrollZones", autoScrollStates.zones);
+                settingStates.zones = $(this).is(":checked");
+                localStorage.setItem("autoScrollZones", settingStates.zones);
 
-                if (autoScrollStates.zones && typeof startAlertZonesAutoScroll === "function") {
+                if (settingStates.zones && typeof startAlertZonesAutoScroll === "function") {
                     zonesAutoScrollEnabled = true;
                     startAlertZonesAutoScroll();
                 } else {
@@ -1688,10 +1702,10 @@
 
             // Locations auto-scroll toggle
             $("#toggle_locations_scroll").on("change", function () {
-                autoScrollStates.locations = $(this).is(":checked");
-                localStorage.setItem("autoScrollLocations", autoScrollStates.locations);
+                settingStates.locations = $(this).is(":checked");
+                localStorage.setItem("autoScrollLocations", settingStates.locations);
 
-                if (autoScrollStates.locations && typeof startAlertLocationsAutoScroll === "function") {
+                if (settingStates.locations && typeof startAlertLocationsAutoScroll === "function") {
                     locationsAutoScrollEnabled = true;
                     startAlertLocationsAutoScroll();
                 } else {
@@ -1701,10 +1715,10 @@
 
             // Last Alerted Times auto-scroll toggle
             $("#toggle_last_alerted_times_scroll").on("change", function () {
-                autoScrollStates.lastAlertedTimes = $(this).is(":checked");
-                localStorage.setItem("autoScrollLastAlertedTimes", autoScrollStates.lastAlertedTimes);
+                settingStates.lastAlertedTimes = $(this).is(":checked");
+                localStorage.setItem("autoScrollLastAlertedTimes", settingStates.lastAlertedTimes);
 
-                if (autoScrollStates.lastAlertedTimes && typeof startLastAlertedTimesAutoScroll === "function") {
+                if (settingStates.lastAlertedTimes && typeof startLastAlertedTimesAutoScroll === "function") {
                     lastAlertedTimesAutoScrollEnabled = true;
                     startLastAlertedTimesAutoScroll();
                 } else {
@@ -1714,10 +1728,10 @@
 
             // RSS auto-scroll toggle
             $("#toggle_rss_scroll").on("change", function () {
-                autoScrollStates.rss = $(this).is(":checked");
-                localStorage.setItem("autoScrollRss", autoScrollStates.rss);
+                settingStates.rss = $(this).is(":checked");
+                localStorage.setItem("autoScrollRss", settingStates.rss);
 
-                if (autoScrollStates.rss && typeof startRssAutoScroll === "function") {
+                if (settingStates.rss && typeof startRssAutoScroll === "function") {
                     rssAutoScrollEnabled = true;
                     startRssAutoScroll();
                 } else {
@@ -1727,15 +1741,22 @@
 
             // Early Warning auto-scroll toggle
             $("#toggle_early_warning_scroll").on("change", function () {
-                autoScrollStates.earlyWarning = $(this).is(":checked");
-                localStorage.setItem("autoScrollEarlyWarning", autoScrollStates.earlyWarning);
+                settingStates.earlyWarning = $(this).is(":checked");
+                localStorage.setItem("autoScrollEarlyWarning", settingStates.earlyWarning);
 
-                if (autoScrollStates.earlyWarning && typeof startEarlyWarningAutoScroll === "function") {
+                if (settingStates.earlyWarning && typeof startEarlyWarningAutoScroll === "function") {
                     earlyWarningAutoScrollEnabled = true;
                     startEarlyWarningAutoScroll();
                 } else {
                     stopEarlyWarningAutoScroll();
                 }
+            });
+
+            // Test Mode Type dropdown toggle
+            $("#test_mode_type").on("change", function () {
+                settingStates.testModeType = $(this).val();
+                testmode = $(this).val();
+                localStorage.setItem("testModeType", settingStates.testModeType);
             });
 
 

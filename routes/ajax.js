@@ -135,8 +135,14 @@ router.use("/", async function (req, res) {
                 };
             }
 
-            if (testmode === "true") {
-                const alert = generateRandomAlertByRegion();
+            if (testmode) {
+                let alert;
+
+                if (testmode === "alertByCity") {
+                    alert = generateRandomAlertByCity();
+                } else if (testmode === "alertByRegion") {
+                    alert = generateRandomAlertByRegion();
+                }
 
                 res.statusCode = 200;
                 res.write(JSON.stringify(alert));

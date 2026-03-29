@@ -528,13 +528,15 @@
             // Early warning countdown tracking — defaults to 5 minutes, updates based on actual observed durations
             let earlyWarningStartTime = null; // Unix timestamp when the current early warning started
             const EARLY_WARNING_DEFAULT_DURATION_MS = 5 * 60 * 1000;
+            const EARLY_WARNING_MIN_DURATION_MS = 30 * 1000;
             const EARLY_WARNING_DURATIONS_STORAGE_KEY = "earlyWarningDurationsMs";
             const EARLY_WARNING_DURATION_STORAGE_KEY = "earlyWarningDurationMs";
             let earlyWarningDurations = JSON.parse(localStorage.getItem(EARLY_WARNING_DURATIONS_STORAGE_KEY) || "[]")
                 .filter(duration => Number.isFinite(duration) && duration > 0); // Actual durations (ms) for completed early warnings
+            const storedEarlyWarningDuration = parseInt(localStorage.getItem(EARLY_WARNING_DURATION_STORAGE_KEY) || String(EARLY_WARNING_DEFAULT_DURATION_MS), 10);
             let currentEarlyWarningDuration = earlyWarningDurations.length > 0
-                ? Math.round(earlyWarningDurations.reduce((sum, duration) => sum + duration, 0) / earlyWarningDurations.length)
-                : parseInt(localStorage.getItem(EARLY_WARNING_DURATION_STORAGE_KEY) || String(EARLY_WARNING_DEFAULT_DURATION_MS), 10);
+                ? Math.max(EARLY_WARNING_MIN_DURATION_MS, Math.round(earlyWarningDurations.reduce((sum, duration) => sum + duration, 0) / earlyWarningDurations.length))
+                : Math.max(EARLY_WARNING_MIN_DURATION_MS, Number.isFinite(storedEarlyWarningDuration) ? storedEarlyWarningDuration : EARLY_WARNING_DEFAULT_DURATION_MS);
 
             const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
             const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
@@ -642,10 +644,11 @@
                 }
 
                 const actualDuration = Date.now() - earlyWarningStartTime;
-                earlyWarningDurations.push(actualDuration);
-                currentEarlyWarningDuration = Math.round(
+                const boundedActualDuration = Math.max(EARLY_WARNING_MIN_DURATION_MS, actualDuration);
+                earlyWarningDurations.push(boundedActualDuration);
+                currentEarlyWarningDuration = Math.max(EARLY_WARNING_MIN_DURATION_MS, Math.round(
                     earlyWarningDurations.reduce((sum, duration) => sum + duration, 0) / earlyWarningDurations.length
-                );
+                ));
                 persistEarlyWarningDurations();
 
                 const actualSecs = Math.round(actualDuration / 1000);

@@ -1490,28 +1490,12 @@
                 }
             ];
 
-            // Looks up the human-readable feed name by its internal codename.
-            function getRealName (codename) {
-                const feed = rssFeeds.find(feed => feed.codename === codename);
-                return feed.realname;
-            };
+            // Fetches and displays articles from a single feed entry; shared by the
+            // initial bulk load and the regular round-robin poll.
+            async function fetchAndDisplayFeed (feed) {
+                const news = await ajaxHandler("rss", feed.url);
 
-            const rssPoll = async function () {
-                // Capture the current feed before advancing the index, so
-                // the URL and codename stay in sync for this tick's request.
-                const rssFeedCodeName = rssFeeds[currentRssFeedIndex].codename;
-                const rssFeedURL = rssFeeds[currentRssFeedIndex].url;
-
-                // Advance the round-robin index; wrap back to 0 after the last feed
-                currentRssFeedIndex++;
-                if (currentRssFeedIndex === rssFeeds.length) {
-                    currentRssFeedIndex = 0;
-                }
-
-                // Schedule the next poll BEFORE the async fetch (same pattern as pikudHaorefPoll)
-                setTimeout(rssPoll, rssInterval);
-
-                const news = await ajaxHandler("rss", rssFeedURL);
+                console.log(`Fetched RSS feed: ${feed.realname}`, news);
 
                 if (news && !news.error) {
 
@@ -1542,7 +1526,7 @@
                             $("#rss_alerts").prepend(`
                                 <tr class="animate__animated animate__fadeInDown animate__faster rssNewRow table-light">
                                     <td width="5%"><font class="text-warning">${timeStamp}</font></td>
-                                    <td width="6%"><font class="text-info">${getRealName(rssFeedCodeName)}</font></td>
+                                    <td width="7%"><font class="text-info">${feed.realname}</font></td>
                                     <td><a href="${item.url}" target="_blank">${item.title}</a></td>
                                 </tr>
                             `);
@@ -1553,10 +1537,35 @@
                         }
                     });
                 }
+            }
 
+            const rssPoll = async function () {
+                // Capture the current feed before advancing the index, so
+                // the feed stays in sync for this tick's request.
+                const feed = rssFeeds[currentRssFeedIndex];
+
+                // Advance the round-robin index; wrap back to 0 after the last feed
+                currentRssFeedIndex++;
+                if (currentRssFeedIndex === rssFeeds.length) {
+                    currentRssFeedIndex = 0;
+                }
+
+                // Schedule the next poll BEFORE the async fetch (same pattern as pikudHaorefPoll)
+                setTimeout(rssPoll, rssInterval);
+
+                await fetchAndDisplayFeed(feed);
             };
 
-            rssPoll(); // Kick off the RSS polling loop
+            // First run: fetch all feeds immediately before starting the round-robin loop
+            (async function rssInitialFetch () {
+                for (const feed of rssFeeds) {
+                    await fetchAndDisplayFeed(feed);
+                }
+
+                setTimeout(() => {
+                    rssPoll(); // Kick off the regular round-robin polling
+                }, rssInterval);
+            })();
 
 
 

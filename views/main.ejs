@@ -143,10 +143,6 @@
                                         <td><span>Total Early Warnings (All)</span></td>
                                         <td class="text-end"><span id="totalEarlyWarningsAllCounter" class="stat-number">0</span></td>
                                     </tr>
-                                    <tr>
-                                        <td><span>Average Early Warning Time</span></td>
-                                        <td class="text-end"><span id="averageEarlyWarningTimeCounter" class="stat-number">5:00</span></td>
-                                    </tr>
                                     <tr id="total_early_warnings_specific_counter" style="display: none">
                                         <td><span>Total Early Warnings (Specific)</span></td>
                                         <td class="text-end"><span id="totalEarlyWarningsSpecificCounter" class="stat-number">0</span></td>
@@ -280,7 +276,7 @@
 
                             <span class="text-white-50 small mb-3">Alerted at <strong id="earlyWarningOpenedAt"></strong></span>
                             &nbsp;&middot;&nbsp;
-                            <span class="text-white-50 small mb-3">On average there is about <strong id="earlyWarningCountdown"></strong> before missile sirens will sound</span>
+                            <span class="text-white-50 small mb-3">Estimated time before missile sirens: <strong id="earlyWarningCountdown"></strong></span>
                             <br /><br />
                             This message will disappear automatically when the threat is no longer active.
                             <br /><br />
@@ -290,10 +286,6 @@
                             <div id="earlyWarningLocations" style="width: 100%"></div>
                         </div>
                     </div>
-
-                    <!-- Footer -->
-                    <div class="modal-footer border-0 px-4 pb-4">
-                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -525,18 +517,8 @@
             let testmode = null; // When true, the server returns hardcoded mock alert data
             let testModeTimeoutHandle = null; // Auto-disables test mode after the configured timeout
 
-            // Early warning countdown tracking — defaults to 5 minutes, updates based on actual observed durations
-            let earlyWarningStartTime = null; // Unix timestamp when the current early warning started
-            const EARLY_WARNING_DEFAULT_DURATION_MS = 5 * 60 * 1000;
-            const EARLY_WARNING_MIN_DURATION_MS = 30 * 1000;
-            const EARLY_WARNING_DURATIONS_STORAGE_KEY = "earlyWarningDurationsMs";
-            const EARLY_WARNING_DURATION_STORAGE_KEY = "earlyWarningDurationMs";
-            let earlyWarningDurations = JSON.parse(localStorage.getItem(EARLY_WARNING_DURATIONS_STORAGE_KEY) || "[]")
-                .filter(duration => Number.isFinite(duration) && duration > 0); // Actual durations (ms) for completed early warnings
-            const storedEarlyWarningDuration = parseInt(localStorage.getItem(EARLY_WARNING_DURATION_STORAGE_KEY) || String(EARLY_WARNING_DEFAULT_DURATION_MS), 10);
-            let currentEarlyWarningDuration = earlyWarningDurations.length > 0
-                ? Math.max(EARLY_WARNING_MIN_DURATION_MS, Math.round(earlyWarningDurations.reduce((sum, duration) => sum + duration, 0) / earlyWarningDurations.length))
-                : Math.max(EARLY_WARNING_MIN_DURATION_MS, Number.isFinite(storedEarlyWarningDuration) ? storedEarlyWarningDuration : EARLY_WARNING_DEFAULT_DURATION_MS);
+            // Early warning countdown uses a fixed 5-minute duration
+            const EARLY_WARNING_DURATION_MS = 5 * 60 * 1000;
 
             const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
             const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
@@ -622,49 +604,12 @@
                 $("#earlyWarningOpenedAt").text("");
             }
 
-            function formatEarlyWarningDuration (durationMs) {
-                const mins = Math.floor(durationMs / 60000);
-                const secs = String(Math.floor((durationMs % 60000) / 1000)).padStart(2, "0");
-                return `${mins}:${secs}`;
-            }
-
-            function updateAverageEarlyWarningSummary () {
-                $("#averageEarlyWarningTimeCounter").text(formatEarlyWarningDuration(currentEarlyWarningDuration));
-            }
-
-            function persistEarlyWarningDurations () {
-                localStorage.setItem(EARLY_WARNING_DURATIONS_STORAGE_KEY, JSON.stringify(earlyWarningDurations));
-                localStorage.setItem(EARLY_WARNING_DURATION_STORAGE_KEY, String(currentEarlyWarningDuration));
-                updateAverageEarlyWarningSummary();
-            }
-
-            function recordCompletedEarlyWarningDuration (reason) {
-                if (earlyWarningStartTime === null) {
-                    return;
-                }
-
-                const actualDuration = Date.now() - earlyWarningStartTime;
-                const boundedActualDuration = Math.max(EARLY_WARNING_MIN_DURATION_MS, actualDuration);
-                earlyWarningDurations.push(boundedActualDuration);
-                currentEarlyWarningDuration = Math.max(EARLY_WARNING_MIN_DURATION_MS, Math.round(
-                    earlyWarningDurations.reduce((sum, duration) => sum + duration, 0) / earlyWarningDurations.length
-                ));
-                persistEarlyWarningDurations();
-
-                const actualSecs = Math.round(actualDuration / 1000);
-                const nextMins = Math.floor(currentEarlyWarningDuration / 60000);
-                const nextSecs = String(Math.floor((currentEarlyWarningDuration % 60000) / 1000)).padStart(2, "0");
-
-                earlyWarningStartTime = null;
-            }
-
             function finishEarlyWarning (reason, options = {}) {
                 const {
                     showExitModal = false,
                     keepLifecycleActive = false
                 } = options;
 
-                recordCompletedEarlyWarningDuration(reason);
                 clearEarlyWarningTimer();
 
                 if (earlyWarningModalEnter._isShown) {
@@ -693,9 +638,6 @@
             }
 
             function startEarlyWarningTimer () {
-                // Capture the start time of this early warning for duration tracking
-                earlyWarningStartTime = Date.now();
-
                 // Show the time the modal opened
                 const now = new Date();
                 const h = String(now.getHours()).padStart(2, '0');
@@ -706,7 +648,7 @@
                 // Clear any existing countdown
                 clearEarlyWarningTimer();
 
-                let remaining = currentEarlyWarningDuration;
+                let remaining = EARLY_WARNING_DURATION_MS;
 
                 function updateDisplay () {
                     const mins = String(Math.floor(remaining / 60000)).padStart(1, '0');
@@ -736,8 +678,6 @@
                     earlyWarningCountdownInterval = null;
                 }
             }
-
-            updateAverageEarlyWarningSummary();
 
 
 
@@ -1454,7 +1394,7 @@
                                     // When a real siren-type alert comes in, any pending early warning is cleared
                                     // because the pre-siren phase is now superseded by the actual event.
                                 } else if (alertType != "newsFlash") {
-                                    if (earlyWarningStartTime !== null || earlyWarningActive) {
+                                    if (earlyWarningActive) {
                                         finishEarlyWarning("first-live-alert", {
                                             keepLifecycleActive: true
                                         });

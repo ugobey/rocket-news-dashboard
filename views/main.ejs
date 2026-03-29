@@ -683,7 +683,7 @@
 
                             <span class="text-white-50 small mb-3">Alerted at <strong id="earlyWarningOpenedAt">--:--:--</strong></span>
                             &nbsp;&middot;&nbsp;
-                            <span class="text-white-50 small mb-3">On average there is about <strong id="earlyWarningCountdown">5:00</strong> before missile sirens will sound</span>
+                            <span class="text-white-50 small mb-3">On average there is about <strong id="earlyWarningCountdown"></strong> before missile sirens will sound</span>
                             <br /><br />
                             This message will disappear automatically when the threat is no longer active.
                             <br /><br />
@@ -888,500 +888,35 @@
         </div>
 
         <script>
-            // ==================== MAP ====================
-            let map;
-            let allMarkers = []; // Keeps all active markers
-            const defaultMapCenter = {
-                lat: 31.5326,
-                lng: 35.0998
-            };
-            const defaultMapZoom = 9;
-            const clusteredMarkersZoom = 12;
-            const clusteredMarkerSpanThreshold = 0.02;
-            let zoomAnimationInterval = null;
-            let viewportUpdateToken = 0;
+            // ==================== APPLICATION STATE ====================
+            // Accumulator arrays — each entry is an object {location, counter} or {zone, counter}
+            let alertedLocations = []; // All unique locations that have received alerts this session
+            let alertedZones = []; // All unique zones that have received alerts this session
+            let errorLogs = []; // Unique Pikud HaOref error messages with occurrence counts
+            let unmatchedCitiesLogs = []; // Location names that couldn't be found in locationMap
+            let earlyWarningLocations = []; // Cities currently under an active early-warning (newsFlash)
+            let alertedCitiesObj = []; // Cities that have received alerts this session
+            let lastAlertedTimes = []; // Last unique times when alerts occurred (HH:mm format)
+
+            // Summary counters reflected in the Alerts Summary table
+            let rocketAlertCounter = 0; // Missile alert rows received
+            let droneAlertCounter = 0; // Hostile aircraft intrusion rows received
+            let totalEarlyWarningsAllCounter = 0; // Early warnings for any location
+            let totalEarlyWarningsSpecificCounter = 0; // Early warnings that include the user's saved city
+            let pikudHaorefErrorCounter = 0; // Total fetch errors from Pikud HaOref
+            let totalUnmatchedCitiesCounter = 0; // Total alerts for unrecognised location names
+
+            // Boolean flags for UI state
+            let pikudHaorefError = false; // True once the first Pikud HaOref error has occurred
+            let unmatchedCitiesFlag = false; // True once the first unmatched city has been logged
+            let earlyWarningActive = false; // True while an early-warning (newsFlash) alert is ongoing
+            let testmode = null; // When true, the server returns hardcoded mock alert data
+            let testModeTimeoutHandle = null; // Auto-disables test mode after the configured timeout
+
+            const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
+            const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
+            const recentlyAlertedLocations = {}; // Dedup cache: location → Unix timestamp of last alert row added
 
-            // Active city alerts keyed by a stable city identifier.
-            // A city remains here while its marker is active, then is removed on timeout.
-            const alertedCitiesState = {
-                activeByKey: {},
-                activeList: []
-            };
-
-            // Initialize the map (runs only once).
-            // Assigned to window so the async Maps API callback can always find it,
-            // regardless of whether the script fires before or after this block executes.
-            window.initMap = function initMap () {
-                map = new google.maps.Map(document.getElementById('map'), {
-                    zoom: defaultMapZoom,
-                    center: defaultMapCenter,
-                    mapId: 'rocket-alerts-map',
-                    mapTypeId: 'roadmap',
-                    mapTypeControl: false,
-                    streetViewControl: false,
-                    fullscreenControl: true,
-                    zoomControl: true
-                });
-            }
-
-            function buildMarkerContent (type) {
-                const markerElement = document.createElement('div');
-                markerElement.className = 'adv-marker';
-
-                if (type === 'missiles' || type === 'hostileAircraftIntrusion') {
-                    markerElement.classList.add(`adv-marker--${type}`);
-                } else {
-                    markerElement.classList.add('adv-marker--default');
-                }
-
-                return markerElement;
-            }
-
-            function stopSmoothZoomAnimation () {
-                if (zoomAnimationInterval !== null) {
-                    clearInterval(zoomAnimationInterval);
-                    zoomAnimationInterval = null;
-                }
-            }
-
-            function smoothZoomTo (targetZoom) {
-                if (!map) {
-                    return;
-                }
-
-                const roundedTarget = Math.round(targetZoom);
-                const currentZoom = map.getZoom();
-
-                stopSmoothZoomAnimation();
-
-                if (currentZoom === undefined || currentZoom === null) {
-                    map.setZoom(roundedTarget);
-                    return;
-                }
-
-                if (currentZoom === roundedTarget) {
-                    return;
-                }
-
-                const direction = currentZoom < roundedTarget ? 1 : -1;
-                zoomAnimationInterval = setInterval(() => {
-                    const current = map.getZoom();
-                    if (current === undefined || current === null) {
-                        stopSmoothZoomAnimation();
-                        return;
-                    }
-
-                    const next = current + direction;
-                    const reached = direction > 0 ? next >= roundedTarget : next <= roundedTarget;
-
-                    map.setZoom(reached ? roundedTarget : next);
-
-                    if (reached) {
-                        stopSmoothZoomAnimation();
-                    }
-                }, 50);
-            }
-
-            // Keeps all active markers visible as markers are added/removed.
-            function fitMapToActiveMarkers () {
-                if (!map) {
-                    return;
-                }
-
-                const updateToken = ++viewportUpdateToken;
-                stopSmoothZoomAnimation();
-
-                const visibleMarkers = allMarkers.filter(marker => marker && marker.map);
-
-                if (visibleMarkers.length === 0) {
-                    map.panTo(defaultMapCenter);
-                    smoothZoomTo(defaultMapZoom);
-                    return;
-                }
-
-                if (visibleMarkers.length === 1) {
-                    map.panTo(visibleMarkers[0].position);
-                    smoothZoomTo(12);
-                    return;
-                }
-
-                const bounds = new google.maps.LatLngBounds();
-                visibleMarkers.forEach(marker => bounds.extend(marker.position));
-
-                const northEast = bounds.getNorthEast();
-                const southWest = bounds.getSouthWest();
-                const latSpan = Math.abs(northEast.lat() - southWest.lat());
-                const lngSpan = Math.abs(northEast.lng() - southWest.lng());
-
-                // When markers are tightly clustered, fitBounds tends to over-zoom.
-                // Use a stable center+zoom instead to avoid zoom oscillation.
-                if (latSpan <= clusteredMarkerSpanThreshold && lngSpan <= clusteredMarkerSpanThreshold) {
-                    map.panTo(bounds.getCenter());
-                    smoothZoomTo(clusteredMarkersZoom);
-                    return;
-                }
-
-                map.fitBounds(bounds, {
-                    padding: 90
-                });
-
-                google.maps.event.addListenerOnce(map, 'idle', () => {
-                    if (updateToken !== viewportUpdateToken) {
-                        return;
-                    }
-
-                    if (map.getZoom() > 13) {
-                        smoothZoomTo(13);
-                    }
-                });
-            }
-
-            function getCityKey (city) {
-                if (city.id !== undefined && city.id !== null) {
-                    return String(city.id);
-                }
-
-                if (city.name) {
-                    return String(city.name).toLowerCase();
-                }
-
-                return `${city.lat},${city.lng}`;
-            }
-
-            function removeCityFromActiveList (cityKey) {
-                alertedCitiesState.activeList = alertedCitiesState.activeList.filter(item => item.cityKey !== cityKey);
-            }
-
-            function cleanupExpiredCity (cityKey, marker) {
-                marker.map = null;
-                allMarkers = allMarkers.filter(m => m !== marker);
-                delete alertedCitiesState.activeByKey[cityKey];
-                removeCityFromActiveList(cityKey);
-                fitMapToActiveMarkers();
-            }
-
-            // Returns only cities that are not currently active on the map.
-            // Use this before issuing API calls to avoid repeatedly querying active cities.
-            function getCitiesNeedingApiCall (cities) {
-                const safeCities = Array.isArray(cities) ? cities : [];
-                return safeCities.filter(city => !alertedCitiesState.activeByKey[getCityKey(city)]);
-            }
-
-            // Add new city markers without removing existing ones.
-            // Already-active cities are ignored until their per-city duration expires.
-            async function addCitiesToMap (cities) {
-                // Wait until map is ready
-                if (!map) {
-                    await waitForMap();
-                }
-
-                const incomingCities = Array.isArray(cities) ? cities : [];
-
-                // Load the marker library and get AdvancedMarkerElement
-                const {
-                    AdvancedMarkerElement
-                } = await google.maps.importLibrary("marker");
-
-                const {
-                    PinElement
-                } = await google.maps.importLibrary("marker");
-
-                incomingCities.forEach((city) => {
-                    const cityKey = getCityKey(city);
-
-                    // Skip if this city is already active on the map.
-                    if (alertedCitiesState.activeByKey[cityKey]) {
-                        return;
-                    }
-
-                    const type = city.type;
-
-                    let backgroundColor = '#00FF00'; // Default green
-                    if (type === 'missiles') {
-                        backgroundColor = '#FF0000'; // Red for missiles
-                    } else if (type === 'hostileAircraftIntrusion') {
-                        backgroundColor = '#FFA500'; // Orange for hostile aircraft intrusion
-                    }
-
-                    // Then create marker:
-                    const pin = new PinElement({
-                        background: backgroundColor, // fill color (any hex)
-                        borderColor: '#000000',
-                        glyphColor: '#FFFFFF', // White color of the letter/icon inside
-                        scale: 1.2,
-                    });
-
-                    // Start transparent so we can fade in
-                    pin.style.opacity = '0';
-
-                    const marker = new google.maps.marker.AdvancedMarkerElement({
-                        position: {
-                            lat: city.lat,
-                            lng: city.lng
-                        },
-                        map: map,
-                        content: pin
-                    });
-
-                    // Fade the marker in after it is placed on the map
-                    addMarkerWithFade(marker);
-
-                    // Store it globally so we can track it
-                    allMarkers.push(marker);
-
-                    // Optional: InfoWindow
-                    const infoWindow = new google.maps.InfoWindow({
-                        content: `<h3>${city.name}</h3>`
-                    });
-                    marker.addEventListener('gmp-click', () => {
-                        infoWindow.open(map, marker);
-                    });
-
-                    let duration = 10000; // Default duration of 10 seconds
-                    if (!testmode) {
-                        duration = Number(city.duration) > 0 ? Number(city.duration) : duration;
-                    }
-
-                    // Store active city record so repeated API cycles can ignore duplicates.
-                    const activeRecord = {
-                        cityKey,
-                        city,
-                        marker,
-                        createdAt: Date.now(),
-                        expiresAt: Date.now() + duration
-                    };
-
-                    alertedCitiesState.activeByKey[cityKey] = activeRecord;
-                    alertedCitiesState.activeList.push(activeRecord);
-
-                    // On timeout: fade marker, then remove from active state so city can alert again.
-                    setTimeout(() => {
-                        removeMarkerWithFade(marker, () => {
-                            cleanupExpiredCity(cityKey, marker);
-                        });
-                    }, duration);
-                });
-
-                // Fit map to all currently active markers, not only this batch.
-                fitMapToActiveMarkers();
-            }
-
-            // Smooth fade-in when a marker first appears
-            function addMarkerWithFade (marker) {
-                if (!marker || !marker.content) return;
-
-                let opacity = 0;
-                const fadeStep = 0.08;
-                const interval = 50;
-                const markerContent = marker.content;
-
-                const fadeInterval = setInterval(() => {
-                    opacity += fadeStep;
-                    if (opacity >= 1) {
-                        clearInterval(fadeInterval);
-                        markerContent.style.opacity = '1';
-                    } else {
-                        markerContent.style.opacity = String(opacity);
-                    }
-                }, interval);
-            }
-
-            // Smooth fade-out + remove marker
-            function removeMarkerWithFade (marker, onComplete) {
-                if (!marker) return;
-
-                let opacity = 1.0;
-                const fadeStep = 0.08;
-                const interval = 50;
-                const markerContent = marker.content;
-
-                const fadeInterval = setInterval(() => {
-                    opacity -= fadeStep;
-                    if (opacity <= 0) {
-                        clearInterval(fadeInterval);
-                        if (markerContent) {
-                            markerContent.style.opacity = '0';
-                        }
-                        if (typeof onComplete === "function") {
-                            onComplete();
-                        }
-                    } else {
-                        if (markerContent) {
-                            markerContent.style.opacity = String(opacity);
-                        }
-                    }
-                }, interval);
-            }
-
-            // Optional: Clear everything if needed
-            function clearAllMarkers () {
-                allMarkers.forEach(marker => {
-                    marker.map = null;
-                });
-                allMarkers = [];
-                alertedCitiesState.activeByKey = {};
-                alertedCitiesState.activeList = [];
-                fitMapToActiveMarkers();
-            }
-
-            // Helper: Wait for map to be ready
-            function waitForMap () {
-                return new Promise((resolve) => {
-                    const checkInterval = setInterval(() => {
-                        if (map) {
-                            clearInterval(checkInterval);
-                            resolve();
-                        }
-                    }, 100); // check every 100ms
-                });
-            }
-
-            // Expose helper methods for the parent page / external scripts.
-            window.mapAlerts = {
-                addCitiesToMap,
-                getCitiesNeedingApiCall,
-                getActiveAlerts: function () {
-                    return alertedCitiesState.activeList.map(item => ({
-                        key: item.cityKey,
-                        city: item.city,
-                        createdAt: item.createdAt,
-                        expiresAt: item.expiresAt
-                    }));
-                },
-                clearAllMarkers
-            };
-
-
-            // ==================== MAP SIZING ====================
-            // Dynamically stretches the map iframe to fill whatever vertical
-            // space remains between its top edge and the bottom of the viewport.
-            // This keeps the map as large as possible without causing page scroll.
-            function fitMapBodyToViewport () {
-                const mapBody = $('#mapBody');
-
-                // Skip if the section is collapsed — no point sizing a hidden element
-                if (!mapBody || !mapBody.hasClass('show')) {
-                    return;
-                }
-
-                const mapFrame = $('#mapFrame')[0];
-                const mapCard = mapBody.find('.card')[0];
-                const rect = mapBody[0].getBoundingClientRect(); // Live position relative to viewport
-                const viewportBottomGap = 15; // Leave a small breathing room at the bottom of the screen
-                const minHeight = 280; // Never shrink the map below this height (px)
-                // availableHeight = distance from the section's top edge to the viewport bottom, minus the gap
-                const availableHeight = Math.max(minHeight, Math.floor(window.innerHeight - rect.top - viewportBottomGap));
-
-                // Apply the computed height to the wrapper div so the card and iframe can fill it with '100%'
-                mapBody.css('height', `${availableHeight}px`);
-
-                if (mapCard) {
-                    $(mapCard).css('height', '100%'); // Card stretches to fill the wrapper
-                }
-
-                if (mapFrame) {
-                    $(mapFrame).css('height', '100%'); // iframe fills the card
-                }
-            }
-
-            let fitMapRafId = null; // Tracks the pending requestAnimationFrame ID for debouncing
-
-            // Debounce helper: cancels any queued resize calculation and re-schedules one
-            // for the next animation frame. This coalesces rapid resize/collapse events
-            // (e.g. window resize bursts) into a single layout recalculation per frame.
-            function scheduleFitMapBodyToViewport () {
-                if (fitMapRafId !== null) {
-                    cancelAnimationFrame(fitMapRafId); // Cancel the previously queued frame
-                }
-
-                // Queue a fresh calculation; clear the ID once it executes
-                fitMapRafId = requestAnimationFrame(() => {
-                    fitMapRafId = null;
-                    fitMapBodyToViewport();
-                });
-            }
-
-            const mapBodyElement = $('#mapBody');
-            const newsBodyElement = $('#newsBody');
-
-            // Re-size the map whenever the map panel is expanded ('shown') or collapsed ('hidden').
-            // On 'hidden' we reset the explicit height so the panel collapses fully to zero.
-            if (mapBodyElement.length) {
-                mapBodyElement.on('shown.bs.collapse', scheduleFitMapBodyToViewport);
-                mapBodyElement.on('hidden.bs.collapse', () => {
-                    $(mapBodyElement).css('height', ''); // Clear inline height so CSS collapse transition works
-                });
-            }
-
-            // The news feed panel sits above the map; any change in its height affects
-            // how much space remains for the map, so we must resize on its collapse events too.
-            if (newsBodyElement.length) {
-                newsBodyElement.on('shown.bs.collapse', scheduleFitMapBodyToViewport);
-                newsBodyElement.on('hidden.bs.collapse', scheduleFitMapBodyToViewport);
-
-                // Prefer ResizeObserver (modern browsers) to react to news feed height changes
-                // as new RSS rows are prepended, without needing polling.
-                if (typeof ResizeObserver !== 'undefined') {
-                    const newsBodyResizeObserver = new ResizeObserver(() => {
-                        scheduleFitMapBodyToViewport();
-                    });
-
-                    newsBodyResizeObserver.observe(newsBodyElement[0]);
-                } else {
-                    // Fallback for browsers that lack ResizeObserver: watch the table body
-                    // for DOM mutations (row prepends) and resize when they occur.
-                    const rssAlertsElement = $('#rss_alerts')[0];
-
-                    if (rssAlertsElement) {
-                        const newsBodyMutationObserver = new MutationObserver(() => {
-                            scheduleFitMapBodyToViewport();
-                        });
-
-                        newsBodyMutationObserver.observe(rssAlertsElement, {
-                            childList: true, // Detect added/removed rows
-                            subtree: true // Include any nested changes
-                        });
-                    }
-                }
-            }
-
-            $(window).on('resize', scheduleFitMapBodyToViewport); // Re-size on browser window resize
-            $(window).on('load', scheduleFitMapBodyToViewport); // Run once all resources have loaded
-
-            scheduleFitMapBodyToViewport(); // Initial call on script execution
-
-
-
-            // ==================== LIVE CLOCK ====================
-            // Refreshes the HH:MM:SS badge in the alert panel header every second.
-            function updateClock () {
-                const now = new Date();
-                // padStart(2, '0') ensures single-digit values are zero-padded (e.g. '9' → '09')
-                const h = String(now.getHours()).padStart(2, '0');
-                const m = String(now.getMinutes()).padStart(2, '0');
-                const s = String(now.getSeconds()).padStart(2, '0');
-
-                const timeString = `${h}:${m}:${s}`;
-
-                // Write the formatted time into the clock badge element
-                const clockHeader = document.getElementById('liveClock');
-                if (clockHeader) clockHeader.textContent = timeString;
-            }
-
-            updateClock(); // Run immediately to avoid a 1-second blank on page load
-
-
-            // ==================== PERIODIC DOM MAINTENANCE ====================
-            // After 5 seconds, strip the highlight classes added when a row first appears.
-            // This gives users a brief visual cue for new rows without permanently
-            // disrupting the table's uniform appearance.
-            setInterval(() => {
-                $(".alertNewRow").removeClass("table-light");
-                $(".alertNewRow").removeClass("alertNewRow");
-
-                $(".rssNewRow").removeClass("table-light");
-                $(".rssNewRow").removeClass("rssNewRow");
-            }, 5000);
 
             // ==================== AJAX HANDLER ====================
             // Wraps jQuery's $.ajax in a Promise so callers can use async/await.
@@ -1411,6 +946,39 @@
                 });
             }
 
+
+            // ==================== LIVE CLOCK ====================
+            // Refreshes the HH:MM:SS badge in the alert panel header every second.
+            function updateClock () {
+                const now = new Date();
+                // padStart(2, '0') ensures single-digit values are zero-padded (e.g. '9' → '09')
+                const h = String(now.getHours()).padStart(2, '0');
+                const m = String(now.getMinutes()).padStart(2, '0');
+                const s = String(now.getSeconds()).padStart(2, '0');
+
+                const timeString = `${h}:${m}:${s}`;
+
+                // Write the formatted time into the clock badge element
+                const clockHeader = document.getElementById('liveClock');
+                if (clockHeader) clockHeader.textContent = timeString;
+            }
+
+            updateClock(); // Run immediately to avoid a 1-second blank on page load
+
+
+            // ==================== PERIODIC DOM MAINTENANCE ====================
+            // After 5 seconds, strip the highlight classes added when a row first appears.
+            // This gives users a brief visual cue for new rows without permanently disrupting the table's uniform appearance.
+            setInterval(() => {
+                $(".alertNewRow").removeClass("table-light");
+                $(".alertNewRow").removeClass("alertNewRow");
+
+                $(".rssNewRow").removeClass("table-light");
+                $(".rssNewRow").removeClass("rssNewRow");
+            }, 5000);
+
+
+
             // ==================== BOOTSTRAP MODAL INSTANCES ====================
             // Pre-instantiating modals avoids creation overhead on first show.
             const earlyWarningModalEnter = new bootstrap.Modal('#earlyWarningModalEnter'); // Red danger — active missile warning
@@ -1430,7 +998,7 @@
                 const h = String(now.getHours()).padStart(2, '0');
                 const m = String(now.getMinutes()).padStart(2, '0');
                 const s = String(now.getSeconds()).padStart(2, '0');
-                document.getElementById('earlyWarningOpenedAt').textContent = `${h}:${m}:${s}`;
+                $('#earlyWarningOpenedAt').text(`${h}:${m}:${s}`);
 
                 // Clear any existing countdown
                 clearEarlyWarningTimer();
@@ -1443,13 +1011,15 @@
 
                     const mins = String(Math.floor(remaining / 60000)).padStart(1, '0');
                     const secs = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
-                    const el = document.getElementById('earlyWarningCountdown');
-                    if (el) el.textContent = `${mins}:${secs}`;
+                    const el = $('#earlyWarningCountdown');
+                    if (el) el.text(`${mins}:${secs}`);
 
                     if (remaining <= 0) {
                         clearEarlyWarningTimer();
 
                         if (earlyWarningModalEnter._isShown) {
+                            $("#earlyWarningCountdown").text("--:--"); // Reset the countdown display
+                            $("#earlyWarningOpenedAt").text("--:--:--"); // Reset the opened-at display
                             earlyWarningModalEnter.hide(); // Hide the danger modal
                         }
                     }
@@ -1466,38 +1036,9 @@
                 }
             }
 
-            // ==================== APPLICATION STATE ====================
 
-            // Accumulator arrays — each entry is an object {location, counter} or {zone, counter}
-            let alertedLocations = []; // All unique locations that have received alerts this session
-            let alertedZones = []; // All unique zones that have received alerts this session
-            let errorLogs = []; // Unique Pikud HaOref error messages with occurrence counts
-            let unmatchedCitiesLogs = []; // Location names that couldn't be found in locationMap
-            let earlyWarningLocations = []; // Cities currently under an active early-warning (newsFlash)
-            let alertedCitiesObj = []; // Cities that have received alerts this session
-            let lastAlertedTimes = []; // Last unique times when alerts occurred (HH:mm format)
-
-            // Summary counters reflected in the Alerts Summary table
-            let rocketAlertCounter = 0; // Missile alert rows received
-            let droneAlertCounter = 0; // Hostile aircraft intrusion rows received
-            let totalEarlyWarningsAllCounter = 0; // Early warnings for any location
-            let totalEarlyWarningsSpecificCounter = 0; // Early warnings that include the user's saved city
-            let pikudHaorefErrorCounter = 0; // Total fetch errors from Pikud HaOref
-            let totalUnmatchedCitiesCounter = 0; // Total alerts for unrecognised location names
-
-            // Boolean flags for UI state
-            let pikudHaorefError = false; // True once the first Pikud HaOref error has occurred
-            let unmatchedCitiesFlag = false; // True once the first unmatched city has been logged
-            let earlyWarningActive = false; // True while an early-warning (newsFlash) alert is ongoing
-            let testmode = null; // When true, the server returns hardcoded mock alert data
-            let testModeTimeoutHandle = null; // Auto-disables test mode after the configured timeout
-
-            const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
-            const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
-            const recentlyAlertedLocations = {}; // Dedup cache: location → Unix timestamp of last alert row added
 
             // ==================== EVENT HANDLERS ====================
-
             function isFullscreenActive () {
                 return Boolean(document.fullscreenElement || document.webkitFullscreenElement);
             }
@@ -2396,6 +1937,473 @@
 
             rssPoll(); // Kick off the RSS polling loop
 
+
+
+            // ==================== MAP ====================
+            let map;
+            let allMarkers = []; // Keeps all active markers
+            const defaultMapCenter = {
+                lat: 31.5326,
+                lng: 35.0998
+            };
+            const defaultMapZoom = 9;
+            const clusteredMarkersZoom = 12;
+            const clusteredMarkerSpanThreshold = 0.02;
+            let zoomAnimationInterval = null;
+            let viewportUpdateToken = 0;
+
+            // Active city alerts keyed by a stable city identifier.
+            // A city remains here while its marker is active, then is removed on timeout.
+            const alertedCitiesState = {
+                activeByKey: {},
+                activeList: []
+            };
+
+            // Initialize the map (runs only once).
+            // Assigned to window so the async Maps API callback can always find it,
+            // regardless of whether the script fires before or after this block executes.
+            window.initMap = function initMap () {
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: defaultMapZoom,
+                    center: defaultMapCenter,
+                    mapId: 'rocket-alerts-map',
+                    mapTypeId: 'roadmap',
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                    fullscreenControl: true,
+                    zoomControl: true
+                });
+            }
+
+            function buildMarkerContent (type) {
+                const markerElement = document.createElement('div');
+                markerElement.className = 'adv-marker';
+
+                if (type === 'missiles' || type === 'hostileAircraftIntrusion') {
+                    markerElement.classList.add(`adv-marker--${type}`);
+                } else {
+                    markerElement.classList.add('adv-marker--default');
+                }
+
+                return markerElement;
+            }
+
+            function stopSmoothZoomAnimation () {
+                if (zoomAnimationInterval !== null) {
+                    clearInterval(zoomAnimationInterval);
+                    zoomAnimationInterval = null;
+                }
+            }
+
+            function smoothZoomTo (targetZoom) {
+                if (!map) {
+                    return;
+                }
+
+                const roundedTarget = Math.round(targetZoom);
+                const currentZoom = map.getZoom();
+
+                stopSmoothZoomAnimation();
+
+                if (currentZoom === undefined || currentZoom === null) {
+                    map.setZoom(roundedTarget);
+                    return;
+                }
+
+                if (currentZoom === roundedTarget) {
+                    return;
+                }
+
+                const direction = currentZoom < roundedTarget ? 1 : -1;
+                zoomAnimationInterval = setInterval(() => {
+                    const current = map.getZoom();
+                    if (current === undefined || current === null) {
+                        stopSmoothZoomAnimation();
+                        return;
+                    }
+
+                    const next = current + direction;
+                    const reached = direction > 0 ? next >= roundedTarget : next <= roundedTarget;
+
+                    map.setZoom(reached ? roundedTarget : next);
+
+                    if (reached) {
+                        stopSmoothZoomAnimation();
+                    }
+                }, 50);
+            }
+
+            // Keeps all active markers visible as markers are added/removed.
+            function fitMapToActiveMarkers () {
+                if (!map) {
+                    return;
+                }
+
+                const updateToken = ++viewportUpdateToken;
+                stopSmoothZoomAnimation();
+
+                const visibleMarkers = allMarkers.filter(marker => marker && marker.map);
+
+                if (visibleMarkers.length === 0) {
+                    map.panTo(defaultMapCenter);
+                    smoothZoomTo(defaultMapZoom);
+                    return;
+                }
+
+                if (visibleMarkers.length === 1) {
+                    map.panTo(visibleMarkers[0].position);
+                    smoothZoomTo(12);
+                    return;
+                }
+
+                const bounds = new google.maps.LatLngBounds();
+                visibleMarkers.forEach(marker => bounds.extend(marker.position));
+
+                const northEast = bounds.getNorthEast();
+                const southWest = bounds.getSouthWest();
+                const latSpan = Math.abs(northEast.lat() - southWest.lat());
+                const lngSpan = Math.abs(northEast.lng() - southWest.lng());
+
+                // When markers are tightly clustered, fitBounds tends to over-zoom.
+                // Use a stable center+zoom instead to avoid zoom oscillation.
+                if (latSpan <= clusteredMarkerSpanThreshold && lngSpan <= clusteredMarkerSpanThreshold) {
+                    map.panTo(bounds.getCenter());
+                    smoothZoomTo(clusteredMarkersZoom);
+                    return;
+                }
+
+                map.fitBounds(bounds, {
+                    padding: 90
+                });
+
+                google.maps.event.addListenerOnce(map, 'idle', () => {
+                    if (updateToken !== viewportUpdateToken) {
+                        return;
+                    }
+
+                    if (map.getZoom() > 13) {
+                        smoothZoomTo(13);
+                    }
+                });
+            }
+
+            function getCityKey (city) {
+                if (city.id !== undefined && city.id !== null) {
+                    return String(city.id);
+                }
+
+                if (city.name) {
+                    return String(city.name).toLowerCase();
+                }
+
+                return `${city.lat},${city.lng}`;
+            }
+
+            function removeCityFromActiveList (cityKey) {
+                alertedCitiesState.activeList = alertedCitiesState.activeList.filter(item => item.cityKey !== cityKey);
+            }
+
+            function cleanupExpiredCity (cityKey, marker) {
+                marker.map = null;
+                allMarkers = allMarkers.filter(m => m !== marker);
+                delete alertedCitiesState.activeByKey[cityKey];
+                removeCityFromActiveList(cityKey);
+                fitMapToActiveMarkers();
+            }
+
+            // Returns only cities that are not currently active on the map.
+            // Use this before issuing API calls to avoid repeatedly querying active cities.
+            function getCitiesNeedingApiCall (cities) {
+                const safeCities = Array.isArray(cities) ? cities : [];
+                return safeCities.filter(city => !alertedCitiesState.activeByKey[getCityKey(city)]);
+            }
+
+            // Add new city markers without removing existing ones.
+            // Already-active cities are ignored until their per-city duration expires.
+            async function addCitiesToMap (cities) {
+                // Wait until map is ready
+                if (!map) {
+                    await waitForMap();
+                }
+
+                const incomingCities = Array.isArray(cities) ? cities : [];
+
+                // Load the marker library and get AdvancedMarkerElement
+                const {
+                    AdvancedMarkerElement
+                } = await google.maps.importLibrary("marker");
+
+                const {
+                    PinElement
+                } = await google.maps.importLibrary("marker");
+
+                incomingCities.forEach((city) => {
+                    const cityKey = getCityKey(city);
+
+                    // Skip if this city is already active on the map.
+                    if (alertedCitiesState.activeByKey[cityKey]) {
+                        return;
+                    }
+
+                    const type = city.type;
+
+                    let backgroundColor = '#00FF00'; // Default green
+                    if (type === 'missiles') {
+                        backgroundColor = '#FF0000'; // Red for missiles
+                    } else if (type === 'hostileAircraftIntrusion') {
+                        backgroundColor = '#FFA500'; // Orange for hostile aircraft intrusion
+                    }
+
+                    // Then create marker:
+                    const pin = new PinElement({
+                        background: backgroundColor, // fill color (any hex)
+                        borderColor: '#000000',
+                        glyphColor: '#FFFFFF', // White color of the letter/icon inside
+                        scale: 1.2,
+                    });
+
+                    // Start transparent so we can fade in
+                    pin.style.opacity = '0';
+
+                    const marker = new google.maps.marker.AdvancedMarkerElement({
+                        position: {
+                            lat: city.lat,
+                            lng: city.lng
+                        },
+                        map: map,
+                        content: pin
+                    });
+
+                    // Fade the marker in after it is placed on the map
+                    addMarkerWithFade(marker);
+
+                    // Store it globally so we can track it
+                    allMarkers.push(marker);
+
+                    // Optional: InfoWindow
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `<h3>${city.name}</h3>`
+                    });
+                    marker.addEventListener('gmp-click', () => {
+                        infoWindow.open(map, marker);
+                    });
+
+                    let duration = 10000; // Default duration of 10 seconds
+                    if (!testmode) {
+                        duration = Number(city.duration) > 0 ? Number(city.duration) : duration;
+                    }
+
+                    // Store active city record so repeated API cycles can ignore duplicates.
+                    const activeRecord = {
+                        cityKey,
+                        city,
+                        marker,
+                        createdAt: Date.now(),
+                        expiresAt: Date.now() + duration
+                    };
+
+                    alertedCitiesState.activeByKey[cityKey] = activeRecord;
+                    alertedCitiesState.activeList.push(activeRecord);
+
+                    // On timeout: fade marker, then remove from active state so city can alert again.
+                    setTimeout(() => {
+                        removeMarkerWithFade(marker, () => {
+                            cleanupExpiredCity(cityKey, marker);
+                        });
+                    }, duration);
+                });
+
+                // Fit map to all currently active markers, not only this batch.
+                fitMapToActiveMarkers();
+            }
+
+            // Smooth fade-in when a marker first appears
+            function addMarkerWithFade (marker) {
+                if (!marker || !marker.content) return;
+
+                let opacity = 0;
+                const fadeStep = 0.08;
+                const interval = 50;
+                const markerContent = marker.content;
+
+                const fadeInterval = setInterval(() => {
+                    opacity += fadeStep;
+                    if (opacity >= 1) {
+                        clearInterval(fadeInterval);
+                        markerContent.style.opacity = '1';
+                    } else {
+                        markerContent.style.opacity = String(opacity);
+                    }
+                }, interval);
+            }
+
+            // Smooth fade-out + remove marker
+            function removeMarkerWithFade (marker, onComplete) {
+                if (!marker) return;
+
+                let opacity = 1.0;
+                const fadeStep = 0.08;
+                const interval = 50;
+                const markerContent = marker.content;
+
+                const fadeInterval = setInterval(() => {
+                    opacity -= fadeStep;
+                    if (opacity <= 0) {
+                        clearInterval(fadeInterval);
+                        if (markerContent) {
+                            markerContent.style.opacity = '0';
+                        }
+                        if (typeof onComplete === "function") {
+                            onComplete();
+                        }
+                    } else {
+                        if (markerContent) {
+                            markerContent.style.opacity = String(opacity);
+                        }
+                    }
+                }, interval);
+            }
+
+            // Optional: Clear everything if needed
+            function clearAllMarkers () {
+                allMarkers.forEach(marker => {
+                    marker.map = null;
+                });
+                allMarkers = [];
+                alertedCitiesState.activeByKey = {};
+                alertedCitiesState.activeList = [];
+                fitMapToActiveMarkers();
+            }
+
+            // Helper: Wait for map to be ready
+            function waitForMap () {
+                return new Promise((resolve) => {
+                    const checkInterval = setInterval(() => {
+                        if (map) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100); // check every 100ms
+                });
+            }
+
+            // Expose helper methods for the parent page / external scripts.
+            window.mapAlerts = {
+                addCitiesToMap,
+                getCitiesNeedingApiCall,
+                getActiveAlerts: function () {
+                    return alertedCitiesState.activeList.map(item => ({
+                        key: item.cityKey,
+                        city: item.city,
+                        createdAt: item.createdAt,
+                        expiresAt: item.expiresAt
+                    }));
+                },
+                clearAllMarkers
+            };
+
+
+            // ==================== MAP SIZING ====================
+            // Dynamically stretches the map iframe to fill whatever vertical
+            // space remains between its top edge and the bottom of the viewport.
+            // This keeps the map as large as possible without causing page scroll.
+            function fitMapBodyToViewport () {
+                const mapBody = $('#mapBody');
+
+                // Skip if the section is collapsed — no point sizing a hidden element
+                if (!mapBody || !mapBody.hasClass('show')) {
+                    return;
+                }
+
+                const mapFrame = $('#mapFrame')[0];
+                const mapCard = mapBody.find('.card')[0];
+                const rect = mapBody[0].getBoundingClientRect(); // Live position relative to viewport
+                const viewportBottomGap = 15; // Leave a small breathing room at the bottom of the screen
+                const minHeight = 280; // Never shrink the map below this height (px)
+                // availableHeight = distance from the section's top edge to the viewport bottom, minus the gap
+                const availableHeight = Math.max(minHeight, Math.floor(window.innerHeight - rect.top - viewportBottomGap));
+
+                // Apply the computed height to the wrapper div so the card and iframe can fill it with '100%'
+                mapBody.css('height', `${availableHeight}px`);
+
+                if (mapCard) {
+                    $(mapCard).css('height', '100%'); // Card stretches to fill the wrapper
+                }
+
+                if (mapFrame) {
+                    $(mapFrame).css('height', '100%'); // iframe fills the card
+                }
+            }
+
+            let fitMapRafId = null; // Tracks the pending requestAnimationFrame ID for debouncing
+
+            // Debounce helper: cancels any queued resize calculation and re-schedules one
+            // for the next animation frame. This coalesces rapid resize/collapse events
+            // (e.g. window resize bursts) into a single layout recalculation per frame.
+            function scheduleFitMapBodyToViewport () {
+                if (fitMapRafId !== null) {
+                    cancelAnimationFrame(fitMapRafId); // Cancel the previously queued frame
+                }
+
+                // Queue a fresh calculation; clear the ID once it executes
+                fitMapRafId = requestAnimationFrame(() => {
+                    fitMapRafId = null;
+                    fitMapBodyToViewport();
+                });
+            }
+
+            const mapBodyElement = $('#mapBody');
+            const newsBodyElement = $('#newsBody');
+
+            // Re-size the map whenever the map panel is expanded ('shown') or collapsed ('hidden').
+            // On 'hidden' we reset the explicit height so the panel collapses fully to zero.
+            if (mapBodyElement.length) {
+                mapBodyElement.on('shown.bs.collapse', scheduleFitMapBodyToViewport);
+                mapBodyElement.on('hidden.bs.collapse', () => {
+                    $(mapBodyElement).css('height', ''); // Clear inline height so CSS collapse transition works
+                });
+            }
+
+            // The news feed panel sits above the map; any change in its height affects
+            // how much space remains for the map, so we must resize on its collapse events too.
+            if (newsBodyElement.length) {
+                newsBodyElement.on('shown.bs.collapse', scheduleFitMapBodyToViewport);
+                newsBodyElement.on('hidden.bs.collapse', scheduleFitMapBodyToViewport);
+
+                // Prefer ResizeObserver (modern browsers) to react to news feed height changes
+                // as new RSS rows are prepended, without needing polling.
+                if (typeof ResizeObserver !== 'undefined') {
+                    const newsBodyResizeObserver = new ResizeObserver(() => {
+                        scheduleFitMapBodyToViewport();
+                    });
+
+                    newsBodyResizeObserver.observe(newsBodyElement[0]);
+                } else {
+                    // Fallback for browsers that lack ResizeObserver: watch the table body
+                    // for DOM mutations (row prepends) and resize when they occur.
+                    const rssAlertsElement = $('#rss_alerts')[0];
+
+                    if (rssAlertsElement) {
+                        const newsBodyMutationObserver = new MutationObserver(() => {
+                            scheduleFitMapBodyToViewport();
+                        });
+
+                        newsBodyMutationObserver.observe(rssAlertsElement, {
+                            childList: true, // Detect added/removed rows
+                            subtree: true // Include any nested changes
+                        });
+                    }
+                }
+            }
+
+            $(window).on('resize', scheduleFitMapBodyToViewport); // Re-size on browser window resize
+            $(window).on('load', scheduleFitMapBodyToViewport); // Run once all resources have loaded
+
+            scheduleFitMapBodyToViewport(); // Initial call on script execution
+
+
+
+
             // ==================== AUTOSCROLLERS ======================
 
             // ==================== AUTOSCROLLER FACTORY ====================
@@ -2598,8 +2606,6 @@
             if (localStorage.getItem("autoScrollEarlyWarning") !== "false") {
                 startEarlyWarningAutoScroll();
             }
-
-
 
 
             // ==================== APP VERSION CHECK ====================

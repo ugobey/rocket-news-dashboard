@@ -118,6 +118,14 @@
                                         <td class="text-end"><span id="rocketAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr>
+                                        <td><span class="text-sky-400">Drone Share</span></td>
+                                        <td class="text-end"><span id="droneShareCounter" class="stat-number">--</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="text-orange-400">Rocket Share</span></td>
+                                        <td class="text-end"><span id="rocketShareCounter" class="stat-number">--</span></td>
+                                    </tr>
+                                    <tr>
                                         <td><span class="text-emerald-400">Total Locations</span></td>
                                         <td class="text-end"><span id="totalLocationsCounter" class="stat-number">0</span></td>
                                     </tr>
@@ -1041,6 +1049,19 @@
                 }
             }
 
+            // Refreshes advanced summary metrics derived from rockets/drones/early warnings.
+            function updateAdvancedSummaryStats () {
+                const totalThreatAlerts = rocketAlertCounter + droneAlertCounter;
+
+                const rocketShare = totalThreatAlerts > 0 ? `${((rocketAlertCounter / totalThreatAlerts) * 100).toFixed(1)}%` : "--";
+                const droneShare = totalThreatAlerts > 0 ? `${((droneAlertCounter / totalThreatAlerts) * 100).toFixed(1)}%` : "--";
+
+                $("#rocketShareCounter").text(rocketShare);
+                $("#droneShareCounter").text(droneShare);
+            }
+
+            updateAdvancedSummaryStats();
+
             // ==================== LOCATION DATA & CITY AUTOCOMPLETE ====================
 
             // locationsJSON is injected server-side by EJS from the pikud-haoref-api package.
@@ -1224,6 +1245,7 @@
 
                                             totalEarlyWarningsAllCounter++
                                             $("#totalEarlyWarningsAllCounter").text(totalEarlyWarningsAllCounter);
+                                            updateAdvancedSummaryStats();
                                         }
 
                                         earlyWarningActive = true;
@@ -1300,6 +1322,7 @@
 
                                                 // Combined total is rockets + drones (other types not counted here)
                                                 $("#totalAlertsCounter").text(rocketAlertCounter + droneAlertCounter);
+                                                updateAdvancedSummaryStats();
 
                                                 updateAlertedLocation(location); // Upsert into locations accumulator
                                                 updateAlertedZone(zone_en); // Upsert into zones accumulator

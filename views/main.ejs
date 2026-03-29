@@ -6,8 +6,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title><%-title%></title>
 
-
-
         <link href="/css/bootstrap-5.3.3/bootstrap.min.css" rel="stylesheet" />
         <link href="/css/animate.min.css" rel="stylesheet" />
         <link href="/fonts/fontawesome-free-7.2.0/css/all.min.css" rel="stylesheet" />
@@ -114,19 +112,23 @@
                                         <td class="text-end"><span id="droneAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span>Total Rocket Alerts</span></td>
+                                        <td><span>Total Rocket / Missile Alerts</span></td>
                                         <td class="text-end"><span id="rocketAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span>Ballistic Missile Events</span></td>
-                                        <td class="text-end"><span id="ballisticMissileEventsCounter" class="stat-number">0</span></td>
+                                        <td><span>Total Ballistic Missile Alerts</span></td>
+                                        <td class="text-end"><span id="ballisticMissileAlertsCounter" class="stat-number">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span>Ballistic Missile Share</span></td>
+                                        <td class="text-end"><span id="ballisticMissileShareCounter" class="stat-number">--</span></td>
                                     </tr>
                                     <tr>
                                         <td><span>Drone Share</span></td>
                                         <td class="text-end"><span id="droneShareCounter" class="stat-number">--</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span>Rocket Share</span></td>
+                                        <td><span>Rocket / Missile Share</span></td>
                                         <td class="text-end"><span id="rocketShareCounter" class="stat-number">--</span></td>
                                     </tr>
                                     <tr>
@@ -140,6 +142,10 @@
                                     <tr>
                                         <td><span>Total Early Warnings (All)</span></td>
                                         <td class="text-end"><span id="totalEarlyWarningsAllCounter" class="stat-number">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span>Average Early Warning Time</span></td>
+                                        <td class="text-end"><span id="averageEarlyWarningTimeCounter" class="stat-number">5:00</span></td>
                                     </tr>
                                     <tr id="total_early_warnings_specific_counter" style="display: none">
                                         <td><span>Total Early Warnings (Specific)</span></td>
@@ -272,7 +278,7 @@
                     <div class="modal-body px-4 py-1">
                         <div class="glass-inner p-4 rounded-4">
 
-                            <span class="text-white-50 small mb-3">Alerted at <strong id="earlyWarningOpenedAt">--:--:--</strong></span>
+                            <span class="text-white-50 small mb-3">Alerted at <strong id="earlyWarningOpenedAt"></strong></span>
                             &nbsp;&middot;&nbsp;
                             <span class="text-white-50 small mb-3">On average there is about <strong id="earlyWarningCountdown"></strong> before missile sirens will sound</span>
                             <br /><br />
@@ -505,7 +511,7 @@
             // Summary counters reflected in the Alerts Summary table
             let rocketAlertCounter = 0; // Missile alert rows received
             let droneAlertCounter = 0; // Hostile aircraft intrusion rows received
-            let ballisticMissileEventsCounter = 0; // Missile events matched to a prior early warning
+            let ballisticMissileAlertsCounter = 0; // Alert locations that overlap with a ballistic-missile early warning match
             let totalEarlyWarningsAllCounter = 0; // Early warnings for any location
             let totalEarlyWarningsSpecificCounter = 0; // Early warnings that include the user's saved city
             let pikudHaorefErrorCounter = 0; // Total fetch errors from Pikud HaOref
@@ -518,6 +524,17 @@
             let earlyWarningActive = false; // True while an early-warning (newsFlash) alert is ongoing
             let testmode = null; // When true, the server returns hardcoded mock alert data
             let testModeTimeoutHandle = null; // Auto-disables test mode after the configured timeout
+
+            // Early warning countdown tracking — defaults to 5 minutes, updates based on actual observed durations
+            let earlyWarningStartTime = null; // Unix timestamp when the current early warning started
+            const EARLY_WARNING_DEFAULT_DURATION_MS = 5 * 60 * 1000;
+            const EARLY_WARNING_DURATIONS_STORAGE_KEY = "earlyWarningDurationsMs";
+            const EARLY_WARNING_DURATION_STORAGE_KEY = "earlyWarningDurationMs";
+            let earlyWarningDurations = JSON.parse(localStorage.getItem(EARLY_WARNING_DURATIONS_STORAGE_KEY) || "[]")
+                .filter(duration => Number.isFinite(duration) && duration > 0); // Actual durations (ms) for completed early warnings
+            let currentEarlyWarningDuration = earlyWarningDurations.length > 0
+                ? Math.round(earlyWarningDurations.reduce((sum, duration) => sum + duration, 0) / earlyWarningDurations.length)
+                : parseInt(localStorage.getItem(EARLY_WARNING_DURATION_STORAGE_KEY) || String(EARLY_WARNING_DEFAULT_DURATION_MS), 10);
 
             const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
             const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
@@ -597,9 +614,85 @@
 
             // ==================== EARLY WARNING TIMER ====================
             let earlyWarningCountdownInterval = null;
-            const EARLY_WARNING_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+
+            function resetEarlyWarningDisplay () {
+                $("#earlyWarningCountdown").text("");
+                $("#earlyWarningOpenedAt").text("");
+            }
+
+            function formatEarlyWarningDuration (durationMs) {
+                const mins = Math.floor(durationMs / 60000);
+                const secs = String(Math.floor((durationMs % 60000) / 1000)).padStart(2, "0");
+                return `${mins}:${secs}`;
+            }
+
+            function updateAverageEarlyWarningSummary () {
+                $("#averageEarlyWarningTimeCounter").text(formatEarlyWarningDuration(currentEarlyWarningDuration));
+            }
+
+            function persistEarlyWarningDurations () {
+                localStorage.setItem(EARLY_WARNING_DURATIONS_STORAGE_KEY, JSON.stringify(earlyWarningDurations));
+                localStorage.setItem(EARLY_WARNING_DURATION_STORAGE_KEY, String(currentEarlyWarningDuration));
+                updateAverageEarlyWarningSummary();
+            }
+
+            function recordCompletedEarlyWarningDuration (reason) {
+                if (earlyWarningStartTime === null) {
+                    return;
+                }
+
+                const actualDuration = Date.now() - earlyWarningStartTime;
+                earlyWarningDurations.push(actualDuration);
+                currentEarlyWarningDuration = Math.round(
+                    earlyWarningDurations.reduce((sum, duration) => sum + duration, 0) / earlyWarningDurations.length
+                );
+                persistEarlyWarningDurations();
+
+                const actualSecs = Math.round(actualDuration / 1000);
+                const nextMins = Math.floor(currentEarlyWarningDuration / 60000);
+                const nextSecs = String(Math.floor((currentEarlyWarningDuration % 60000) / 1000)).padStart(2, "0");
+
+                earlyWarningStartTime = null;
+            }
+
+            function finishEarlyWarning (reason, options = {}) {
+                const {
+                    showExitModal = false,
+                    keepLifecycleActive = false
+                } = options;
+
+                recordCompletedEarlyWarningDuration(reason);
+                clearEarlyWarningTimer();
+
+                if (earlyWarningModalEnter._isShown) {
+                    earlyWarningModalEnter.hide();
+                }
+
+                resetEarlyWarningDisplay();
+
+                if (!keepLifecycleActive) {
+                    earlyWarningLocations = [];
+                    earlyWarningActive = false;
+                    $("#earlyWarningLocations").text("");
+                }
+
+                if (showExitModal) {
+                    if (!earlyWarningModalExit._isShown) {
+                        earlyWarningModalExit.show();
+                    }
+
+                    setTimeout(() => {
+                        if (earlyWarningModalExit._isShown) {
+                            earlyWarningModalExit.hide();
+                        }
+                    }, 10000);
+                }
+            }
 
             function startEarlyWarningTimer () {
+                // Capture the start time of this early warning for duration tracking
+                earlyWarningStartTime = Date.now();
+
                 // Show the time the modal opened
                 const now = new Date();
                 const h = String(now.getHours()).padStart(2, '0');
@@ -610,29 +703,27 @@
                 // Clear any existing countdown
                 clearEarlyWarningTimer();
 
-                let remaining = EARLY_WARNING_DURATION_MS;
+                let remaining = currentEarlyWarningDuration;
+
+                function updateDisplay () {
+                    const mins = String(Math.floor(remaining / 60000)).padStart(1, '0');
+                    const secs = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
+                    const el = $('#earlyWarningCountdown');
+                    if (el) el.text(`${mins}:${secs}`);
+                }
 
                 function tick () {
                     remaining -= 1000;
                     if (remaining < 0) remaining = 0;
 
-                    const mins = String(Math.floor(remaining / 60000)).padStart(1, '0');
-                    const secs = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
-                    const el = $('#earlyWarningCountdown');
-                    if (el) el.text(`${mins}:${secs}`);
+                    updateDisplay();
 
                     if (remaining <= 0) {
-                        clearEarlyWarningTimer();
-
-                        if (earlyWarningModalEnter._isShown) {
-                            $("#earlyWarningCountdown").text("--:--"); // Reset the countdown display
-                            $("#earlyWarningOpenedAt").text("--:--:--"); // Reset the opened-at display
-                            earlyWarningModalEnter.hide(); // Hide the danger modal
-                        }
+                        finishEarlyWarning("timer-expired");
                     }
                 }
 
-                tick(); // Run immediately, then every second
+                updateDisplay(); // Show the full dynamic duration immediately (before any countdown)
                 earlyWarningCountdownInterval = setInterval(tick, 1000);
             }
 
@@ -642,6 +733,8 @@
                     earlyWarningCountdownInterval = null;
                 }
             }
+
+            updateAverageEarlyWarningSummary();
 
 
 
@@ -1153,9 +1246,11 @@
 
                 const rocketShare = totalThreatAlerts > 0 ? `${((rocketAlertCounter / totalThreatAlerts) * 100).toFixed(1)}%` : "--";
                 const droneShare = totalThreatAlerts > 0 ? `${((droneAlertCounter / totalThreatAlerts) * 100).toFixed(1)}%` : "--";
+                const ballisticMissileShare = rocketAlertCounter > 0 ? `${((ballisticMissileAlertsCounter / rocketAlertCounter) * 100).toFixed(1)}%` : "--";
 
                 $("#rocketShareCounter").text(rocketShare);
                 $("#droneShareCounter").text(droneShare);
+                $("#ballisticMissileShareCounter").text(ballisticMissileShare);
             }
 
             updateAdvancedSummaryStats();
@@ -1298,35 +1393,15 @@
                                     // Hebrew string "האירוע הסתיים" means "The event has ended".
                                     // When the API sends this instruction, the early warning is over.
                                     if (instructions === "האירוע הסתיים") {
-                                        //console.log("Pikud HaOref Early Warning End:", alert[0]);
-
                                         // Show the all-clear modal only when an early warning was actually active
                                         if (earlyWarningActive && typeof id !== "undefined") {
-                                            if (!earlyWarningModalExit._isShown) {
-                                                earlyWarningModalExit.show();
-                                            }
-
-                                            // Auto-dismiss the all-clear modal after 10 seconds
-                                            setTimeout(() => {
-                                                if (earlyWarningModalExit._isShown) {
-                                                    earlyWarningModalExit.hide();
-                                                }
-                                            }, 10000);
-
-                                            // Reset all early-warning state
-                                            earlyWarningLocations = [];
-                                            earlyWarningActive = false;
-                                            $("#earlyWarningLocations").text("");
-
-                                            if (earlyWarningModalEnter._isShown) {
-                                                clearEarlyWarningTimer();
-                                                earlyWarningModalEnter.hide(); // Hide the danger modal
-                                            }
+                                            finishEarlyWarning("api-end", {
+                                                showExitModal: true
+                                            });
                                         }
 
 
                                     } else {
-                                        //console.log("Pikud HaOref Early Warning Start:", alert[0]);
 
                                         // Early warning is still active (or just started).
                                         // Resolve each city ID to its English name for the affectedCity check.
@@ -1376,6 +1451,12 @@
                                     // When a real siren-type alert comes in, any pending early warning is cleared
                                     // because the pre-siren phase is now superseded by the actual event.
                                 } else if (alertType != "newsFlash") {
+                                    if (earlyWarningStartTime !== null || earlyWarningActive) {
+                                        finishEarlyWarning("first-live-alert", {
+                                            keepLifecycleActive: true
+                                        });
+                                    }
+
                                     const alertTypeDetails = getAlertDetailsByCategory(alertType);
 
                                     if (alertTypeDetails) {
@@ -1386,11 +1467,15 @@
                                         // Filter out locations already shown within the last 60 seconds
                                         // to avoid flooding the table with duplicate rows during sustained alerts.
                                         const locations = extractNewLocations(alertCities);
-                                        const missileClassification = alertType === "missiles" ? classifyMissileByEarlyWarning(alertCities) : null;
+                                        if (alertType === "missiles") {
+                                            const missileClassification = classifyMissileByEarlyWarning(alertCities);
 
-                                        if (missileClassification?.isBallisticEstimate) {
-                                            ballisticMissileEventsCounter++;
-                                            $("#ballisticMissileEventsCounter").text(ballisticMissileEventsCounter);
+                                            // Keep this UI counter in lock-step with table inserts:
+                                            // only update when extractNewLocations produced rows to insert.
+                                            if (locations.length > 0 && missileClassification.isBallisticEstimate && missileClassification.matchCount > 0) {
+                                                ballisticMissileAlertsCounter += missileClassification.matchCount;
+                                                $("#ballisticMissileAlertsCounter").text(ballisticMissileAlertsCounter);
+                                            }
                                         }
 
                                         let alertedTimesAdded = false; // Flag to ensure we only update lastAlertedTimes once per alert, even if multiple new locations

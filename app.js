@@ -55,7 +55,7 @@ try {
     );
 
     app.use(
-        "/main",
+        "/",
         function (req, res, next) {
             next();
         },

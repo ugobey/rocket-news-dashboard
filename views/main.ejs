@@ -30,7 +30,7 @@
         <div class="container-fluid p-3 p-lg-4">
             <div class="row g-3">
                 <!-- ==================== HOME FRONT COMMAND SIRENS ==================== -->
-                <div id="homeFrontCommandTile" class="col-lg-2 col-xl-3">
+                <div id="homeFrontCommandTile" class="col-12 col-md-6 col-lg-2 col-xl-3">
                     <div class="card table-card header-danger text-white mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#pikudBody" style="cursor: pointer">
                             <span><i class="fa-solid fa-bell me-2"></i>Home Front Command Alerts</span>
@@ -59,7 +59,7 @@
                 </div>
 
                 <!-- ==================== ALERTS BY LOCATION + ZONE ==================== -->
-                <div class="col-lg-1 col-xl-2">
+                <div class="col-12 col-md-6 col-lg-1 col-xl-2">
                     <!-- Locations -->
                     <div id="locationsTile" class="card table-card header-danger text-white mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#locationsBody" style="cursor: pointer">
@@ -92,7 +92,7 @@
                 </div>
 
                 <!-- ==================== SUMMARY ==================== -->
-                <div class="col-lg-1 col-xl-2">
+                <div class="col-12 col-md-6 col-lg-1 col-xl-2">
                     <!-- Alerts Summary -->
                     <div id="alertsSummaryTile" class="card table-card header-primary text-white mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#summaryBody" style="cursor: pointer">
@@ -207,7 +207,7 @@
                 </div>
 
                 <!-- ==================== NEWS + MAP ==================== -->
-                <div class="col-lg-4 col-xl-5">
+                <div class="col-12 col-md-12 col-lg-4 col-xl-5">
                     <!-- News -->
                     <div id="newsTile" class="card table-card header-success text-white mb-3">
                         <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#newsBody" style="cursor: pointer">
@@ -462,6 +462,7 @@
                                         <select class="form-select" id="css_style_theme">
                                             <option value="default">Command Center (Default)</option>
                                             <option value="graphite">Graphite Pro</option>
+                                            <option value="tv_mode">TV Mode</option>
                                         </select>
                                     </td>
                                 </tr>
@@ -768,7 +769,8 @@
             const themeStylesheetMap = {
                 default: "/css/themes/default.css",
                 ocean: "/css/themes/ocean.css",
-                graphite: "/css/themes/graphite.css"
+                graphite: "/css/themes/graphite.css",
+                tv_mode: "/css/themes/tv_mode.css"
             };
 
             function applyDashboardTheme (themeName) {

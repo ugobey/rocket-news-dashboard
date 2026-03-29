@@ -1495,8 +1495,6 @@
             async function fetchAndDisplayFeed (feed) {
                 const news = await ajaxHandler("rss", feed.url);
 
-                console.log(`Fetched RSS feed: ${feed.realname}`, news);
-
                 if (news && !news.error) {
 
                     let reversedArray = [];
@@ -1550,10 +1548,10 @@
                     currentRssFeedIndex = 0;
                 }
 
+                await fetchAndDisplayFeed(feed);
+
                 // Schedule the next poll BEFORE the async fetch (same pattern as pikudHaorefPoll)
                 setTimeout(rssPoll, rssInterval);
-
-                await fetchAndDisplayFeed(feed);
             };
 
             // First run: fetch all feeds immediately before starting the round-robin loop

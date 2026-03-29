@@ -116,6 +116,45 @@ function generateRandomAlertByRegion() {
     ];
 }
 
+let earlyWarningTest = 0;
+
+function generateRandomEarlyWarningAlert() {
+    if (earlyWarningTest === 0) {
+        earlyWarningTest++;
+
+        return [
+            {
+                type: "newsFlash",
+                cities: upperGalilee,
+                instructions: "ירי רקטות וטילים",
+                id: Date.now().toString(),
+            },
+        ];
+    } else if (earlyWarningTest === 1) {
+        earlyWarningTest++;
+
+        return [
+            {
+                type: "missiles",
+                cities: upperGalilee,
+                instructions: "ירי רקטות וטילים",
+                id: Date.now().toString(),
+            },
+        ];
+    } else if (earlyWarningTest === 2) {
+        earlyWarningTest = 0;
+
+        return [
+            {
+                type: "newsFlash",
+                cities: upperGalilee,
+                instructions: "האירוע הסתיים",
+                id: Date.now().toString(),
+            },
+        ];
+    }
+}
+
 router.use("/", async function (req, res) {
     try {
         const forwardedPortHeader = req.headers["x-forwarded-port"];
@@ -142,6 +181,8 @@ router.use("/", async function (req, res) {
                     alert = generateRandomAlertByCity();
                 } else if (testmode === "alertByRegion") {
                     alert = generateRandomAlertByRegion();
+                } else if (testmode === "earlyWarning") {
+                    alert = generateRandomEarlyWarningAlert();
                 }
 
                 res.statusCode = 200;

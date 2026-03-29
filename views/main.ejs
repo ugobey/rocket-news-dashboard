@@ -106,85 +106,89 @@
                             <table class="table table-dark table-sm mb-0">
                                 <tbody id="alerts_summary">
                                     <tr>
-                                        <td><span class="text-yellow-400">Total Alerts</span></td>
+                                        <td><span>Total Alerts</span></td>
                                         <td class="text-end"><span id="totalAlertsCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span class="text-sky-400">Total Drone Alerts</span></td>
+                                        <td><span>Total Drone Alerts</span></td>
                                         <td class="text-end"><span id="droneAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span class="text-orange-400">Total Rocket Alerts</span></td>
+                                        <td><span>Total Rocket Alerts</span></td>
                                         <td class="text-end"><span id="rocketAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span class="text-sky-400">Drone Share</span></td>
+                                        <td><span>Ballistic Missile Events</span></td>
+                                        <td class="text-end"><span id="ballisticMissileEventsCounter" class="stat-number">0</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span>Drone Share</span></td>
                                         <td class="text-end"><span id="droneShareCounter" class="stat-number">--</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span class="text-orange-400">Rocket Share</span></td>
+                                        <td><span>Rocket Share</span></td>
                                         <td class="text-end"><span id="rocketShareCounter" class="stat-number">--</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span class="text-emerald-400">Total Locations</span></td>
+                                        <td><span>Total Locations</span></td>
                                         <td class="text-end"><span id="totalLocationsCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span class="text-violet-400">Total Zones</span></td>
+                                        <td><span>Total Zones</span></td>
                                         <td class="text-end"><span id="totalZonesCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span class="text-violet-400">Total Early Warnings (All)</span></td>
+                                        <td><span>Total Early Warnings (All)</span></td>
                                         <td class="text-end"><span id="totalEarlyWarningsAllCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="total_early_warnings_specific_counter" style="display: none">
-                                        <td><span class="text-violet-400">Total Early Warnings (Specific)</span></td>
+                                        <td><span>Total Early Warnings (Specific)</span></td>
                                         <td class="text-end"><span id="totalEarlyWarningsSpecificCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="unmatched_cities_counter" style="display: none">
-                                        <td><span class="text-violet-400">Total Unmatched Cities</span></td>
+                                        <td><span>Total Unmatched Cities</span></td>
                                         <td class="text-end"><span id="totalUnmatchedCitiesCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="unmatched_cities" style="display: none">
-                                        <td><span class="text-violet-400">Open Unmatched Cities</span></td>
+                                        <td><span>Open Unmatched Cities</span></td>
                                         <td class="text-end">
                                             <i id="show_unmatched_cities" class="fa-solid fa-arrow-up-right-from-square fa-xl icon-btn text-danger" style="cursor: pointer" title="Show Unmatched Cities"></i>
                                         </td>
                                     </tr>
                                     <tr id="error_counter" style="display: none">
-                                        <td><span class="text-violet-400">Total Errors</span></td>
+                                        <td><span>Total Errors</span></td>
                                         <td class="text-end"><span id="pikud_haoref_error_counter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="error_message" style="display: none">
-                                        <td><span class="text-violet-400">Open Error Messages</span></td>
+                                        <td><span>Open Error Messages</span></td>
                                         <td class="text-end">
                                             <i id="show_error_messages" class="fa-solid fa-arrow-up-right-from-square fa-xl text-danger" style="cursor: pointer" title="Show Error Messages"></i>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><span class="text-light">Test Mode</span></td>
+                                        <td><span>Test Mode</span></td>
                                         <td class="text-end">
                                             <i id="test_mode" class="fa-solid fa-play fa-xl text-light" title="Turn ON Test Mode"></i>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><span class="text-light">Fullscreen</span></td>
+                                        <td><span>Fullscreen</span></td>
                                         <td class="text-end">
                                             <i id="fullscreen" class="fa-solid fa-expand fa-xl text-light" title="Enter Fullscreen"></i>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><span class="text-light">Settings</span></td>
+                                        <td><span>Settings</span></td>
                                         <td class="text-end">
                                             <i id="open_settings" class="fa-solid fa-gear fa-xl text-light" title="Open Settings"></i>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><span class="text-violet-400">App Version</span></td>
+                                        <td><span>App Version</span></td>
                                         <td class="text-end"><span id="appVersion" class="stat-number"><%= appVersion %></span></td>
                                     </tr>
                                     <tr id="update_app_version" style="display: none">
-                                        <td><span class="text-violet-400">App Update Available</span></td>
+                                        <td><span>App Update Available</span></td>
                                         <td class="text-end">
                                             <i class="fa-solid fa-cloud-arrow-up fa-xl text-warning" title="Update it on your server"></i>
                                         </td>
@@ -459,6 +463,7 @@
                                         <select class="form-select" id="test_mode_type">
                                             <option value="alertByCity">Alert by City</option>
                                             <option value="alertByRegion">Alert by Region</option>
+                                            <option value="earlyWarning">Early Warning</option>
                                         </select>
                                     </td>
                                 </tr>
@@ -500,10 +505,12 @@
             // Summary counters reflected in the Alerts Summary table
             let rocketAlertCounter = 0; // Missile alert rows received
             let droneAlertCounter = 0; // Hostile aircraft intrusion rows received
+            let ballisticMissileEventsCounter = 0; // Missile events matched to a prior early warning
             let totalEarlyWarningsAllCounter = 0; // Early warnings for any location
             let totalEarlyWarningsSpecificCounter = 0; // Early warnings that include the user's saved city
             let pikudHaorefErrorCounter = 0; // Total fetch errors from Pikud HaOref
             let totalUnmatchedCitiesCounter = 0; // Total alerts for unrecognised location names
+            let earlyWarningCitySnapshots = []; // Recent early-warning city sets used for missile classification
 
             // Boolean flags for UI state
             let pikudHaorefError = false; // True once the first Pikud HaOref error has occurred
@@ -515,6 +522,7 @@
             const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
             const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
             const recentlyAlertedLocations = {}; // Dedup cache: location → Unix timestamp of last alert row added
+            const EARLY_WARNING_MATCH_THRESHOLD = 0.5; // 50% city overlap threshold for ballistic estimation
 
 
             // ==================== AJAX HANDLER ====================
@@ -1049,6 +1057,96 @@
                 }
             }
 
+            function normalizeAlertCities (cities) {
+                return [...new Set(cities.map(city => String(city).replace("''", "'")))];
+            }
+
+            function arraysHaveSameValues (first, second) {
+                if (first.length !== second.length) {
+                    return false;
+                }
+
+                const firstSet = new Set(first);
+
+                for (const value of second) {
+                    if (!firstSet.has(value)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
+            function recordEarlyWarningSnapshot (cities) {
+                const normalizedCities = normalizeAlertCities(cities);
+
+                if (normalizedCities.length === 0) {
+                    return;
+                }
+
+                const latestSnapshot = earlyWarningCitySnapshots.at(-1);
+
+                // Refresh timestamp instead of duplicating if the active city set is unchanged.
+                if (latestSnapshot && arraysHaveSameValues(latestSnapshot.cities, normalizedCities)) {
+                    latestSnapshot.timestampMs = Date.now();
+                    return;
+                }
+
+                earlyWarningCitySnapshots.push({
+                    timestampMs: Date.now(),
+                    cities: normalizedCities
+                });
+            }
+
+            function classifyMissileByEarlyWarning (missileCities) {
+                const normalizedMissileCities = normalizeAlertCities(missileCities);
+
+                if (normalizedMissileCities.length === 0) {
+                    return {
+                        isBallisticEstimate: false,
+                        matchRatio: 0,
+                        matchCount: 0,
+                        totalMissileCities: 0
+                    };
+                }
+
+                let bestMatchRatio = 0;
+                let bestMatchCount = 0;
+                let bestMatchSnapshotIndex = -1;
+
+                for (let i = 0; i < earlyWarningCitySnapshots.length; i++) {
+                    const snapshot = earlyWarningCitySnapshots[i];
+                    const warningSet = new Set(snapshot.cities);
+                    let overlapCount = 0;
+
+                    for (const city of normalizedMissileCities) {
+                        if (warningSet.has(city)) {
+                            overlapCount++;
+                        }
+                    }
+
+                    const matchRatio = overlapCount / normalizedMissileCities.length;
+
+                    if (matchRatio > bestMatchRatio) {
+                        bestMatchRatio = matchRatio;
+                        bestMatchCount = overlapCount;
+                        bestMatchSnapshotIndex = i;
+                    }
+                }
+
+                // Snapshot is one-time-use: once a missile wave matches >= 50%, consume it.
+                if (bestMatchSnapshotIndex !== -1 && bestMatchRatio >= EARLY_WARNING_MATCH_THRESHOLD) {
+                    earlyWarningCitySnapshots.splice(bestMatchSnapshotIndex, 1);
+                }
+
+                return {
+                    isBallisticEstimate: bestMatchRatio >= EARLY_WARNING_MATCH_THRESHOLD,
+                    matchRatio: bestMatchRatio,
+                    matchCount: bestMatchCount,
+                    totalMissileCities: normalizedMissileCities.length
+                };
+            }
+
             // Refreshes advanced summary metrics derived from rockets/drones/early warnings.
             function updateAdvancedSummaryStats () {
                 const totalThreatAlerts = rocketAlertCounter + droneAlertCounter;
@@ -1266,6 +1364,8 @@
                                             }
                                         }
 
+                                        recordEarlyWarningSnapshot(earlyWarningLocations);
+
                                         if (!earlyWarningModalEnter._isShown) {
                                             startEarlyWarningTimer();
                                             earlyWarningModalEnter.show(); // Open the danger modal
@@ -1286,6 +1386,12 @@
                                         // Filter out locations already shown within the last 60 seconds
                                         // to avoid flooding the table with duplicate rows during sustained alerts.
                                         const locations = extractNewLocations(alertCities);
+                                        const missileClassification = alertType === "missiles" ? classifyMissileByEarlyWarning(alertCities) : null;
+
+                                        if (missileClassification?.isBallisticEstimate) {
+                                            ballisticMissileEventsCounter++;
+                                            $("#ballisticMissileEventsCounter").text(ballisticMissileEventsCounter);
+                                        }
 
                                         let alertedTimesAdded = false; // Flag to ensure we only update lastAlertedTimes once per alert, even if multiple new locations
 
@@ -1353,6 +1459,8 @@
                                                 // animate__fadeInDown gives a visual entry cue; alertNewRow and table-light
                                                 // trigger the 5-second highlight fade set up in the cleanup interval above.
                                                 // The location name links to Google Maps using the alert's coordinates.
+                                             
+
                                                 $("#pikud_haoref_alerts").prepend(`
                                                 <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
                                                     <td><font class='text-warning'>${timeStamp}</font></td>

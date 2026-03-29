@@ -1563,10 +1563,7 @@
             };
             const defaultMapZoom = 9;
             const clusteredMarkersZoom = 12;
-            const clusteredMarkerMaxDistanceMeters = 5000;
-            const maxFittedZoom = 13;
             let zoomAnimationInterval = null;
-            let viewportUpdateToken = 0;
 
             // Active city alerts keyed by a stable city identifier.
             // A city remains here while its marker is active, then is removed on timeout.
@@ -1664,13 +1661,40 @@
                 return earthRadiusMeters * angularDistance;
             }
 
+            function getZoomForMarkerSpread (markerSpreadMeters) {
+                if (markerSpreadMeters <= 5000) {
+                    return clusteredMarkersZoom;
+                }
+
+                if (markerSpreadMeters <= 10000) {
+                    return 11;
+                }
+
+                if (markerSpreadMeters <= 20000) {
+                    return 11;
+                }
+
+                if (markerSpreadMeters <= 50000) {
+                    return 10;
+                }
+
+                if (markerSpreadMeters <= 100000) {
+                    return 10;
+                }
+
+                if (markerSpreadMeters <= 200000) {
+                    return 9;
+                }
+
+                return 8;
+            }
+
             // Keeps all active markers visible as markers are added/removed.
             function fitMapToActiveMarkers () {
                 if (!map) {
                     return;
                 }
 
-                const updateToken = ++viewportUpdateToken;
                 stopSmoothZoomAnimation();
 
                 const visibleMarkers = allMarkers.filter(marker => marker && marker.map);
@@ -1683,7 +1707,7 @@
 
                 if (visibleMarkers.length === 1) {
                     map.panTo(visibleMarkers[0].position);
-                    smoothZoomTo(12);
+                    smoothZoomTo(clusteredMarkersZoom);
                     return;
                 }
 
@@ -1693,28 +1717,10 @@
                 const northEast = bounds.getNorthEast();
                 const southWest = bounds.getSouthWest();
                 const markerSpreadMeters = getDistanceInMeters(northEast, southWest);
+                const targetZoom = getZoomForMarkerSpread(markerSpreadMeters);
 
-                // When markers are tightly clustered, fitBounds tends to over-zoom.
-                // Use a stable center+zoom instead to avoid zoom oscillation.
-                if (markerSpreadMeters <= clusteredMarkerMaxDistanceMeters) {
-                    map.panTo(bounds.getCenter());
-                    smoothZoomTo(clusteredMarkersZoom);
-                    return;
-                }
-
-                map.fitBounds(bounds, {
-                    padding: 90
-                });
-
-                google.maps.event.addListenerOnce(map, 'idle', () => {
-                    if (updateToken !== viewportUpdateToken) {
-                        return;
-                    }
-
-                    if (map.getZoom() > maxFittedZoom) {
-                        map.setZoom(maxFittedZoom);
-                    }
-                });
+                map.panTo(bounds.getCenter());
+                smoothZoomTo(targetZoom);
             }
 
             function getCityKey (city) {

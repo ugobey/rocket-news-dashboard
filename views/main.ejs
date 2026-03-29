@@ -920,7 +920,11 @@
             // Test Mode Type dropdown toggle
             $("#test_mode_type").on("change", function () {
                 settingStates.testModeType = $(this).val();
-                testmode = $(this).val();
+
+                if (testmode) {
+                    testmode = $(this).val();
+                }
+
                 localStorage.setItem("testModeType", settingStates.testModeType);
             });
 

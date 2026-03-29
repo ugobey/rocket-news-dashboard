@@ -1563,7 +1563,8 @@
             };
             const defaultMapZoom = 9;
             const clusteredMarkersZoom = 12;
-            const clusteredMarkerSpanThreshold = 0.02;
+            const clusteredMarkerMaxDistanceMeters = 5000;
+            const maxFittedZoom = 13;
             let zoomAnimationInterval = null;
             let viewportUpdateToken = 0;
 
@@ -1648,6 +1649,21 @@
                 }, 50);
             }
 
+            function getDistanceInMeters (firstLatLng, secondLatLng) {
+                const earthRadiusMeters = 6371000;
+                const lat1 = firstLatLng.lat() * Math.PI / 180;
+                const lat2 = secondLatLng.lat() * Math.PI / 180;
+                const deltaLat = (secondLatLng.lat() - firstLatLng.lat()) * Math.PI / 180;
+                const deltaLng = (secondLatLng.lng() - firstLatLng.lng()) * Math.PI / 180;
+
+                const haversine = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+                    Math.cos(lat1) * Math.cos(lat2) *
+                    Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+                const angularDistance = 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+
+                return earthRadiusMeters * angularDistance;
+            }
+
             // Keeps all active markers visible as markers are added/removed.
             function fitMapToActiveMarkers () {
                 if (!map) {
@@ -1676,12 +1692,11 @@
 
                 const northEast = bounds.getNorthEast();
                 const southWest = bounds.getSouthWest();
-                const latSpan = Math.abs(northEast.lat() - southWest.lat());
-                const lngSpan = Math.abs(northEast.lng() - southWest.lng());
+                const markerSpreadMeters = getDistanceInMeters(northEast, southWest);
 
                 // When markers are tightly clustered, fitBounds tends to over-zoom.
                 // Use a stable center+zoom instead to avoid zoom oscillation.
-                if (latSpan <= clusteredMarkerSpanThreshold && lngSpan <= clusteredMarkerSpanThreshold) {
+                if (markerSpreadMeters <= clusteredMarkerMaxDistanceMeters) {
                     map.panTo(bounds.getCenter());
                     smoothZoomTo(clusteredMarkersZoom);
                     return;
@@ -1696,8 +1711,8 @@
                         return;
                     }
 
-                    if (map.getZoom() > 13) {
-                        smoothZoomTo(13);
+                    if (map.getZoom() > maxFittedZoom) {
+                        map.setZoom(maxFittedZoom);
                     }
                 });
             }

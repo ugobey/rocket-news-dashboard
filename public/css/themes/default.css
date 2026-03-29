@@ -1,0 +1,426 @@
+/* ==================== CSS CUSTOM PROPERTIES ====================
+               All shared design tokens live here so changing one value
+               propagates consistently across every component. */
+:root {
+    --primary: #0ea5e9;
+    /* Sky-blue accent */
+    --danger: #ef4444;
+    /* Red — alerts / sirens */
+    --success: #22c55e;
+    /* Green — all-clear / news */
+    --warning: #eab308;
+    /* Yellow — timestamps / caution */
+    --glass: rgba(255, 255, 255, 0.06);
+    /* Frosted-glass card fill */
+    --glass-border: rgba(255, 255, 255, 0.12);
+    /* Frosted-glass card border */
+}
+
+/* ==================== BASE / RESET ====================
+               Dark-theme foundation applied to the entire page. */
+html {
+    font-size: 14px;
+    /* Slightly smaller base for dense data tables */
+    scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+    display: none;
+}
+
+body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+    color: #e2e8f0;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    min-height: 100vh;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Map container must have explicit height for Google Maps to render correctly. */
+#map {
+    height: 100%;
+}
+
+.adv-marker {
+    --marker-color: #ef4444;
+    position: relative;
+    width: 22px;
+    height: 22px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    background: var(--marker-color);
+    border: 2px solid #ffffff;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+}
+
+.adv-marker::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    transform: translate(-50%, -50%) rotate(45deg);
+    border-radius: 50%;
+    background: #ffffff;
+}
+
+.adv-marker--missiles {
+    --marker-color: #ef4444;
+}
+
+.adv-marker--hostileAircraftIntrusion {
+    --marker-color: #3b82f6;
+}
+
+.adv-marker--default {
+    --marker-color: #ef4444;
+}
+
+/* ==================== LINKS ====================
+               Strip browser default underline/blue from every <a> tag;
+               a subtle opacity fade on hover replaces the color change. */
+a {
+    color: inherit;
+    /* Keeps current text color */
+    text-decoration: none;
+    /* Removes underline */
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: inherit;
+    /* Prevents color change on hover */
+    text-decoration: none;
+}
+
+/* Optional: If you want a subtle hover effect (recommended for better UX) */
+a:hover {
+    opacity: 0.85;
+    /* Light fade on hover instead of color change */
+}
+
+/* ==================== CARD (GLASSMORPHISM) ====================
+               Every panel uses a frosted-glass look: semi-transparent fill
+               blurred with backdrop-filter, soft border, and deep shadow.  */
+.card {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    border: 0px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    /* Required so child table rows don't escape rounded corners */
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.card-header {
+    border-bottom: 1px solid var(--glass-border);
+    padding: 16px 20px;
+    font-weight: 600;
+    font-size: 1.07rem;
+    border-radius: 20px 20px 0 0 !important;
+}
+
+/* ==================== TABLES ====================
+               Bootstrap tables need several overrides to fit the dark glass
+               theme and to round the corners of the first/last rows correctly. */
+.table-card {
+    border-radius: 20px;
+    overflow: hidden;
+    /* Clips table corners to match card rounding */
+}
+
+.table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    /* Must be 'separate', not 'collapse', for border-radius to apply to cells */
+    border-spacing: 0;
+    /* Separate + zero spacing mimics collapse without losing radius support */
+}
+
+.table thead tr {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.table th {
+    color: #94a3b8;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.73rem;
+    letter-spacing: 0.6px;
+    padding: 14px 12px;
+    border: none;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.table td {
+    padding: 11px 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: none;
+    vertical-align: middle;
+}
+
+/* Round only the four outer corners of the table body —
+               inner cells stay square so borders align correctly.      */
+.table tbody tr:first-child td:first-child {
+    border-top-left-radius: 16px;
+}
+
+.table tbody tr:first-child td:last-child {
+    border-top-right-radius: 16px;
+}
+
+.table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 16px;
+}
+
+.table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 16px;
+}
+
+.table-dark tr:hover {
+    background: rgba(255, 255, 255, 0.055) !important;
+}
+
+/* Colored headers */
+/*
+                .header-danger {
+                    background: linear-gradient(90deg, #7f1d1d, #b91c1c);
+                }
+
+                .header-primary {
+                    background: linear-gradient(90deg, #1e40af, #1e3a8a);
+                }
+
+                .header-success {
+                    background: linear-gradient(90deg, #166534, #15803d);
+                }
+                */
+
+/* ==================== SECTION HEADER VARIANTS ====================
+               Applied to .card-header elements to colour-code each dashboard panel:
+               danger (red) = active alerts,  primary (blue) = summary,
+               success (green) = news feed.                                        */
+.header-danger {
+    background: #b91c1c;
+    /* Red — Pikud HaOref / map alert panels */
+}
+
+.header-primary {
+    background: #1e3a8a;
+    /* Dark blue — Alerts Summary panel */
+}
+
+.header-success {
+    background: #15803d;
+    /* Green — News Updates panel */
+}
+
+/* ==================== CLOCK & STAT DISPLAY ====================
+               .live-clock  — pill badge in the alert panel header showing HH:MM:SS
+               .stat-number — large bold number used in the Summary counter table */
+.live-clock {
+    letter-spacing: 1px;
+}
+
+.stat-number {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+/* ==================== MODALS ====================
+               Dark modal content override for Bootstrap's default white background. */
+.modal-content {
+    background: #1e2937;
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+}
+
+/* ==================== RSS FEED SCROLL AREA ====================
+               Constrains the news table height to 38% of the viewport so it
+               doesn't push the map off-screen on smaller displays.    */
+
+.scrollable::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+}
+
+.tile {
+    /* Utility class for scrollable card bodies */
+    scrollbar-width: thin;
+    scrollbar-color: #222529 transparent;
+}
+
+/* ==================== ICON BUTTONS & COLLAPSE CHEVRON ====================
+               .icon-btn       — subtle scale+rotate pop on hover for clickable icons
+               .collapse-icon  — chevron that rotates -90° when its section is collapsed */
+.icon-btn {
+    transition: all 0.25s ease;
+}
+
+.icon-btn:hover {
+    transform: scale(1.18) rotate(8deg);
+    filter: brightness(1.3);
+}
+
+.collapse-icon {
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+    /* Points left when panel is collapsed */
+}
+
+/* ==================== INTERACTIVE SUMMARY ICONS ====================
+                Test Mode, Fullscreen, and Settings icons in the Summary panel get
+                a more pronounced hover effect to indicate they're clickable. */
+
+#test_mode:hover {
+    transform: scale(1.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#fullscreen:hover {
+    transform: scale(1.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#open_settings:hover {
+    transform: scale(1.15) rotate(20deg);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#update_app_version:hover {
+    transform: scale(1.15) rotate(20deg);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* General icon button improvements */
+.icon-btn {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==================== GLASS MODALS ====================
+               Deep-navy frosted glass applied to early-warning, error,
+               unmatched-city, and settings modals.                      */
+.glass-modal {
+    background: rgba(6, 37, 91, 0.95);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
+    color: white;
+}
+
+#earlyWarningModalEnter {
+    --bs-modal-margin: 0;
+}
+
+#earlyWarningModalEnter .modal-dialog {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    width: min(42rem, calc(100vw - 2rem));
+    max-width: none;
+    margin: 0;
+    transform: none;
+}
+
+#earlyWarningModalEnter .modal-content {
+    max-height: calc(100vh - 1rem);
+    overflow: hidden;
+    min-height: 0;
+}
+
+#earlyWarningModalEnter .modal-body {
+    overflow: hidden;
+}
+
+#earlyWarningModalEnter .glass-inner {
+    max-height: calc(100vh - 11rem);
+    overflow: hidden;
+}
+
+#earlyWarningLocations {
+    max-height: min(42vh, 820px);
+    overflow-y: auto;
+    padding-right: 0.4rem;
+    word-break: break-word;
+}
+
+@media (max-width: 991.98px) {
+    #earlyWarningModalEnter .modal-dialog {
+        bottom: 0.75rem;
+        left: 0.75rem;
+        width: calc(100vw - 1.5rem);
+    }
+
+    #earlyWarningModalEnter .modal-content {
+        max-height: calc(100vh - 0.75rem);
+    }
+
+    #earlyWarningModalEnter .glass-inner {
+        max-height: calc(100vh - 10.5rem);
+    }
+
+    #earlyWarningLocations {
+        max-height: 42vh;
+    }
+}
+
+#earlyWarningModalExit {
+    --bs-modal-margin: 0;
+}
+
+#earlyWarningModalExit .modal-dialog {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+    width: min(42rem, calc(100vw - 2rem));
+    max-width: none;
+    margin: 0;
+    transform: none;
+}
+
+#earlyWarningModalExit .modal-content {
+    min-height: 0;
+}
+
+@media (max-width: 991.98px) {
+    #earlyWarningModalExit .modal-dialog {
+        bottom: 0.75rem;
+        left: 0.75rem;
+        width: calc(100vw - 1.5rem);
+    }
+}
+
+/* ==================== CITY AUTOCOMPLETE DROPDOWN ====================
+               Dropdown list that appears below the city search input in Settings. */
+#city_suggestions .list-group-item {
+    background: rgba(15, 23, 42, 0.95);
+    border: none;
+    color: #e2e8f0;
+    padding: 12px 16px;
+}
+
+#city_suggestions .list-group-item:hover {
+    background: rgba(59, 130, 246, 0.35);
+}

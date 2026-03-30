@@ -109,28 +109,28 @@
                                     </tr>
                                     <!-- These will be hidden unless one of them get triggered as the chances of them occurring are extremely low -->
                                     <!-- START -->
-                                    <tr id="total_generic_alerts_counter" style="display: none;">
-                                        <td><span>Total General Alerts</span></td>
+                                    <tr id="total_general_alerts_counter" style="display: none;">
+                                        <td><span class="text-warning">Total General Alerts</span></td>
                                         <td class="text-end"><span id="generalAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="total_earthquake_alerts_counter" style="display: none;">
-                                        <td><span>Total Earthquake Alerts</span></td>
+                                        <td><span class="text-warning">Total Earthquake Alerts</span></td>
                                         <td class="text-end"><span id="earthquakeAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="total_radiological_event_alerts_counter" style="display: none;">
-                                        <td><span>Total Radiological Event Alerts</span></td>
+                                        <td><span class="text-warning">Total Radiological Event Alerts</span></td>
                                         <td class="text-end"><span id="radiologicalEventAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="total_tsunami_alerts_counter" style="display: none;">
-                                        <td><span>Total Tsunami Alerts</span></td>
+                                        <td><span class="text-warning">Total Tsunami Alerts</span></td>
                                         <td class="text-end"><span id="tsunamiAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="total_hazardous_materials_alerts_counter" style="display: none;">
-                                        <td><span>Total Hazardous Materials Alerts</span></td>
+                                        <td><span class="text-warning">Total Hazardous Materials Alerts</span></td>
                                         <td class="text-end"><span id="hazardousMaterialsAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="total_terrorist_infiltration_alerts_counter" style="display: none;">
-                                        <td><span>Total Terrorist Infiltration Alerts</span></td>
+                                        <td><span class="text-warning">Total Terrorist Infiltration Alerts</span></td>
                                         <td class="text-end"><span id="terroristInfiltrationAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <!-- END -->
@@ -1174,7 +1174,7 @@
             const alertTypeMap = {
                 general: {
                     text: "General Alert",
-                    icon: "fa-triangle-exclamation text-warning"
+                    icon: "fa-triangle-exclamation text-general-alerts"
                 },
                 newsFlash: {
                     text: "Early Warning",
@@ -1186,27 +1186,27 @@
                 },
                 hostileAircraftIntrusion: {
                     text: "Drone Alert",
-                    icon: "fa-plane-up text-warning"
+                    icon: "fa-plane-up text-orange"
                 },
                 earthQuake: {
                     text: "Earthquake Alert",
-                    icon: "fa-house-chimney-crack text-danger"
+                    icon: "fa-house-chimney-crack text-general-alerts"
                 },
                 radiologicalEvent: {
                     text: "Radiological Alert",
-                    icon: "fa-radiation text-indigo"
+                    icon: "fa-radiation text-general-alerts"
                 },
                 tsunami: {
                     text: "Tsunami Alert",
-                    icon: "fa-house-tsunami text-danger"
+                    icon: "fa-house-tsunami text-general-alerts"
                 },
                 hazardousMaterials: {
                     text: "Hazardous Materials Alert",
-                    icon: "fa-skull-crossbones text-danger"
+                    icon: "fa-skull-crossbones text-general-alerts"
                 },
                 terroristInfiltration: {
                     text: "Terrorist Infiltration Alert",
-                    icon: "fa-circle-exclamation text-danger"
+                    icon: "fa-circle-exclamation text-general-alerts"
                 }
             };
 
@@ -1385,21 +1385,27 @@
                                                 } else if (alertType === "general") {
                                                     generalAlertCounter++
                                                     $("#generalAlertCounter").text(generalAlertCounter);
+                                                    $("#total_general_alerts_counter").show();
                                                 } else if (alertType === "earthQuake") {
                                                     earthquakeAlertCounter++
                                                     $("#earthquakeAlertCounter").text(earthquakeAlertCounter);
+                                                    $("#total_earthquake_alerts_counter").show();
                                                 } else if (alertType === "radiologicalEvent") {
                                                     radiologicalEventAlertCounter++
                                                     $("#radiologicalEventAlertCounter").text(radiologicalEventAlertCounter);
+                                                    $("#total_radiological_event_alerts_counter").show();
                                                 } else if (alertType === "tsunami") {
                                                     tsunamiAlertCounter++
                                                     $("#tsunamiAlertCounter").text(tsunamiAlertCounter);
+                                                    $("#total_tsunami_alerts_counter").show();
                                                 } else if (alertType === "hazardousMaterials") {
                                                     hazardousMaterialsAlertCounter++
                                                     $("#hazardousMaterialsAlertCounter").text(hazardousMaterialsAlertCounter);
+                                                    $("#total_hazardous_materials_alerts_counter").show();
                                                 } else if (alertType === "terroristInfiltration") {
                                                     terroristInfiltrationAlertCounter++
                                                     $("#terroristInfiltrationAlertCounter").text(terroristInfiltrationAlertCounter);
+                                                    $("#total_terrorist_infiltration_alerts_counter").show();
                                                 }
 
 
@@ -1905,23 +1911,11 @@
 
                     const type = city.type;
 
-                    let backgroundColor = '#00FF00'; // Default green
+                    let backgroundColor = '#1064e2'; // Default
                     if (type === 'missiles') {
                         backgroundColor = '#FF0000'; // Red for missiles
                     } else if (type === 'hostileAircraftIntrusion') {
-                        backgroundColor = '#FFA500'; // Orange for hostile aircraft intrusion
-                    } else if (type === 'earthQuake') {
-                        backgroundColor = '#FFFF00'; // Yellow for earthquakes
-                    } else if (type === 'radiologicalEvent') {
-                        backgroundColor = '#800080'; // Purple for radiological events
-                    } else if (type === 'tsunami') {
-                        backgroundColor = '#0000FF'; // Blue for tsunamis
-                    } else if (type === 'hazardousMaterials') {
-                        backgroundColor = '#008000'; // Dark Green for hazardous materials
-                    } else if (type === 'terroristInfiltration') {
-                        backgroundColor = '#8B0000'; // Dark Red for terrorist infiltration
-                    } else if (type === 'general') {
-                        backgroundColor = '#808080'; // Gray for general events
+                        backgroundColor = '#fd7e14'; // Orange for hostile aircraft intrusion
                     }
 
                     // Then create marker:

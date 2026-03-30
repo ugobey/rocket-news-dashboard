@@ -424,3 +424,12 @@ a:hover {
 #city_suggestions .list-group-item:hover {
     background: rgba(59, 130, 246, 0.35);
 }
+
+.text-general-alerts {
+    color: #3f87f4 !important;
+}
+
+.text-orange {
+    color: #fd7e14 !important;
+}
+

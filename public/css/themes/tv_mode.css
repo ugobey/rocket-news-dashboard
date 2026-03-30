@@ -613,3 +613,11 @@ a:hover {
         font-size: 0.95rem;
     }
 }
+
+.text-general-alerts {
+    color: #1064e2 !important;
+}
+
+.text-orange {
+    color: #fd7e14 !important;
+}

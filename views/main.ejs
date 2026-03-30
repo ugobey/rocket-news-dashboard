@@ -978,46 +978,6 @@
             });
 
 
-            // ==================== ALERT TYPE LOOKUP ====================
-            // Maps the API's string type codes to human-readable labels and icon paths.
-            // Keys match the values returned in alert[0].type from the Pikud HaOref API.
-            const alertTypeMap = {
-                newsFlash: {
-                    text: "Early Warning",
-                    icon: "/icons/warning.png"
-                },
-                missiles: {
-                    text: "Rocket Alert",
-                    icon: "/icons/rocket.png"
-                },
-                hostileAircraftIntrusion: {
-                    text: "Drone Alert",
-                    icon: "/icons/uav.png"
-                },
-                earthQuake: {
-                    text: "Earthquake Alert",
-                    icon: "/icons/earthquake.png"
-                },
-                radiologicalEvent: {
-                    text: "Radiological Alert",
-                    icon: "/icons/radiological.png"
-                },
-                tsunami: {
-                    text: "Tsunami Alert",
-                    icon: "/icons/tsunami.png"
-                },
-                hazardousMaterials: {
-                    text: "Hazardous Materials Alert",
-                    icon: "/icons/hazardous.png"
-                }
-            };
-
-            // Returns the display details object for a given API type code,
-            // or null if the type is not recognised (prevents rendering broken rows).
-            function getAlertDetailsByCategory (type) {
-                return alertTypeMap[type] || null;
-            }
-
             // ==================== ALERT HELPER FUNCTIONS ====================
 
             // Filters alertLocations to only those not seen within the last 60 seconds.
@@ -1169,6 +1129,47 @@
                 }])
             );
 
+            // ==================== PIKUD HAOREF ====================
+            // ==================== ALERT TYPE LOOKUP ====================
+            // Maps the API's string type codes to human-readable labels and icon paths.
+            // Keys match the values returned in alert[0].type from the Pikud HaOref API.
+            const alertTypeMap = {
+                newsFlash: {
+                    text: "Early Warning",
+                    icon: "fa-triangle-exclamation"
+                },
+                missiles: {
+                    text: "Rocket Alert",
+                    icon: "fa-rocket text-danger"
+                },
+                hostileAircraftIntrusion: {
+                    text: "Drone Alert",
+                    icon: "fa-plane-up text-warning"
+                },
+                earthQuake: {
+                    text: "Earthquake Alert",
+                    icon: "fa-house-chimney-crack text-secondary"
+                },
+                radiologicalEvent: {
+                    text: "Radiological Alert",
+                    icon: "fa-radiation text-warning"
+                },
+                tsunami: {
+                    text: "Tsunami Alert",
+                    icon: "fa-house-tsunami text-primary"
+                },
+                hazardousMaterials: {
+                    text: "Hazardous Materials Alert",
+                    icon: "fa-skull-crossbones text-danger"
+                }
+            };
+
+            // Returns the display details object for a given API type code,
+            // or null if the type is not recognised (prevents rendering broken rows).
+            function getAlertDetailsByCategory (type) {
+                return alertTypeMap[type] || null;
+            }
+
             // ==================== PIKUD HAOREF POLLING ====================
             // Core polling loop: fires every pikudHaorefInterval (1 second) and
             // processes the latest active alerts from the Home Front Command API.
@@ -1239,8 +1240,6 @@
                                                 showExitModal: true
                                             });
                                         }
-
-
                                     } else {
 
                                         // Early warning is still active (or just started).
@@ -1377,7 +1376,7 @@
                                                 $("#pikud_haoref_alerts").prepend(`
                                                 <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
                                                     <td><font class='text-warning'>${timeStamp}</font></td>
-                                                    <td><img src="${alertTypeIcon}" style="width:20px; height:20px;" title="${alertTypeText}"></td>
+                                                    <td><i class="fa-solid ${alertTypeIcon} collapse-icon" title="${alertTypeText}"></i></td>
                                                     <td><a href="https://www.google.com/maps/search/${lat},${lng}" target="_blank">${location}</a></td>
                                                     <td>${zone_en}</td>
                                                 </tr>

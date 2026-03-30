@@ -28,7 +28,7 @@
         <div class="container-fluid p-3 p-lg-4">
             <div class="row g-3">
                 <!-- ==================== HOME FRONT COMMAND SIRENS ==================== -->
-                <div id="homeFrontCommandTile" class="col-12 col-md-6 col-lg-2 col-xl-3">
+                <div id="homeFrontCommandAlertsTile" class="col-12 col-md-6 col-lg-2 col-xl-3">
                     <div class="card table-card header-danger text-white mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#pikudBody" style="cursor: pointer">
                             <span><i class="fa-solid fa-bell me-2"></i>Home Front Command Alerts</span>
@@ -57,9 +57,9 @@
                 </div>
 
                 <!-- ==================== ALERTS BY LOCATION + ZONE ==================== -->
-                <div class="col-12 col-md-6 col-lg-1 col-xl-2">
+                <div id="locationsZoneTile" class="col-12 col-md-6 col-lg-1 col-xl-2">
                     <!-- Locations -->
-                    <div id="locationsTile" class="card table-card header-danger text-white mb-3">
+                    <div id="locationsHeader" class="card table-card header-danger text-white mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#locationsBody" style="cursor: pointer">
                             <span><i class="fa-solid fa-location-dot me-2"></i>Alert Locations</span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
@@ -74,7 +74,7 @@
                     </div>
 
                     <!-- Zones -->
-                    <div id="zonesTile" class="card table-card header-danger text-white mt-3 mb-3">
+                    <div id="zonesHeader" class="card table-card header-danger text-white mt-3 mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#zonesBody" style="cursor: pointer">
                             <span><i class="fa-solid fa-map me-2"></i>Alert Zones</span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
@@ -90,9 +90,9 @@
                 </div>
 
                 <!-- ==================== SUMMARY ==================== -->
-                <div class="col-12 col-md-6 col-lg-1 col-xl-2">
+                <div id="summaryLastAlertedTimesTile" class="col-12 col-md-6 col-lg-1 col-xl-2">
                     <!-- Alerts Summary -->
-                    <div id="alertsSummaryTile" class="card table-card header-primary text-white mb-3">
+                    <div id="summaryHeader" class="card table-card header-primary text-white mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#summaryBody" style="cursor: pointer">
                             <span><i class="fa-solid fa-chart-pie me-2"></i>Alerts Summary</span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
@@ -224,7 +224,7 @@
 
 
                     <!-- Last Alerted Times -->
-                    <div id="lastAlertedTimesTile" class="card table-card header-danger text-white mt-3 mb-3">
+                    <div id="lastAlertedTimesHeader" class="card table-card header-danger text-white mt-3 mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#lastAlertedTimesBody" style="cursor: pointer">
                             <span><i class="fa-solid fa-clock me-2"></i>Last Alerted Times</span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
@@ -243,9 +243,9 @@
                 </div>
 
                 <!-- ==================== NEWS + MAP ==================== -->
-                <div class="col-12 col-md-12 col-lg-4 col-xl-5">
+                <div id="newsMapTile" class="col-12 col-md-12 col-lg-4 col-xl-5">
                     <!-- News -->
-                    <div id="newsTile" class="card table-card header-success text-white mb-3">
+                    <div id="newsHeader" class="card table-card header-success text-white mb-3">
                         <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#newsBody" style="cursor: pointer">
                             <span class="section-header"><i class="fa-solid fa-newspaper me-2"></i>News Updates</span>
                             <div class="d-flex align-items-center gap-2">
@@ -264,7 +264,7 @@
                     </div>
 
                     <!-- Map -->
-                    <div id="mapTile" class="card table-card header-danger text-white mt-3 mb-3">
+                    <div id="mapHeader" class="card table-card header-danger text-white mt-3 mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#mapBody" style="cursor: pointer">
                             <span><i class="fa-solid fa-map-location-dot me-2"></i>Map Alerts</span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
@@ -515,6 +515,7 @@
         <script>
             // ==================== APPLICATION STATE ====================
             // Accumulator arrays — each entry is an object {location, counter} or {zone, counter}
+            let alertsActive = false; // True while at least one active alert is ongoing (used to gate certain features until the first alert arrives)
             let alertedLocations = []; // All unique locations that have received alerts this session
             let alertedZones = []; // All unique zones that have received alerts this session
             let errorLogs = []; // Unique Pikud HaOref error messages with occurrence counts
@@ -1557,6 +1558,12 @@
                                             }
                                         }
 
+                                        if (!alertsActive) {
+                                            alertsActive = true; // Set the global flag indicating that at least one alert has been received
+
+                                            $("#locationsZoneTile, #summaryLastAlertedTimesTile, #newsHeader, #newsBody, #mapHeader").hide();
+                                            $("#newsMapTile").removeClass("col-lg-4 col-xl-5").addClass("col-lg-9 col-xl-9");
+                                        }
                                     }
                                 }
                             }
@@ -1795,26 +1802,26 @@
                 }
 
                 if (markerSpreadMeters <= 10000) {
-                    return 11;
+                    return 14;
                 }
 
                 if (markerSpreadMeters <= 20000) {
-                    return 11;
+                    return 13;
                 }
 
                 if (markerSpreadMeters <= 50000) {
-                    return 10;
+                    return 12;
                 }
 
                 if (markerSpreadMeters <= 100000) {
-                    return 10;
+                    return 11;
                 }
 
                 if (markerSpreadMeters <= 200000) {
-                    return 9;
+                    return 10;
                 }
 
-                return 8;
+                return defaultMapZoom;
             }
 
             // Keeps all active markers visible as markers are added/removed.
@@ -1830,6 +1837,14 @@
                 if (visibleMarkers.length === 0) {
                     map.panTo(defaultMapCenter);
                     smoothZoomTo(defaultMapZoom);
+
+                    if (alertsActive) {
+                        alertsActive = false; // Set the global flag indicating that no alerts are currently active
+
+                        $("#locationsZoneTile, #summaryLastAlertedTimesTile, #newsHeader, #newsBody, #mapHeader").show();
+                        $("#newsMapTile").removeClass("col-lg-9 col-xl-9").addClass("col-lg-4 col-xl-5");
+                    }
+
                     return;
                 }
 

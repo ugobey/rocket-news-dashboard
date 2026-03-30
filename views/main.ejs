@@ -1375,7 +1375,7 @@
 
                                                 $("#pikud_haoref_alerts").prepend(`
                                                 <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
-                                                    <td><font class='text-warning'>${timeStamp}</font></td>
+                                                    <td><font class='text-info'>${timeStamp}</font></td>
                                                     <td><i class="fa-solid ${alertTypeIcon} collapse-icon" title="${alertTypeText}"></i></td>
                                                     <td><a href="https://www.google.com/maps/search/${lat},${lng}" target="_blank">${location}</a></td>
                                                     <td>${zone_en}</td>
@@ -1516,11 +1516,11 @@
                     realname: "Arutz 7", // Display label shown in the news table
                     url: "https://www.israelnationalnews.com/Rss.aspx"
                 },
-                /*{
+                {
                     codename: "RSSbnn",
                     realname: "BNN",
                     url: "https://www.bernie.news/api/news/rss"
-                },*/
+                },
                 {
                     codename: "RSSjerusalemPost",
                     realname: "JPost",
@@ -1566,8 +1566,8 @@
 
                             $("#rss_alerts").prepend(`
                                 <tr class="animate__animated animate__fadeInDown animate__faster rssNewRow table-light">
-                                    <td width="5%"><font class="text-warning">${timeStamp}</font></td>
-                                    <td width="7%"><font class="text-info">${feed.realname}</font></td>
+                                    <td width="5%"><font class="text-info">${timeStamp}</font></td>
+                                    <td width="7%"><font class="text-warning">${feed.realname}</font></td>
                                     <td><a href="${item.url}" target="_blank">${item.title}</a></td>
                                 </tr>
                             `);

@@ -116,20 +116,12 @@
                                         <td class="text-end"><span id="rocketAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span>Total Ballistic Missile Alerts</span></td>
-                                        <td class="text-end"><span id="ballisticMissileAlertsCounter" class="stat-number">0</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><span>Ballistic Missile Share</span></td>
-                                        <td class="text-end"><span id="ballisticMissileShareCounter" class="stat-number">--</span></td>
-                                    </tr>
-                                    <tr>
                                         <td><span>Drone Share</span></td>
-                                        <td class="text-end"><span id="droneShareCounter" class="stat-number">--</span></td>
+                                        <td class="text-end"><span id="droneShareCounter" class="stat-number">0%</span></td>
                                     </tr>
                                     <tr>
                                         <td><span>Rocket / Missile Share</span></td>
-                                        <td class="text-end"><span id="rocketShareCounter" class="stat-number">--</span></td>
+                                        <td class="text-end"><span id="rocketShareCounter" class="stat-number">0%</span></td>
                                     </tr>
                                     <tr>
                                         <td><span>Total Locations</span></td>
@@ -286,9 +278,9 @@
                             <div id="earlyWarningLocations" style="width: 100%"></div>
                         </div>
                     </div>
-                    </div>
                 </div>
             </div>
+        </div>
         </div>
 
         <!-- Early Warning Modal - Exit -->
@@ -503,12 +495,10 @@
             // Summary counters reflected in the Alerts Summary table
             let rocketAlertCounter = 0; // Missile alert rows received
             let droneAlertCounter = 0; // Hostile aircraft intrusion rows received
-            let ballisticMissileAlertsCounter = 0; // Alert locations that overlap with a ballistic-missile early warning match
             let totalEarlyWarningsAllCounter = 0; // Early warnings for any location
             let totalEarlyWarningsSpecificCounter = 0; // Early warnings that include the user's saved city
             let pikudHaorefErrorCounter = 0; // Total fetch errors from Pikud HaOref
             let totalUnmatchedCitiesCounter = 0; // Total alerts for unrecognised location names
-            let earlyWarningCitySnapshots = []; // Recent early-warning city sets used for missile classification
 
             // Boolean flags for UI state
             let pikudHaorefError = false; // True once the first Pikud HaOref error has occurred
@@ -523,7 +513,6 @@
             const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
             const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
             const recentlyAlertedLocations = {}; // Dedup cache: location → Unix timestamp of last alert row added
-            const EARLY_WARNING_MATCH_THRESHOLD = 0.5; // 50% city overlap threshold for ballistic estimation
 
 
             // ==================== AJAX HANDLER ====================
@@ -607,7 +596,7 @@
             function finishEarlyWarning (reason, options = {}) {
                 const {
                     showExitModal = false,
-                    keepLifecycleActive = false
+                        keepLifecycleActive = false
                 } = options;
 
                 clearEarlyWarningTimer();
@@ -1093,107 +1082,15 @@
                 }
             }
 
-            function normalizeAlertCities (cities) {
-                return [...new Set(cities.map(city => String(city).replace("''", "'")))];
-            }
-
-            function arraysHaveSameValues (first, second) {
-                if (first.length !== second.length) {
-                    return false;
-                }
-
-                const firstSet = new Set(first);
-
-                for (const value of second) {
-                    if (!firstSet.has(value)) {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-
-            function recordEarlyWarningSnapshot (cities) {
-                const normalizedCities = normalizeAlertCities(cities);
-
-                if (normalizedCities.length === 0) {
-                    return;
-                }
-
-                const latestSnapshot = earlyWarningCitySnapshots.at(-1);
-
-                // Refresh timestamp instead of duplicating if the active city set is unchanged.
-                if (latestSnapshot && arraysHaveSameValues(latestSnapshot.cities, normalizedCities)) {
-                    latestSnapshot.timestampMs = Date.now();
-                    return;
-                }
-
-                earlyWarningCitySnapshots.push({
-                    timestampMs: Date.now(),
-                    cities: normalizedCities
-                });
-            }
-
-            function classifyMissileByEarlyWarning (missileCities) {
-                const normalizedMissileCities = normalizeAlertCities(missileCities);
-
-                if (normalizedMissileCities.length === 0) {
-                    return {
-                        isBallisticEstimate: false,
-                        matchRatio: 0,
-                        matchCount: 0,
-                        totalMissileCities: 0
-                    };
-                }
-
-                let bestMatchRatio = 0;
-                let bestMatchCount = 0;
-                let bestMatchSnapshotIndex = -1;
-
-                for (let i = 0; i < earlyWarningCitySnapshots.length; i++) {
-                    const snapshot = earlyWarningCitySnapshots[i];
-                    const warningSet = new Set(snapshot.cities);
-                    let overlapCount = 0;
-
-                    for (const city of normalizedMissileCities) {
-                        if (warningSet.has(city)) {
-                            overlapCount++;
-                        }
-                    }
-
-                    const matchRatio = overlapCount / normalizedMissileCities.length;
-
-                    if (matchRatio > bestMatchRatio) {
-                        bestMatchRatio = matchRatio;
-                        bestMatchCount = overlapCount;
-                        bestMatchSnapshotIndex = i;
-                    }
-                }
-
-                // Snapshot is one-time-use: once a missile wave matches >= 50%, consume it.
-                if (bestMatchSnapshotIndex !== -1 && bestMatchRatio >= EARLY_WARNING_MATCH_THRESHOLD) {
-                    earlyWarningCitySnapshots.splice(bestMatchSnapshotIndex, 1);
-                }
-
-                return {
-                    isBallisticEstimate: bestMatchRatio >= EARLY_WARNING_MATCH_THRESHOLD,
-                    matchRatio: bestMatchRatio,
-                    matchCount: bestMatchCount,
-                    totalMissileCities: normalizedMissileCities.length
-                };
-            }
-
             // Refreshes advanced summary metrics derived from rockets/drones/early warnings.
             function updateAdvancedSummaryStats () {
                 const totalThreatAlerts = rocketAlertCounter + droneAlertCounter;
 
-                const rocketShare = totalThreatAlerts > 0 ? `${((rocketAlertCounter / totalThreatAlerts) * 100).toFixed(1)}%` : "--";
-                const droneShare = totalThreatAlerts > 0 ? `${((droneAlertCounter / totalThreatAlerts) * 100).toFixed(1)}%` : "--";
-                const ballisticMissileShare = rocketAlertCounter > 0 ? `${((ballisticMissileAlertsCounter / rocketAlertCounter) * 100).toFixed(1)}%` : "--";
+                const rocketShare = totalThreatAlerts > 0 ? `${((rocketAlertCounter / totalThreatAlerts) * 100).toFixed(1)}%` : "0%";
+                const droneShare = totalThreatAlerts > 0 ? `${((droneAlertCounter / totalThreatAlerts) * 100).toFixed(1)}%` : "0%";
 
                 $("#rocketShareCounter").text(rocketShare);
                 $("#droneShareCounter").text(droneShare);
-                $("#ballisticMissileShareCounter").text(ballisticMissileShare);
             }
 
             updateAdvancedSummaryStats();
@@ -1373,7 +1270,7 @@
 
                                         // Append newly affected cities to the modal's location list (no duplicates)
                                         for (let i = 0; i < alertCities.length; i++) {
-                                            const city = alertCities[i];
+                                            const city = alertCities[i].replace("''", "'");
 
                                             if (!earlyWarningLocations.includes(city)) {
                                                 earlyWarningLocations.push(city);
@@ -1381,8 +1278,6 @@
                                                 $("#earlyWarningLocations").prepend((locationMap[city]?.name_en || city) + ", ");
                                             }
                                         }
-
-                                        recordEarlyWarningSnapshot(earlyWarningLocations);
 
                                         if (!earlyWarningModalEnter._isShown) {
                                             startEarlyWarningTimer();
@@ -1410,16 +1305,6 @@
                                         // Filter out locations already shown within the last 60 seconds
                                         // to avoid flooding the table with duplicate rows during sustained alerts.
                                         const locations = extractNewLocations(alertCities);
-                                        if (alertType === "missiles") {
-                                            const missileClassification = classifyMissileByEarlyWarning(alertCities);
-
-                                            // Keep this UI counter in lock-step with table inserts:
-                                            // only update when extractNewLocations produced rows to insert.
-                                            if (locations.length > 0 && missileClassification.isBallisticEstimate && missileClassification.matchCount > 0) {
-                                                ballisticMissileAlertsCounter += missileClassification.matchCount;
-                                                $("#ballisticMissileAlertsCounter").text(ballisticMissileAlertsCounter);
-                                            }
-                                        }
 
                                         let alertedTimesAdded = false; // Flag to ensure we only update lastAlertedTimes once per alert, even if multiple new locations
 
@@ -1487,7 +1372,7 @@
                                                 // animate__fadeInDown gives a visual entry cue; alertNewRow and table-light
                                                 // trigger the 5-second highlight fade set up in the cleanup interval above.
                                                 // The location name links to Google Maps using the alert's coordinates.
-                                             
+
 
                                                 $("#pikud_haoref_alerts").prepend(`
                                                 <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">

@@ -125,7 +125,7 @@ function generateRandomEarlyWarningAlert() {
         return [
             {
                 type: "newsFlash",
-                cities: upperGalilee,
+                cities: shomron,
                 instructions: "ירי רקטות וטילים",
                 id: Date.now().toString(),
             },
@@ -136,7 +136,7 @@ function generateRandomEarlyWarningAlert() {
         return [
             {
                 type: "missiles",
-                cities: upperGalilee,
+                cities: shomron,
                 instructions: "ירי רקטות וטילים",
                 id: Date.now().toString(),
             },
@@ -147,7 +147,7 @@ function generateRandomEarlyWarningAlert() {
         return [
             {
                 type: "newsFlash",
-                cities: upperGalilee,
+                cities: shomron,
                 instructions: "האירוע הסתיים",
                 id: Date.now().toString(),
             },

@@ -107,6 +107,36 @@
                                         <td><span>Total Alerts</span></td>
                                         <td class="text-end"><span id="totalAlertsCounter" class="stat-number">0</span></td>
                                     </tr>
+                                    <!-- These will be hidden unless one of them get triggered as the chances of them occurring are extremely low -->
+                                    <!-- START -->
+                                    <tr id="total_generic_alerts_counter" style="display: none;">
+                                        <td><span>Total General Alerts</span></td>
+                                        <td class="text-end"><span id="generalAlertCounter" class="stat-number">0</span></td>
+                                    </tr>
+                                    <tr id="total_earthquake_alerts_counter" style="display: none;">
+                                        <td><span>Total Earthquake Alerts</span></td>
+                                        <td class="text-end"><span id="earthquakeAlertCounter" class="stat-number">0</span></td>
+                                    </tr>
+                                    <tr id="total_radiological_event_alerts_counter" style="display: none;">
+                                        <td><span>Total Radiological Event Alerts</span></td>
+                                        <td class="text-end"><span id="radiologicalEventAlertCounter" class="stat-number">0</span></td>
+                                    </tr>
+                                    <tr id="total_tsunami_alerts_counter" style="display: none;">
+                                        <td><span>Total Tsunami Alerts</span></td>
+                                        <td class="text-end"><span id="tsunamiAlertCounter" class="stat-number">0</span></td>
+                                    </tr>
+                                    <tr id="total_hazardous_materials_alerts_counter" style="display: none;">
+                                        <td><span>Total Hazardous Materials Alerts</span></td>
+                                        <td class="text-end"><span id="hazardousMaterialsAlertCounter" class="stat-number">0</span></td>
+                                    </tr>
+                                    <tr id="total_terrorist_infiltration_alerts_counter" style="display: none;">
+                                        <td><span>Total Terrorist Infiltration Alerts</span></td>
+                                        <td class="text-end"><span id="terroristInfiltrationAlertCounter" class="stat-number">0</span></td>
+                                    </tr>
+                                    <!-- END -->
+
+
+
                                     <tr>
                                         <td><span>Total Drone Alerts</span></td>
                                         <td class="text-end"><span id="droneAlertCounter" class="stat-number">0</span></td>
@@ -454,6 +484,7 @@
                                             <option value="alertByCity">Alert by City</option>
                                             <option value="alertByRegion">Alert by Region</option>
                                             <option value="earlyWarning">Early Warning</option>
+                                            <option value="nonMissileUAV">Non-Missile / UAV</option>
                                         </select>
                                     </td>
                                 </tr>
@@ -495,6 +526,13 @@
             // Summary counters reflected in the Alerts Summary table
             let rocketAlertCounter = 0; // Missile alert rows received
             let droneAlertCounter = 0; // Hostile aircraft intrusion rows received
+            let generalAlertCounter = 0; // General alert rows received (non-missile, non-drone)
+            let earthquakeAlertCounter = 0; // Earthquake alert rows received
+            let radiologicalEventAlertCounter = 0; // Radiological event alert rows received
+            let tsunamiAlertCounter = 0; // Tsunami alert rows received
+            let hazardousMaterialsAlertCounter = 0; // Hazardous materials alert rows received
+            let terroristInfiltrationAlertCounter = 0; // Terrorist infiltration alert rows received
+
             let totalEarlyWarningsAllCounter = 0; // Early warnings for any location
             let totalEarlyWarningsSpecificCounter = 0; // Early warnings that include the user's saved city
             let pikudHaorefErrorCounter = 0; // Total fetch errors from Pikud HaOref
@@ -1134,9 +1172,13 @@
             // Maps the API's string type codes to human-readable labels and icon paths.
             // Keys match the values returned in alert[0].type from the Pikud HaOref API.
             const alertTypeMap = {
+                general: {
+                    text: "General Alert",
+                    icon: "fa-triangle-exclamation text-warning"
+                },
                 newsFlash: {
                     text: "Early Warning",
-                    icon: "fa-triangle-exclamation"
+                    icon: "fa-triangle-exclamation text-danger"
                 },
                 missiles: {
                     text: "Rocket Alert",
@@ -1148,19 +1190,23 @@
                 },
                 earthQuake: {
                     text: "Earthquake Alert",
-                    icon: "fa-house-chimney-crack text-secondary"
+                    icon: "fa-house-chimney-crack text-danger"
                 },
                 radiologicalEvent: {
                     text: "Radiological Alert",
-                    icon: "fa-radiation text-warning"
+                    icon: "fa-radiation text-indigo"
                 },
                 tsunami: {
                     text: "Tsunami Alert",
-                    icon: "fa-house-tsunami text-primary"
+                    icon: "fa-house-tsunami text-danger"
                 },
                 hazardousMaterials: {
                     text: "Hazardous Materials Alert",
                     icon: "fa-skull-crossbones text-danger"
+                },
+                terroristInfiltration: {
+                    text: "Terrorist Infiltration Alert",
+                    icon: "fa-circle-exclamation text-danger"
                 }
             };
 
@@ -1336,34 +1382,79 @@
                                                 } else if (alertType === "hostileAircraftIntrusion") {
                                                     droneAlertCounter++
                                                     $("#droneAlertCounter").text(droneAlertCounter);
+                                                } else if (alertType === "general") {
+                                                    generalAlertCounter++
+                                                    $("#generalAlertCounter").text(generalAlertCounter);
+                                                } else if (alertType === "earthQuake") {
+                                                    earthquakeAlertCounter++
+                                                    $("#earthquakeAlertCounter").text(earthquakeAlertCounter);
+                                                } else if (alertType === "radiologicalEvent") {
+                                                    radiologicalEventAlertCounter++
+                                                    $("#radiologicalEventAlertCounter").text(radiologicalEventAlertCounter);
+                                                } else if (alertType === "tsunami") {
+                                                    tsunamiAlertCounter++
+                                                    $("#tsunamiAlertCounter").text(tsunamiAlertCounter);
+                                                } else if (alertType === "hazardousMaterials") {
+                                                    hazardousMaterialsAlertCounter++
+                                                    $("#hazardousMaterialsAlertCounter").text(hazardousMaterialsAlertCounter);
+                                                } else if (alertType === "terroristInfiltration") {
+                                                    terroristInfiltrationAlertCounter++
+                                                    $("#terroristInfiltrationAlertCounter").text(terroristInfiltrationAlertCounter);
                                                 }
 
-                                                // Combined total is rockets + drones (other types not counted here)
-                                                $("#totalAlertsCounter").text(rocketAlertCounter + droneAlertCounter);
-                                                updateAdvancedSummaryStats();
 
-                                                updateAlertedLocation(location); // Upsert into locations accumulator
-                                                updateAlertedZone(zone_en); // Upsert into zones accumulator
+                                                if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
+                                                    // Combined total is rockets + drones (other types not counted here)
+                                                    $("#totalAlertsCounter").text(rocketAlertCounter + droneAlertCounter);
+                                                    updateAdvancedSummaryStats();
 
-                                                // If zone_en is 'Unknown' the location wasn't found in locationMap.
-                                                // Log it so the operator can investigate and update the city dataset.
-                                                if (zone_en === "Unknown") {
+                                                    updateAlertedLocation(location); // Upsert into locations accumulator
+                                                    updateAlertedZone(zone_en); // Upsert into zones accumulator
 
-                                                    console.log("Unmatched location:", alert[0]);
+                                                    // If zone_en is 'Unknown' the location wasn't found in locationMap.
+                                                    // Log it so the operator can investigate and update the city dataset.
+                                                    if (zone_en === "Unknown") {
 
-                                                    totalUnmatchedCitiesCounter++;
-                                                    $("#totalUnmatchedCitiesCounter").text(totalUnmatchedCitiesCounter);
+                                                        console.log("Unmatched location:", alert[0]);
 
-                                                    // Only add each unique unmatched name to the modal list once
-                                                    if (!unmatchedCitiesLogs.includes(location)) {
-                                                        unmatchedCitiesLogs.push(location);
-                                                        $("#unmatched_cities_messages").prepend("<li>" + location + "</li>");
+                                                        totalUnmatchedCitiesCounter++;
+                                                        $("#totalUnmatchedCitiesCounter").text(totalUnmatchedCitiesCounter);
+
+                                                        // Only add each unique unmatched name to the modal list once
+                                                        if (!unmatchedCitiesLogs.includes(location)) {
+                                                            unmatchedCitiesLogs.push(location);
+                                                            $("#unmatched_cities_messages").prepend("<li>" + location + "</li>");
+                                                        }
+
+                                                        // Reveal the unmatched-cities counter row the first time
+                                                        if (!unmatchedCitiesFlag) {
+                                                            unmatchedCitiesFlag = true;
+                                                            $("#unmatched_cities_counter, #unmatched_cities").show();
+                                                        }
                                                     }
 
-                                                    // Reveal the unmatched-cities counter row the first time
-                                                    if (!unmatchedCitiesFlag) {
-                                                        unmatchedCitiesFlag = true;
-                                                        $("#unmatched_cities_counter, #unmatched_cities").show();
+                                                    if (!alertedTimesAdded) {
+                                                        alertedTimesAdded = true;
+
+                                                        // Track and display the last unique times when alerts occurred.
+                                                        // Only adds a time if it's not already in the list (ensures uniqueness).
+                                                        const dayOrdinal = moment().format("Do");
+                                                        const time = timeStamp.slice(0, -3);
+
+                                                        // Only add if this time hasn't been recorded yet
+                                                        if (!lastAlertedTimes.includes(dayOrdinal + " " + time)) {
+                                                            lastAlertedTimes.push(dayOrdinal + " " + time);
+
+                                                            $('#last_alerted_times').prepend(`
+                                                                <tr>
+                                                                    <td><span class="text-white">${dayOrdinal} - ${time}</span></td>
+                                                                </tr>
+                                                            `);
+
+                                                            if (lastAlertedTimesScroller) {
+                                                                lastAlertedTimesScroller.reset();
+                                                            }
+                                                        }
                                                     }
                                                 }
 
@@ -1371,43 +1462,18 @@
                                                 // animate__fadeInDown gives a visual entry cue; alertNewRow and table-light
                                                 // trigger the 5-second highlight fade set up in the cleanup interval above.
                                                 // The location name links to Google Maps using the alert's coordinates.
-
-
                                                 $("#pikud_haoref_alerts").prepend(`
-                                                <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
-                                                    <td><font class='text-info'>${timeStamp}</font></td>
-                                                    <td><i class="fa-solid ${alertTypeIcon} collapse-icon" title="${alertTypeText}"></i></td>
-                                                    <td><a href="https://www.google.com/maps/search/${lat},${lng}" target="_blank">${location}</a></td>
-                                                    <td>${zone_en}</td>
-                                                </tr>
-                                            `);
+                                                    <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
+                                                        <td><font class='text-info'>${timeStamp}</font></td>
+                                                        <td><i class="fa-solid ${alertTypeIcon} collapse-icon" title="${alertTypeText}"></i></td>
+                                                        <td><a href="https://www.google.com/maps/search/${lat},${lng}" target="_blank">${location}</a></td>
+                                                        <td>${zone_en}</td>
+                                                    </tr>
+                                                `);
+
 
                                                 if (pikudHaorefScroller) {
                                                     pikudHaorefScroller.reset();
-                                                }
-
-                                                if (!alertedTimesAdded) {
-                                                    alertedTimesAdded = true;
-
-                                                    // Track and display the last unique times when alerts occurred.
-                                                    // Only adds a time if it's not already in the list (ensures uniqueness).
-                                                    const dayOrdinal = moment().format("Do");
-                                                    const time = timeStamp.slice(0, -3);
-
-                                                    // Only add if this time hasn't been recorded yet
-                                                    if (!lastAlertedTimes.includes(dayOrdinal + " " + time)) {
-                                                        lastAlertedTimes.push(dayOrdinal + " " + time);
-
-                                                        $('#last_alerted_times').prepend(`
-                                                            <tr>
-                                                                <td><span class="text-white">${dayOrdinal} - ${time}</span></td>
-                                                            </tr>
-                                                        `);
-
-                                                        if (lastAlertedTimesScroller) {
-                                                            lastAlertedTimesScroller.reset();
-                                                        }
-                                                    }
                                                 }
                                             }
                                         }
@@ -1439,11 +1505,11 @@
                                                 const counter = sortalertedLocations[i].counter;
 
                                                 $("#alerted_locations_counter").append(`
-                                                <tr>
-                                                    <td width="95%"><font class='text-white'>${location}</font></td>
-                                                    <td>${counter}</td>
-                                                </tr>
-                                            `);
+                                                    <tr>
+                                                        <td width="95%"><font class='text-white'>${location}</font></td>
+                                                        <td>${counter}</td>
+                                                    </tr>
+                                                `);
                                             }
 
                                             if (alertLocationsScroller) {
@@ -1471,11 +1537,11 @@
                                                 const counter = sortalertedZones[i].counter;
 
                                                 $("#alerted_zones_counter").append(`
-                                                <tr>
-                                                    <td width="95%"><font class='text-white'>${zone}</font></td>
-                                                    <td>${counter}</td>
-                                                </tr>
-                                            `);
+                                                    <tr>
+                                                        <td width="95%"><font class='text-white'>${zone}</font></td>
+                                                        <td>${counter}</td>
+                                                    </tr>
+                                                `);
                                             }
 
                                             $("#totalZonesCounter").text(sortalertedZones.length);
@@ -1844,6 +1910,18 @@
                         backgroundColor = '#FF0000'; // Red for missiles
                     } else if (type === 'hostileAircraftIntrusion') {
                         backgroundColor = '#FFA500'; // Orange for hostile aircraft intrusion
+                    } else if (type === 'earthQuake') {
+                        backgroundColor = '#FFFF00'; // Yellow for earthquakes
+                    } else if (type === 'radiologicalEvent') {
+                        backgroundColor = '#800080'; // Purple for radiological events
+                    } else if (type === 'tsunami') {
+                        backgroundColor = '#0000FF'; // Blue for tsunamis
+                    } else if (type === 'hazardousMaterials') {
+                        backgroundColor = '#008000'; // Dark Green for hazardous materials
+                    } else if (type === 'terroristInfiltration') {
+                        backgroundColor = '#8B0000'; // Dark Red for terrorist infiltration
+                    } else if (type === 'general') {
+                        backgroundColor = '#808080'; // Gray for general events
                     }
 
                     // Then create marker:

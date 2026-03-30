@@ -155,6 +155,33 @@ function generateRandomEarlyWarningAlert() {
     }
 }
 
+function generateRandomNonMissileUAVAlert() {
+    // Randomly select an alert type for testing purposes. In a real scenario, the API would provide the actual alert type.
+    const alertTypes = ["general", "earthQuake", "radiologicalEvent", "tsunami", "hazardousMaterials", "terroristInfiltration"];
+    // For testing, we can randomly select an alert type. In a real implementation, this would come from the API response.
+    const randomType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
+
+    // Combine all cities into one array for random selection
+    const allCities = [...arava, ...beitSheanValley, ...beitShemesh, ...bikaa, ...centerNegev, ...confrontationLine, ...dan, ...deadSea, ...dromHashfela, ...eilat, ...gazaEnvelope, ...golan, ...haifa, ...haShfela, ...hefer, ...hofHaCarmel, ...jerusalem, ...katzrin, ...krayot, ...lachish, ...lowerGalilee, ...menashe, ...sharon, ...shomron, ...southNegev, ...tavor, ...upperGalilee, ...wadiAra, ...westLachish, ...westNegev, ...yarkon, ...yearotHaCarmel, ...yehuda];
+
+    // For testing purposes, randomly select a single city from all available cities. In a real scenario, the API would provide the actual affected cities.
+    const randomCities = [allCities[Math.floor(Math.random() * allCities.length)]];
+
+    // For news flash alerts, we can randomly select an instruction from a predefined list. In a real scenario, the API would provide the actual instructions.
+    // "ירי רקטות וטילים" has a 10% chance, "האירוע הסתיים" has a 90% chance.
+    let instructions = null;
+
+    // Return a simulated alert object with the randomly selected type, cities, and instructions. In a real implementation, this would be the actual response from the API.
+    return [
+        {
+            type: randomType,
+            cities: randomCities,
+            instructions: instructions,
+            id: Date.now().toString(),
+        },
+    ];
+}
+
 router.use("/", async function (req, res) {
     try {
         const forwardedPortHeader = req.headers["x-forwarded-port"];
@@ -183,6 +210,8 @@ router.use("/", async function (req, res) {
                     alert = generateRandomAlertByRegion();
                 } else if (testmode === "earlyWarning") {
                     alert = generateRandomEarlyWarningAlert();
+                } else if (testmode === "nonMissileUAV") {
+                    alert = generateRandomNonMissileUAVAlert();
                 }
 
                 res.statusCode = 200;

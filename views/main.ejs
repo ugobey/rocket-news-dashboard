@@ -410,7 +410,7 @@
                         <div class="glass-inner p-4 rounded-4">
                             <table class="table table-dark table-borderless mb-0">
                                 <tr>
-                                    <td width="35%" class="align-middle">
+                                    <td width="45%" class="align-middle">
                                         <span class="text-white fw-medium">City (Early Warning)</span>
                                     </td>
                                     <td>
@@ -477,6 +477,14 @@
                                 </tr>
                                 <tr>
                                     <td class="align-middle">
+                                        <span class="text-white fw-medium">Prevent Map Auto-Maximization</span>
+                                    </td>
+                                    <td colspan="2">
+                                        <input class="form-check-input" type="checkbox" id="toggle_prevent_map_auto_maximization" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle">
                                         <span class="text-white fw-medium">Test Mode Type</span>
                                     </td>
                                     <td colspan="2">
@@ -516,6 +524,7 @@
             // ==================== APPLICATION STATE ====================
             // Accumulator arrays — each entry is an object {location, counter} or {zone, counter}
             let alertsActive = false; // True while at least one active alert is ongoing (used to gate certain features until the first alert arrives)
+            let allowMapAutoMaximization = true; // When true, the map will automatically maximize when a new location alert is received. Can be disabled in settings.
             let alertedLocations = []; // All unique locations that have received alerts this session
             let alertedZones = []; // All unique zones that have received alerts this session
             let errorLogs = []; // Unique Pikud HaOref error messages with occurrence counts
@@ -842,6 +851,7 @@
                 lastAlertedTimes: localStorage.getItem("autoScrollLastAlertedTimes") !== "false",
                 rss: localStorage.getItem("autoScrollRss") !== "false",
                 earlyWarning: localStorage.getItem("autoScrollEarlyWarning") !== "false",
+                preventMapAutoMaximization: localStorage.getItem("preventMapAutoMaximization") === "true",
                 testModeType: localStorage.getItem("testModeType") || "alertByCity",
                 cssTheme: localStorage.getItem("cssTheme") || "default"
             };
@@ -880,6 +890,7 @@
                 $("#toggle_last_alerted_times_scroll").prop("checked", settingStates.lastAlertedTimes);
                 $("#toggle_rss_scroll").prop("checked", settingStates.rss);
                 $("#toggle_early_warning_scroll").prop("checked", settingStates.earlyWarning);
+                $("#toggle_prevent_map_auto_maximization").prop("checked", settingStates.preventMapAutoMaximization);
                 $("#test_mode_type").val(settingStates.testModeType);
                 $("#css_style_theme").val(settingStates.cssTheme);
             });
@@ -996,6 +1007,19 @@
                     startEarlyWarningAutoScroll();
                 } else {
                     stopEarlyWarningAutoScroll();
+                }
+            });
+
+            // Prevent Map Auto Maximization toggle
+            $("#toggle_prevent_map_auto_maximization").on("change", function () {
+                settingStates.preventMapAutoMaximization = $(this).is(":checked");
+                localStorage.setItem("preventMapAutoMaximization", settingStates.preventMapAutoMaximization);
+
+                if (settingStates.preventMapAutoMaximization) {
+                    allowMapAutoMaximization = false;
+
+                } else {
+                    allowMapAutoMaximization = true;
                 }
             });
 
@@ -1558,7 +1582,7 @@
                                             }
                                         }
 
-                                        if (!alertsActive) {
+                                        if (allowMapAutoMaximization && !alertsActive) {
                                             alertsActive = true; // Set the global flag indicating that at least one alert has been received
 
                                             $("#locationsZoneTile, #summaryLastAlertedTimesTile, #newsHeader, #newsBody, #mapHeader").hide();
@@ -2384,6 +2408,10 @@
 
             if (localStorage.getItem("autoScrollEarlyWarning") !== "false") {
                 startEarlyWarningAutoScroll();
+            }
+
+            if (localStorage.getItem("preventMapAutoMaximization") !== "false") {
+                allowMapAutoMaximization = false;
             }
 
 

@@ -9,7 +9,7 @@
 
 ```
 npm install
-node app.js
+npm start or node app.js
 ```
 
 Open your browser at:

@@ -1,4 +1,6 @@
-const webServerPort = process.env.PORT || 8080;
+const config = require("./config");
+
+const webServerPort = process.env.PORT || config.webServerPort;
 
 const express = require("express");
 const path = require("path");

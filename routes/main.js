@@ -1,3 +1,5 @@
+const config = require("../config");
+
 const service_name = "Rocket Alert / News Dashboard";
 const service_page_name = "main";
 
@@ -15,6 +17,7 @@ router.use("/", async function (req, res) {
             title: service_name,
             appVersion: pkg.version,
             cities: JSON.stringify(pikudHaorefCitiesJSON),
+            googleMapsApiKey: config.googleMapsApiKey,
         });
     } catch (err) {
         console.log(service_name + " ERROR", err);

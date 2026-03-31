@@ -1,3 +1,5 @@
+const config = require("../config");
+
 const service_name = "Ajax";
 
 const express = require("express");
@@ -196,7 +198,7 @@ router.use("/", async function (req, res) {
 
             if (requestPort != 8080) {
                 options = {
-                    httpsAgent: new HttpsProxyAgent("http://51.85.49.118:2887"),
+                    httpsAgent: new HttpsProxyAgent(config.proxyUrl),
                     rejectUnauthorized: false,
                 };
             }
@@ -257,7 +259,7 @@ router.use("/", async function (req, res) {
             res.write(JSON.stringify(response));
             res.end();
         } else if (getService === "version_check") {
-            exec("npm view git@github.com:ugobey/rocket-news-dashboard.git version", (error, stdout, stderr) => {
+            exec("npm view " + config.gitRepo + " version", (error, stdout, stderr) => {
                 if (error) {
                     res.statusCode = 500;
                     res.write(JSON.stringify({ error: error.toString() }));

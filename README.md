@@ -3,7 +3,7 @@
 ## Requirements
 
 - Node.js 24
-- Israeli IP
+- Israeli IP (or use proxy)
 
 ## Run Locally
 

@@ -1,12 +1,24 @@
-To start run:
+# Rocket News Dashboard
+
+## Requirements
+
+- Node.js 24
+
+## Run Locally
+
 ```
 npm install
 node app.js
 ```
 
-Then open a web browser to http://localhost:8080
+Open your browser at:
 
-To change the default port edit the app.js file
-```
+http://localhost:8080
+
+## Change the Default Port
+
+Edit `app.js` and update:
+
+```js
 const webServerPort = 8080;
 ```

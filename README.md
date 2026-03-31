@@ -35,7 +35,3 @@ All configuration is stored in `config.json` at the project root:
 | `webServerPort` | Port the web server listens on (default: `8080`) |
 | `gitRepo` | SSH URL of the Git repository |
 | `googleMapsApiKey` | Google Maps API key used for the map view |
-
-## Change the Default Port
-
-Edit `config.json` and update the `webServerPort` value.

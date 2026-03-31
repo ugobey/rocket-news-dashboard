@@ -1,5 +1,3 @@
-const parameters = process.argv;
-
 const webServerPort = process.env.PORT || 8080;
 
 const express = require("express");

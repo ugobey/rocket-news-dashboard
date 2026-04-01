@@ -1742,8 +1742,11 @@
                 lng: 35.0998
             };
             const defaultMapZoom = 9;
-            const clusteredMarkersZoom = 12;
-            let zoomAnimationInterval = null;
+            const minMapZoom = 8;
+            const maxMapZoom = 12;
+            
+            let shouldAutoCenterIdleMap = false;
+            let hasAutoCenteredIdleMap = false;
 
             // Active city alerts keyed by a stable city identifier.
             // A city remains here while its marker is active, then is removed on timeout.
@@ -1759,6 +1762,8 @@
                 map = new google.maps.Map(document.getElementById('map'), {
                     zoom: defaultMapZoom,
                     center: defaultMapCenter,
+                    minZoom: minMapZoom,
+                    maxZoom: maxMapZoom,
                     mapId: 'rocket-alerts-map',
                     mapTypeId: 'roadmap',
                     mapTypeControl: false,
@@ -1781,100 +1786,28 @@
                 return markerElement;
             }
 
-            function stopSmoothZoomAnimation () {
-                if (zoomAnimationInterval !== null) {
-                    clearInterval(zoomAnimationInterval);
-                    zoomAnimationInterval = null;
-                }
+            function armIdleAutoCenter () {
+                shouldAutoCenterIdleMap = true;
+                hasAutoCenteredIdleMap = false;
             }
 
-            function smoothZoomTo (targetZoom) {
+            function resetMapToDefaultIfIdle () {
                 if (!map) {
                     return;
                 }
 
-                const roundedTarget = Math.round(targetZoom);
-                const currentZoom = map.getZoom();
-
-                stopSmoothZoomAnimation();
-
-                if (currentZoom === undefined || currentZoom === null) {
-                    map.setZoom(roundedTarget);
+                const visibleMarkers = allMarkers.filter(marker => marker && marker.map);
+                if (visibleMarkers.length > 0) {
                     return;
                 }
 
-                if (currentZoom === roundedTarget) {
+                if (!shouldAutoCenterIdleMap || hasAutoCenteredIdleMap) {
                     return;
                 }
 
-                const direction = currentZoom < roundedTarget ? 1 : -1;
-                zoomAnimationInterval = setInterval(() => {
-                    const current = map.getZoom();
-                    if (current === undefined || current === null) {
-                        stopSmoothZoomAnimation();
-                        return;
-                    }
-
-                    const next = current + direction;
-                    const reached = direction > 0 ? next >= roundedTarget : next <= roundedTarget;
-
-                    map.setZoom(reached ? roundedTarget : next);
-
-                    if (reached) {
-                        stopSmoothZoomAnimation();
-                    }
-                }, 50);
-            }
-
-            function getDistanceInMeters (firstLatLng, secondLatLng) {
-                const earthRadiusMeters = 6371000;
-                const lat1 = firstLatLng.lat() * Math.PI / 180;
-                const lat2 = secondLatLng.lat() * Math.PI / 180;
-                const deltaLat = (secondLatLng.lat() - firstLatLng.lat()) * Math.PI / 180;
-                const deltaLng = (secondLatLng.lng() - firstLatLng.lng()) * Math.PI / 180;
-
-                const haversine = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-                    Math.cos(lat1) * Math.cos(lat2) *
-                    Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
-                const angularDistance = 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
-
-                return earthRadiusMeters * angularDistance;
-            }
-
-            function getZoomForMarkerSpread (markerSpreadMeters) {
-                if (markerSpreadMeters <= 5000) {
-                    return clusteredMarkersZoom;
-                }
-
-                if (markerSpreadMeters <= 10000) {
-                    return 12;
-                }
-
-                if (markerSpreadMeters <= 20000) {
-                    return 11.5;
-                }
-
-                if (markerSpreadMeters <= 50000) {
-                    return 11;
-                }
-
-                if (markerSpreadMeters <= 100000) {
-                    return 10.5;
-                }
-
-                if (markerSpreadMeters <= 200000) {
-                    return 10;
-                }
-
-                if (markerSpreadMeters <= 300000) {
-                    return 9.5;
-                }
-
-                if (markerSpreadMeters <= 400000) {
-                    return 9;
-                }
-
-                return 8.5;
+                map.panTo(defaultMapCenter);
+                map.setZoom(defaultMapZoom);
+                hasAutoCenteredIdleMap = true;
             }
 
             // Keeps all active markers visible as markers are added/removed.
@@ -1883,13 +1816,12 @@
                     return;
                 }
 
-                stopSmoothZoomAnimation();
-
                 const visibleMarkers = allMarkers.filter(marker => marker && marker.map);
 
                 if (visibleMarkers.length === 0) {
-                    map.panTo(defaultMapCenter);
-                    smoothZoomTo(defaultMapZoom);
+                   
+                    armIdleAutoCenter();
+                    resetMapToDefaultIfIdle();
 
                     if (alertsActive) {
                         alertsActive = false; // Set the global flag indicating that no alerts are currently active
@@ -1901,22 +1833,18 @@
                     return;
                 }
 
-                if (visibleMarkers.length === 1) {
-                    map.panTo(visibleMarkers[0].position);
-                    smoothZoomTo(clusteredMarkersZoom);
-                    return;
-                }
+                shouldAutoCenterIdleMap = false;
+                hasAutoCenteredIdleMap = false;
 
                 const bounds = new google.maps.LatLngBounds();
                 visibleMarkers.forEach(marker => bounds.extend(marker.position));
 
-                const northEast = bounds.getNorthEast();
-                const southWest = bounds.getSouthWest();
-                const markerSpreadMeters = getDistanceInMeters(northEast, southWest);
-                const targetZoom = getZoomForMarkerSpread(markerSpreadMeters);
-
-                map.panTo(bounds.getCenter());
-                smoothZoomTo(targetZoom);
+                map.fitBounds(bounds, {
+                    top: 20,
+                    right: 30,
+                    bottom: 20,
+                    left: 30,
+                });
             }
 
             function getCityKey (city) {

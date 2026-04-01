@@ -20,6 +20,18 @@
         <script src="/js/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
         <script src="/js/moment-2.30.1.min.js"></script>
 
+        <script>
+            // Maps API may call initMap before the body scripts run; bridge it safely.
+            window.__googleMapsCallbackFired = false;
+            window.__initMapImpl = null;
+            window.initMap = function initMap () {
+                window.__googleMapsCallbackFired = true;
+                if (typeof window.__initMapImpl === 'function') {
+                    window.__initMapImpl();
+                }
+            };
+        </script>
+
         <script src="https://maps.googleapis.com/maps/api/js?callback=initMap&libraries=marker&key=<%=googleMapsApiKey%>&loading=async" async></script>
 
     </head>
@@ -983,6 +995,7 @@
             };
 
             soundAlertsEnabled = settingStates.soundAlertsEnabled;
+            allowMapAutoMaximization = !settingStates.preventMapAutoMaximization;
             setSoundAlertsUI(soundAlertsEnabled);
 
             const themeStylesheetMap = {
@@ -1871,10 +1884,8 @@
                 activeList: []
             };
 
-            // Initialize the map (runs only once).
-            // Assigned to window so the async Maps API callback can always find it,
-            // regardless of whether the script fires before or after this block executes.
-            window.initMap = function initMap () {
+            // Define map init implementation, then run it immediately if callback already fired.
+            window.__initMapImpl = function initMapImpl () {
                 map = new google.maps.Map(document.getElementById('map'), {
                     zoom: defaultMapZoom,
                     center: defaultMapCenter,
@@ -1887,6 +1898,10 @@
                     fullscreenControl: true,
                     zoomControl: true,
                 });
+            };
+
+            if (window.__googleMapsCallbackFired) {
+                window.__initMapImpl();
             }
 
             function buildMarkerContent (type) {
@@ -2483,7 +2498,7 @@
                 startEarlyWarningAutoScroll();
             }
 
-            if (localStorage.getItem("preventMapAutoMaximization") !== "false") {
+            if (localStorage.getItem("preventMapAutoMaximization") === "true") {
                 allowMapAutoMaximization = false;
             }
 

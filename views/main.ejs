@@ -196,6 +196,12 @@
                                         </td>
                                     </tr>
                                     <tr>
+                                        <td><span>Sound Alerts</span></td>
+                                        <td class="text-end">
+                                            <i id="sound_alerts_toggle" class="fa-solid fa-bell fa-xl text-light" title="Turn off Sound Alerts" style="cursor: pointer"></i>
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <td><span>Fullscreen</span></td>
                                         <td class="text-end">
                                             <i id="fullscreen" class="fa-solid fa-expand fa-xl text-light" title="Enter Fullscreen"></i>
@@ -554,6 +560,10 @@
             let earlyWarningActive = false; // True while an early-warning (newsFlash) alert is ongoing
             let testmode = null; // When true, the server returns hardcoded mock alert data
             let testModeTimeoutHandle = null; // Auto-disables test mode after the configured timeout
+            let soundAlertsEnabled = localStorage.getItem("soundAlertsEnabled") === "true"; // Controls whether live alerts play a short beep
+
+            let alertAudioContext = null;
+            let lastAlertSoundAtMs = 0;
 
             // Early warning countdown uses a fixed 5-minute duration
             const EARLY_WARNING_DURATION_MS = 5 * 60 * 1000;
@@ -760,6 +770,76 @@
                 }
             }
 
+            function setSoundAlertsUI (enabled) {
+                const icon = $("#sound_alerts_toggle");
+
+                if (!icon.length) {
+                    return;
+                }
+
+                if (enabled) {
+                    icon.attr("title", "Turn off Sound Alerts");
+                    icon.removeClass("fa-bell-slash text-danger").addClass("fa-bell text-light");
+                } else {
+                    icon.attr("title", "Turn on Sound Alerts");
+                    icon.removeClass("fa-bell text-light").addClass("fa-bell-slash text-danger");
+                }
+            }
+
+            function ensureAlertAudioContext () {
+                if (!alertAudioContext) {
+                    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioContextCtor) {
+                        return null;
+                    }
+
+                    alertAudioContext = new AudioContextCtor();
+                }
+
+                if (alertAudioContext.state === "suspended") {
+                    alertAudioContext.resume().catch(() => {});
+                }
+
+                return alertAudioContext;
+            }
+
+            function playAlertSound () {
+                if (!soundAlertsEnabled) {
+                    return;
+                }
+
+                const now = Date.now();
+                // Prevent rapid duplicate beeps when multiple rows are added in the same second.
+                if (now - lastAlertSoundAtMs < 750) {
+                    return;
+                }
+
+                const context = ensureAlertAudioContext();
+                if (!context) {
+                    return;
+                }
+
+                try {
+                    const oscillator = context.createOscillator();
+                    const gainNode = context.createGain();
+
+                    oscillator.type = "square";
+                    oscillator.frequency.setValueAtTime(920, context.currentTime);
+                    oscillator.connect(gainNode);
+                    gainNode.connect(context.destination);
+
+                    gainNode.gain.setValueAtTime(0.0001, context.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.12, context.currentTime + 0.015);
+                    gainNode.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.22);
+
+                    oscillator.start(context.currentTime);
+                    oscillator.stop(context.currentTime + 0.24);
+                    lastAlertSoundAtMs = now;
+                } catch (error) {
+                    console.log("Alert sound playback failed:", error);
+                }
+            }
+
             $("#fullscreen").on("click", async function () {
                 try {
                     if (!isFullscreenActive()) {
@@ -785,6 +865,13 @@
             document.addEventListener("fullscreenchange", updateFullscreenToggleUI);
             document.addEventListener("webkitfullscreenchange", updateFullscreenToggleUI);
             updateFullscreenToggleUI();
+            setSoundAlertsUI(soundAlertsEnabled);
+
+            ["click", "keydown", "touchstart"].forEach((eventName) => {
+                document.addEventListener(eventName, ensureAlertAudioContext, {
+                    once: true
+                });
+            });
 
             function setTestModeUI (enabled) {
                 if (enabled) {
@@ -831,6 +918,17 @@
                 }
             });
 
+            $("#sound_alerts_toggle").on("click", function () {
+                soundAlertsEnabled = !soundAlertsEnabled;
+                localStorage.setItem("soundAlertsEnabled", String(soundAlertsEnabled));
+                setSoundAlertsUI(soundAlertsEnabled);
+
+                if (soundAlertsEnabled) {
+                    ensureAlertAudioContext();
+                    playAlertSound();
+                }
+            });
+
             // Show the error log modal listing all unique Pikud HaOref fetch errors
             $("#show_error_messages").on("click", function () {
                 errorMessagesModal.show();
@@ -874,8 +972,12 @@
                 earlyWarning: localStorage.getItem("autoScrollEarlyWarning") !== "false",
                 preventMapAutoMaximization: localStorage.getItem("preventMapAutoMaximization") === "true",
                 testModeType: localStorage.getItem("testModeType") || "alertByCity",
+                soundAlertsEnabled: localStorage.getItem("soundAlertsEnabled") === "true",
                 cssTheme: localStorage.getItem("cssTheme") || "default"
             };
+
+            soundAlertsEnabled = settingStates.soundAlertsEnabled;
+            setSoundAlertsUI(soundAlertsEnabled);
 
             const themeStylesheetMap = {
                 default: "/css/themes/default.css",
@@ -1400,6 +1502,10 @@
                                         // Filter out locations already shown within the last 60 seconds
                                         // to avoid flooding the table with duplicate rows during sustained alerts.
                                         const locations = extractNewLocations(alertCities);
+
+                                        if (locations.length > 0) {
+                                            playAlertSound();
+                                        }
 
                                         let alertedTimesAdded = false; // Flag to ensure we only update lastAlertedTimes once per alert, even if multiple new locations
 

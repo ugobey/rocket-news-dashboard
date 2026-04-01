@@ -18,4 +18,4 @@ EXPOSE 8080
 
 ENV PORT=8080
 
-CMD ["node", "app.js"]
+CMD ["node", "app.js", "--use-system-ca"]

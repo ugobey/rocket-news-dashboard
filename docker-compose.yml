@@ -1,0 +1,10 @@
+services:
+  rocket-news-dashboard:
+    build: .
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - ./config.json:/usr/src/app/config.json:ro
+    restart: unless-stopped

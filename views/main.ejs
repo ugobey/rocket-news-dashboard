@@ -14,11 +14,23 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
 
-        <link id="dashboardThemeStylesheet" href="/css/themes/default.css" rel="stylesheet" />
+        <link id="dashboardThemeStylesheet" href="/css/themes/graphite.css" rel="stylesheet" />
 
         <script src="/js/jquery-3.7.1.min.js"></script>
         <script src="/js/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
         <script src="/js/moment-2.30.1.min.js"></script>
+
+        <script>
+            // Maps API may call initMap before the body scripts run; bridge it safely.
+            window.__googleMapsCallbackFired = false;
+            window.__initMapImpl = null;
+            window.initMap = function initMap () {
+                window.__googleMapsCallbackFired = true;
+                if (typeof window.__initMapImpl === 'function') {
+                    window.__initMapImpl();
+                }
+            };
+        </script>
 
         <script src="https://maps.googleapis.com/maps/api/js?callback=initMap&libraries=marker&key=<%=googleMapsApiKey%>&loading=async" async></script>
 
@@ -438,7 +450,7 @@
                                         <span class="text-white fw-medium">Pikud HaOref Auto-Scroll</span>
                                     </td>
                                     <td colspan="2">
-                                        <input class="form-check-input" type="checkbox" id="toggle_pikud_scroll" checked />
+                                        <input class="form-check-input" type="checkbox" id="toggle_pikud_scroll" />
                                     </td>
                                 </tr>
                                 <tr>
@@ -446,7 +458,7 @@
                                         <span class="text-white fw-medium">Zones Auto-Scroll</span>
                                     </td>
                                     <td colspan="2">
-                                        <input class="form-check-input" type="checkbox" id="toggle_zones_scroll" checked />
+                                        <input class="form-check-input" type="checkbox" id="toggle_zones_scroll" />
                                     </td>
                                 </tr>
                                 <tr>
@@ -454,7 +466,7 @@
                                         <span class="text-white fw-medium">Locations Auto-Scroll</span>
                                     </td>
                                     <td colspan="2">
-                                        <input class="form-check-input" type="checkbox" id="toggle_locations_scroll" checked />
+                                        <input class="form-check-input" type="checkbox" id="toggle_locations_scroll" />
                                     </td>
                                 </tr>
                                 <tr>
@@ -462,7 +474,7 @@
                                         <span class="text-white fw-medium">Last Alerted Times Auto-Scroll</span>
                                     </td>
                                     <td colspan="2">
-                                        <input class="form-check-input" type="checkbox" id="toggle_last_alerted_times_scroll" checked />
+                                        <input class="form-check-input" type="checkbox" id="toggle_last_alerted_times_scroll" />
                                     </td>
                                 </tr>
                                 <tr>
@@ -470,7 +482,7 @@
                                         <span class="text-white fw-medium">RSS Feed Auto-Scroll</span>
                                     </td>
                                     <td colspan="2">
-                                        <input class="form-check-input" type="checkbox" id="toggle_rss_scroll" checked />
+                                        <input class="form-check-input" type="checkbox" id="toggle_rss_scroll" />
                                     </td>
                                 </tr>
                                 <tr>
@@ -508,8 +520,8 @@
                                     </td>
                                     <td colspan="2">
                                         <select class="form-select" id="css_style_theme">
-                                            <option value="default">Command Center (Default)</option>
-                                            <option value="graphite">Graphite Pro</option>
+                                            <option value="default">Command Center</option>
+                                            <option value="graphite">Graphite Pro (Default)</option>
                                             <option value="tv_mode">TV Mode</option>
                                         </select>
                                     </td>
@@ -961,22 +973,29 @@
                 settingsModal.hide();
             });
 
+            const storedCssTheme = localStorage.getItem("cssTheme");
+            const initialCssTheme = storedCssTheme === null ? "graphite" : storedCssTheme;
+            if (storedCssTheme === null) {
+                localStorage.setItem("cssTheme", initialCssTheme);
+            }
+
             // Auto-scroll toggle handlers
             // Track which auto-scrollers are enabled and their interval IDs for stopping
             const settingStates = {
-                pikudHaoref: localStorage.getItem("autoScrollPikudHaoref") !== "false",
-                zones: localStorage.getItem("autoScrollZones") !== "false",
-                locations: localStorage.getItem("autoScrollLocations") !== "false",
-                lastAlertedTimes: localStorage.getItem("autoScrollLastAlertedTimes") !== "false",
-                rss: localStorage.getItem("autoScrollRss") !== "false",
+                pikudHaoref: localStorage.getItem("autoScrollPikudHaoref") === "true",
+                zones: localStorage.getItem("autoScrollZones") === "true",
+                locations: localStorage.getItem("autoScrollLocations") === "true",
+                lastAlertedTimes: localStorage.getItem("autoScrollLastAlertedTimes") === "true",
+                rss: localStorage.getItem("autoScrollRss") === "true",
                 earlyWarning: localStorage.getItem("autoScrollEarlyWarning") !== "false",
                 preventMapAutoMaximization: localStorage.getItem("preventMapAutoMaximization") === "true",
                 testModeType: localStorage.getItem("testModeType") || "alertByCity",
                 soundAlertsEnabled: localStorage.getItem("soundAlertsEnabled") === "true",
-                cssTheme: localStorage.getItem("cssTheme") || "default"
+                cssTheme: initialCssTheme
             };
 
             soundAlertsEnabled = settingStates.soundAlertsEnabled;
+            allowMapAutoMaximization = !settingStates.preventMapAutoMaximization;
             setSoundAlertsUI(soundAlertsEnabled);
 
             const themeStylesheetMap = {
@@ -987,7 +1006,7 @@
             };
 
             function applyDashboardTheme (themeName) {
-                const selectedTheme = themeStylesheetMap[themeName] ? themeName : "default";
+                const selectedTheme = themeStylesheetMap[themeName] ? themeName : "graphite";
                 const themeStylesheet = document.getElementById("dashboardThemeStylesheet");
 
                 if (themeStylesheet) {
@@ -998,11 +1017,11 @@
             applyDashboardTheme(settingStates.cssTheme);
 
             // Global variables to track autoscroller intervals so they can be stopped
-            let pikudHaorefAutoScrollEnabled = true;
-            let locationsAutoScrollEnabled = true;
-            let zonesAutoScrollEnabled = true;
-            let lastAlertedTimesAutoScrollEnabled = true;
-            let rssAutoScrollEnabled = true;
+            let pikudHaorefAutoScrollEnabled = settingStates.pikudHaoref;
+            let locationsAutoScrollEnabled = settingStates.locations;
+            let zonesAutoScrollEnabled = settingStates.zones;
+            let lastAlertedTimesAutoScrollEnabled = settingStates.lastAlertedTimes;
+            let rssAutoScrollEnabled = settingStates.rss;
             let earlyWarningAutoScrollEnabled = true;
 
             // Initialize toggle states on load
@@ -1865,10 +1884,8 @@
                 activeList: []
             };
 
-            // Initialize the map (runs only once).
-            // Assigned to window so the async Maps API callback can always find it,
-            // regardless of whether the script fires before or after this block executes.
-            window.initMap = function initMap () {
+            // Define map init implementation, then run it immediately if callback already fired.
+            window.__initMapImpl = function initMapImpl () {
                 map = new google.maps.Map(document.getElementById('map'), {
                     zoom: defaultMapZoom,
                     center: defaultMapCenter,
@@ -1881,6 +1898,10 @@
                     fullscreenControl: true,
                     zoomControl: true,
                 });
+            };
+
+            if (window.__googleMapsCallbackFired) {
+                window.__initMapImpl();
             }
 
             function buildMarkerContent (type) {
@@ -2385,7 +2406,7 @@
                 });
             }
 
-            if (localStorage.getItem("autoScrollPikudHaoref") !== "false") {
+            if (localStorage.getItem("autoScrollPikudHaoref") === "true") {
                 startPikudHaorefAutoScroll();
             }
 
@@ -2403,7 +2424,7 @@
                 });
             }
 
-            if (localStorage.getItem("autoScrollLocations") !== "false") {
+            if (localStorage.getItem("autoScrollLocations") === "true") {
                 startAlertLocationsAutoScroll();
             }
 
@@ -2421,7 +2442,7 @@
                 });
             }
 
-            if (localStorage.getItem("autoScrollZones") !== "false") {
+            if (localStorage.getItem("autoScrollZones") === "true") {
                 startAlertZonesAutoScroll();
             }
 
@@ -2439,7 +2460,7 @@
                 });
             }
 
-            if (localStorage.getItem("autoScrollLastAlertedTimes") !== "false") {
+            if (localStorage.getItem("autoScrollLastAlertedTimes") === "true") {
                 startLastAlertedTimesAutoScroll();
             }
 
@@ -2457,7 +2478,7 @@
                 });
             }
 
-            if (localStorage.getItem("autoScrollRss") !== "false") {
+            if (localStorage.getItem("autoScrollRss") === "true") {
                 startRssAutoScroll();
             }
 
@@ -2477,7 +2498,7 @@
                 startEarlyWarningAutoScroll();
             }
 
-            if (localStorage.getItem("preventMapAutoMaximization") !== "false") {
+            if (localStorage.getItem("preventMapAutoMaximization") === "true") {
                 allowMapAutoMaximization = false;
             }
 

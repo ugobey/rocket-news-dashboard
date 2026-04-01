@@ -564,30 +564,49 @@
 
 
             // ==================== AJAX HANDLER ====================
-            // Wraps jQuery's $.ajax in a Promise so callers can use async/await.
+            // Wraps fetch in a Promise so callers can use async/await.
             // Parameters:
             //   service    - the backend service to call ('pikud_haoref', 'rss', 'version_check')
             //   rssFeedURL - RSS feed URL forwarded to the server (only used when service='rss')
             // The current testmode flag is always sent so the server can return mock data when needed.
             async function ajaxHandler (service, rssFeedURL) {
-                return new Promise((resolve) => {
-                    $.ajax({
-                        url: "/ajax",
-                        type: "POST",
-                        data: {
-                            "service": service,
-                            "rssfeed": rssFeedURL,
-                            "testmode": testmode // Tells the server to use hardcoded test data
-                        },
-                        async: true,
-                        dataType: "json",
-                        success: function (result) {
-                            resolve(result); // Resolve with the parsed JSON response
-                        },
-                        error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            console.log(XMLHttpRequest, textStatus, errorThrown);
-                        }
+                return new Promise((resolve, reject) => {
+                    const requestBody = new URLSearchParams({
+                        service: service,
+                        rssfeed: rssFeedURL || "",
+                        testmode: testmode || "" // Tells the server to use hardcoded test data
                     });
+
+                    fetch("/ajax", {
+                            method: "POST",
+                            body: requestBody
+                        })
+                        .then(async (response) => {
+                            if (!response.ok) {
+                                const responseText = await response.text().catch(() => "");
+                                const requestLike = {
+                                    status: response.status,
+                                    statusText: response.statusText,
+                                    responseText: responseText
+                                };
+                                const textStatus = response.statusText || "error";
+                                const errorThrown = response.statusText || `HTTP ${response.status}`;
+
+                                console.log(requestLike, textStatus, errorThrown);
+                                reject(errorThrown || textStatus || "Fetch error");
+                                return;
+                            }
+
+                            const result = await response.json();
+                            resolve(result); // Resolve with the parsed JSON response
+                        })
+                        .catch((error) => {
+                            const textStatus = error?.name || "error";
+                            const errorThrown = error?.message || textStatus;
+
+                            console.log(error, textStatus, errorThrown);
+                            reject(errorThrown || textStatus || "Fetch error"); // Reject with an error message (try to get the most specific one available)
+                        });
                 });
             }
 
@@ -1258,6 +1277,8 @@
 
                     const alert = await ajaxHandler("pikud_haoref");
 
+                    //console.log("Pikud HaOref API response:", alert[0]);
+
                     if (alert) {
                         window.alertsJSON = alert; // Expose raw response for debugging in the browser console
 
@@ -1826,26 +1847,34 @@
                 }
 
                 if (markerSpreadMeters <= 10000) {
-                    return 14;
-                }
-
-                if (markerSpreadMeters <= 20000) {
-                    return 13;
-                }
-
-                if (markerSpreadMeters <= 50000) {
                     return 12;
                 }
 
-                if (markerSpreadMeters <= 100000) {
+                if (markerSpreadMeters <= 20000) {
+                    return 11.5;
+                }
+
+                if (markerSpreadMeters <= 50000) {
                     return 11;
+                }
+
+                if (markerSpreadMeters <= 100000) {
+                    return 10.5;
                 }
 
                 if (markerSpreadMeters <= 200000) {
                     return 10;
                 }
 
-                return defaultMapZoom;
+                if (markerSpreadMeters <= 300000) {
+                    return 9.5;
+                }
+
+                if (markerSpreadMeters <= 400000) {
+                    return 9;
+                }
+
+                return 8.5;
             }
 
             // Keeps all active markers visible as markers are added/removed.

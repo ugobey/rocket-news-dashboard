@@ -36,6 +36,36 @@ All configuration is stored in `config.json` at the project root:
 | `gitRepo` | SSH URL of the Git repository |
 | `googleMapsApiKey` | Google Maps API key used for the map view |
 
+## .env support
+
+Create a private `.env` from `.env.sample`:
+
+```
+cp .env.sample .env
+```
+
+## Docker
+
+Build image:
+
+```
+docker build -t rocket-news-dashboard .
+```
+
+Run with docker compose:
+
+```
+docker compose up -d
+```
+
+or:
+
+```
+docker-compose up -d
+```
+
+Open http://localhost:8080
+
 ## Running as a Service (PM2)
 
 It is recommended to use [PM2](https://pm2.keymetrics.io/) to keep the app running in the background and restart it automatically on crashes or reboots.

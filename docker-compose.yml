@@ -2,7 +2,7 @@ services:
   rocket-news-dashboard:
     build: .
     ports:
-      - "8080:8080"
+      - "${PORT}:${PORT}"
     env_file:
       - .env
     volumes:

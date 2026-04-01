@@ -60,23 +60,21 @@ const yarkon = locations.yarkon;
 const yearotHaCarmel = locations.yearotHaCarmel;
 const yehuda = locations.yehuda;
 
+const allCities = [...arava, ...beitSheanValley, ...beitShemesh, ...bikaa, ...centerNegev, ...confrontationLine, ...dan, ...deadSea, ...dromHashfela, ...eilat, ...gazaEnvelope, ...golan, ...haifa, ...haShfela, ...hefer, ...hofHaCarmel, ...jerusalem, ...katzrin, ...krayot, ...lachish, ...lowerGalilee, ...menashe, ...sharon, ...shomron, ...southNegev, ...tavor, ...upperGalilee, ...wadiAra, ...westLachish, ...westNegev, ...yarkon, ...yearotHaCarmel, ...yehuda];
+const regions = [arava, beitSheanValley, beitShemesh, bikaa, centerNegev, confrontationLine, dan, deadSea, dromHashfela, eilat, gazaEnvelope, golan, haifa, haShfela, hefer, hofHaCarmel, jerusalem, katzrin, krayot, lachish, lowerGalilee, menashe, sharon, shomron, southNegev, tavor, upperGalilee, wadiAra, westLachish, westNegev, yarkon, yearotHaCarmel, yehuda];
+const alertTypes = ["missiles", "hostileAircraftIntrusion", "newsFlash"];
+
 function generateRandomAlertByCity() {
     // Randomly select an alert type for testing purposes. In a real scenario, the API would provide the actual alert type.
-    const alertTypes = ["missiles", "hostileAircraftIntrusion", "newsFlash"];
+
     // For testing, we can randomly select an alert type. In a real implementation, this would come from the API response.
     const randomType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
-
-    // Combine all cities into one array for random selection
-    const allCities = [...arava, ...beitSheanValley, ...beitShemesh, ...bikaa, ...centerNegev, ...confrontationLine, ...dan, ...deadSea, ...dromHashfela, ...eilat, ...gazaEnvelope, ...golan, ...haifa, ...haShfela, ...hefer, ...hofHaCarmel, ...jerusalem, ...katzrin, ...krayot, ...lachish, ...lowerGalilee, ...menashe, ...sharon, ...shomron, ...southNegev, ...tavor, ...upperGalilee, ...wadiAra, ...westLachish, ...westNegev, ...yarkon, ...yearotHaCarmel, ...yehuda];
 
     // For testing purposes, randomly select a single city from all available cities. In a real scenario, the API would provide the actual affected cities.
     const randomCities = [allCities[Math.floor(Math.random() * allCities.length)]];
 
-    // For news flash alerts, we can randomly select an instruction from a predefined list. In a real scenario, the API would provide the actual instructions.
-    // "ירי רקטות וטילים" has a 10% chance, "האירוע הסתיים" has a 90% chance.
-    let instructions = null;
     if (randomType === "newsFlash") {
-        instructions = Math.random() < 0.1 ? "ירי רקטות וטילים" : "האירוע הסתיים";
+        return [];
     }
 
     // Return a simulated alert object with the randomly selected type, cities, and instructions. In a real implementation, this would be the actual response from the API.
@@ -84,7 +82,7 @@ function generateRandomAlertByCity() {
         {
             type: randomType,
             cities: randomCities,
-            instructions: instructions,
+            instructions: "ירי רקטות וטילים",
             id: Date.now().toString(),
         },
     ];
@@ -92,19 +90,13 @@ function generateRandomAlertByCity() {
 
 function generateRandomAlertByRegion() {
     // Randomly select an alert type for testing purposes. In a real scenario, the API would provide the actual alert type.
-    const alertTypes = ["missiles", "hostileAircraftIntrusion", "newsFlash"];
-    // For testing, we can randomly select an alert type. In a real implementation, this would come from the API response.
     const randomType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
 
     // Select a random region (zone) and randomize its cities
-    const regions = [arava, beitSheanValley, beitShemesh, bikaa, centerNegev, confrontationLine, dan, deadSea, dromHashfela, eilat, gazaEnvelope, golan, haifa, haShfela, hefer, hofHaCarmel, jerusalem, katzrin, krayot, lachish, lowerGalilee, menashe, sharon, shomron, southNegev, tavor, upperGalilee, wadiAra, westLachish, westNegev, yarkon, yearotHaCarmel, yehuda];
     const randomRegion = regions[Math.floor(Math.random() * regions.length)];
 
-    // For news flash alerts, we can randomly select an instruction from a predefined list. In a real scenario, the API would provide the actual instructions.
-    // "ירי רקטות וטילים" has a 10% chance, "האירוע הסתיים" has a 90% chance.
-    let instructions = null;
     if (randomType === "newsFlash") {
-        instructions = Math.random() < 0.1 ? "ירי רקטות וטילים" : "האירוע הסתיים";
+        return [];
     }
 
     // Return a simulated alert object with the randomly selected type, cities, and instructions. In a real implementation, this would be the actual response from the API.
@@ -112,33 +104,36 @@ function generateRandomAlertByRegion() {
         {
             type: randomType,
             cities: randomRegion,
-            instructions: instructions,
+            instructions: "ירי רקטות וטילים",
             id: Date.now().toString(),
         },
     ];
 }
 
 let earlyWarningTest = 0;
+let earlyWarningRegion;
 
 function generateRandomEarlyWarningAlert() {
     if (earlyWarningTest === 0) {
+        earlyWarningRegion = regions[Math.floor(Math.random() * regions.length)];
+
         earlyWarningTest++;
 
         return [
             {
                 type: "newsFlash",
-                cities: shomron,
+                cities: earlyWarningRegion,
                 instructions: "ירי רקטות וטילים",
                 id: Date.now().toString(),
             },
         ];
     } else if (earlyWarningTest === 1) {
-        earlyWarningTest++;
+        earlyWarningTest = 0;
 
         return [
             {
                 type: "missiles",
-                cities: shomron,
+                cities: earlyWarningRegion,
                 instructions: "ירי רקטות וטילים",
                 id: Date.now().toString(),
             },
@@ -149,7 +144,7 @@ function generateRandomEarlyWarningAlert() {
         return [
             {
                 type: "newsFlash",
-                cities: shomron,
+                cities: earlyWarningRegion,
                 instructions: "האירוע הסתיים",
                 id: Date.now().toString(),
             },
@@ -162,9 +157,6 @@ function generateRandomNonMissileUAVAlert() {
     const alertTypes = ["general", "earthQuake", "radiologicalEvent", "tsunami", "hazardousMaterials", "terroristInfiltration"];
     // For testing, we can randomly select an alert type. In a real implementation, this would come from the API response.
     const randomType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
-
-    // Combine all cities into one array for random selection
-    const allCities = [...arava, ...beitSheanValley, ...beitShemesh, ...bikaa, ...centerNegev, ...confrontationLine, ...dan, ...deadSea, ...dromHashfela, ...eilat, ...gazaEnvelope, ...golan, ...haifa, ...haShfela, ...hefer, ...hofHaCarmel, ...jerusalem, ...katzrin, ...krayot, ...lachish, ...lowerGalilee, ...menashe, ...sharon, ...shomron, ...southNegev, ...tavor, ...upperGalilee, ...wadiAra, ...westLachish, ...westNegev, ...yarkon, ...yearotHaCarmel, ...yehuda];
 
     // For testing purposes, randomly select a single city from all available cities. In a real scenario, the API would provide the actual affected cities.
     const randomCities = [allCities[Math.floor(Math.random() * allCities.length)]];

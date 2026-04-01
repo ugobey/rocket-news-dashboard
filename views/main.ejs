@@ -646,7 +646,7 @@
             // ==================== BOOTSTRAP MODAL INSTANCES ====================
             // Pre-instantiating modals avoids creation overhead on first show.
             const earlyWarningModalEnter = new bootstrap.Modal('#earlyWarningModalEnter'); // Red danger — active missile warning
-            const earlyWarningModalExit = new bootstrap.Modal('#earlyWarningModalExit'); // Green success — all-clear signal
+            //const earlyWarningModalExit = new bootstrap.Modal('#earlyWarningModalExit'); // Green success — all-clear signal
             const errorMessagesModal = new bootstrap.Modal('#errorMessagesModal'); // List of unique Pikud HaOref fetch errors
             const unmatchedCitiesModal = new bootstrap.Modal('#unmatchedCitiesModal'); // Locations the app couldn't map to locationMap
             const settingsModal = new bootstrap.Modal('#settingsModal'); // User preferences (city selection)
@@ -680,6 +680,7 @@
                     $("#earlyWarningLocations").text("");
                 }
 
+                /*
                 if (showExitModal) {
                     if (!earlyWarningModalExit._isShown) {
                         earlyWarningModalExit.show();
@@ -691,6 +692,7 @@
                         }
                     }, 10000);
                 }
+                */
             }
 
             function startEarlyWarningTimer () {
@@ -1354,10 +1356,12 @@
 
                                         earlyWarningActive = true;
 
+                                        /*
                                         // Make sure the all-clear modal is not overlapping the danger modal
                                         if (earlyWarningModalExit._isShown) {
                                             earlyWarningModalExit.hide();
                                         }
+                                        */
 
                                         // Append newly affected cities to the modal's location list (no duplicates)
                                         for (let i = 0; i < alertCities.length; i++) {
@@ -1744,7 +1748,7 @@
             const defaultMapZoom = 9;
             const minMapZoom = 8;
             const maxMapZoom = 12;
-            
+
             let shouldAutoCenterIdleMap = false;
             let hasAutoCenteredIdleMap = false;
 
@@ -1819,7 +1823,7 @@
                 const visibleMarkers = allMarkers.filter(marker => marker && marker.map);
 
                 if (visibleMarkers.length === 0) {
-                   
+
                     armIdleAutoCenter();
                     resetMapToDefaultIfIdle();
 

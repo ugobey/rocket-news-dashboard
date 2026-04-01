@@ -188,12 +188,14 @@ router.use("/", async function (req, res) {
         if (getService === "pikud_haoref") {
             let options = {};
 
+            /*
             if (requestPort != 8080) {
                 options = {
                     httpsAgent: new HttpsProxyAgent(config.proxyUrl),
                     rejectUnauthorized: false,
                 };
             }
+            */
 
             if (testmode) {
                 let alert;

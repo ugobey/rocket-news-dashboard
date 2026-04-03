@@ -2,5 +2,27 @@
     "proxyUrl": "http://51.85.49.118:2887",
     "webServerPort": 8080,
     "gitRepo": "git@github.com:ugobey/rocket-news-dashboard.git",
-    "googleMapsApiKey": "AIzaSyCSeMZ5AxUgSWHy6EedcgeXjRC2irszdUQ"
+    "googleMapsApiKey": "AIzaSyCSeMZ5AxUgSWHy6EedcgeXjRC2irszdUQ",
+    "rssFeeds": [
+        {
+            "codename": "RSSarutz7",
+            "realname": "Arutz 7",
+            "url": "https://www.israelnationalnews.com/Rss.aspx"
+        },
+        {
+            "codename": "RSSbnn",
+            "realname": "BNN",
+            "url": "https://www.bernie.news/api/news/rss"
+        },
+        {
+            "codename": "RSSjerusalemPost",
+            "realname": "JPost",
+            "url": "https://www.jpost.com/rss/rssfeedsfrontpage.aspx"
+        },
+        {
+            "codename": "RSSynet",
+            "realname": "Ynet",
+            "url": "https://www.ynet.co.il/Integration/StoryRss3082.xml"
+        }
+    ]
 }

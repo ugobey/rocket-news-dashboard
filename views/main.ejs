@@ -579,7 +579,7 @@
             let lastAlertSoundAtMs = 0;
 
             // Early warning countdown uses a fixed 5-minute duration
-            const EARLY_WARNING_DURATION_MS = 5 * 60 * 1000;
+            const earlyWarningDurationMS = 5 * 60 * 1000;
 
             const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
             const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
@@ -774,7 +774,7 @@
                 // Clear any existing countdown
                 clearEarlyWarningTimer();
 
-                let remaining = EARLY_WARNING_DURATION_MS;
+                let remaining = earlyWarningDurationMS;
 
                 function updateDisplay () {
                     const mins = String(Math.floor(remaining / 60000)).padStart(1, '0');
@@ -1894,27 +1894,7 @@
 
             // Registered RSS feeds. Each entry alternates on successive rssPoll() calls
             // so all four sources are refreshed roughly every 40 seconds.
-            const rssFeeds = [{
-                    codename: "RSSarutz7", // Internal key (also used as cookie identifier)
-                    realname: "Arutz 7", // Display label shown in the news table
-                    url: "https://www.israelnationalnews.com/Rss.aspx"
-                },
-                {
-                    codename: "RSSbnn",
-                    realname: "BNN",
-                    url: "https://www.bernie.news/api/news/rss"
-                },
-                {
-                    codename: "RSSjerusalemPost",
-                    realname: "JPost",
-                    url: "https://www.jpost.com/rss/rssfeedsfrontpage.aspx"
-                },
-                {
-                    codename: "RSSynet",
-                    realname: "Ynet",
-                    url: "https://www.ynet.co.il/Integration/StoryRss3082.xml"
-                }
-            ];
+            const rssFeeds = Array.isArray(<%- rssFeeds %>) ? <%- rssFeeds %> : [];
 
             // Fetches and displays articles from a single feed entry; shared by the
             // initial bulk load and the regular round-robin poll.

@@ -44,6 +44,7 @@ function buildMainViewModel() {
             title: service_name,
             appVersion: pkg.version,
             cities: JSON.stringify(pikudHaorefCitiesJSON),
+            rssFeeds: JSON.stringify(Array.isArray(config.rssFeeds) ? config.rssFeeds : []),
             googleMapsApiKey: config.googleMapsApiKey,
         };
     } catch (err) {

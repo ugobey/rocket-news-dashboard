@@ -1,6 +1,6 @@
 {
   "name": "rocket-news-dashboard",
-  "version": "2.13.0",
+  "version": "2.13.1",
   "description": "Shows rocket alerts and RSS news on a dashboard",
   "main": "app.js",
   "scripts": {

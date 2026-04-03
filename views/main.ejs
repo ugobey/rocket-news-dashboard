@@ -713,11 +713,7 @@
             // After 5 seconds, strip the highlight classes added when a row first appears.
             // This gives users a brief visual cue for new rows without permanently disrupting the table's uniform appearance.
             setInterval(() => {
-                $(".alertNewRow").removeClass("table-light");
-                $(".alertNewRow").removeClass("alertNewRow");
-
-                $(".rssNewRow").removeClass("table-light");
-                $(".rssNewRow").removeClass("rssNewRow");
+                $(".newRow").removeClass("table-light text-dark newRow");
             }, 5000);
 
 
@@ -1040,11 +1036,11 @@
             const initialTestModeType = supportedTestModeTypes.includes(storedTestModeType) ? storedTestModeType : "alertByCity";
             const storedAllowMapAutoMaximization = localStorage.getItem("allowMapAutoMaximization");
             const storedPreventMapAutoMaximization = localStorage.getItem("preventMapAutoMaximization");
-            const initialAllowMapAutoMaximization = storedAllowMapAutoMaximization !== null
-                ? storedAllowMapAutoMaximization === "true"
-                : storedPreventMapAutoMaximization !== null
-                    ? storedPreventMapAutoMaximization !== "true"
-                    : true;
+            const initialAllowMapAutoMaximization = storedAllowMapAutoMaximization !== null ?
+                storedAllowMapAutoMaximization === "true" :
+                storedPreventMapAutoMaximization !== null ?
+                storedPreventMapAutoMaximization !== "true" :
+                true;
 
             // Persist only cssTheme and remove the deprecated key if present.
             localStorage.setItem(themeStorageKey, initialCssTheme);
@@ -1389,19 +1385,19 @@
                 const lat = entry?.lat ?? "";
                 const lng = entry?.lng ?? "";
                 const rowClasses = includeHighlight ?
-                    "animate__animated animate__fadeInDown animate__faster alertNewRow table-light" : "";
+                    "animate__animated animate__fadeInDown animate__faster newRow table-light" : "";
                 const hasCoordinates = lat !== "" && lng !== "";
                 const href = hasCoordinates ?
                     `https://www.google.com/maps/search/${encodeURIComponent(String(lat))},${encodeURIComponent(String(lng))}` : "";
                 const locationCell = hasCoordinates ?
-                    `<a href="${href}" target="_blank">${location}</a>` : location;
+                    `<a href="${href}" target="_blank" class="newRow text-dark">${location}</a>` : location;
 
                 return `
                     <tr class="${rowClasses}">
                         <td><font class='text-info'>${time}</font></td>
                         <td><i class="fa-solid ${typeIcon} collapse-icon" title="${typeText}"></i></td>
                         <td>${locationCell}</td>
-                        <td>${zone}</td>
+                        <td class="newRow text-dark">${zone}</td>
                     </tr>
                 `;
             }
@@ -1999,7 +1995,7 @@
                                                 }
 
                                                 // Prepend a new row to the alerts table.
-                                                // animate__fadeInDown gives a visual entry cue; alertNewRow and table-light
+                                                // animate__fadeInDown gives a visual entry cue; newRow and table-light
                                                 // trigger the 5-second highlight fade set up in the cleanup interval above.
                                                 // The location name links to Google Maps using the alert's coordinates.
                                                 const alertHistoryEntry = {
@@ -2188,10 +2184,10 @@
                             newsArray.push(published); // Mark as seen
 
                             $("#rss_alerts").prepend(`
-                                <tr class="animate__animated animate__fadeInDown animate__faster rssNewRow table-light">
+                                <tr class="animate__animated animate__fadeInDown animate__faster newRow table-light">
                                     <td width="5%"><font class="text-info">${timeStamp}</font></td>
                                     <td width="7%"><font class="text-warning">${feed.realname}</font></td>
-                                    <td><a href="${item.url}" target="_blank">${item.title}</a></td>
+                                    <td><a href="${item.url}" target="_blank" class="newRow text-dark">${item.title}</a></td>
                                 </tr>
                             `);
 

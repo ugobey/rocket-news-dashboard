@@ -30,6 +30,7 @@
                     window.__initMapImpl();
                 }
             };
+
         </script>
 
         <script src="https://maps.googleapis.com/maps/api/js?callback=initMap&libraries=marker&key=<%=googleMapsApiKey%>&loading=async" async></script>
@@ -669,7 +670,7 @@
                         service,
                         rssFeedURL: rssFeedURL || null
                     });
-                    throw new Error(getErrorMessage(error, "Fetch error"));
+                    throw new Error(`[ajaxHandler] [${service}] ${getErrorMessage(error, "Fetch error")}`);
                 } finally {
                     if (timeoutId !== null) {
                         clearTimeout(timeoutId);
@@ -1292,6 +1293,35 @@
                 }
             }
 
+            // Records Pikud HaOref errors in both the summary and modal list.
+            // The modal list stays unique while the summary counter tracks all occurrences.
+            function recordError (errorInput, sourceName = "pikudHaorefPoll") {
+                pikudHaorefErrorCounter++;
+                $("#pikud_haoref_error_counter").text(pikudHaorefErrorCounter);
+                $("#error_message").show();
+
+                const rawErrorMessage = getErrorMessage(errorInput, "Unknown Pikud HaOref error");
+                const normalizedErrorMessage = rawErrorMessage.indexOf("Request failed with status code 403") > -1 ?
+                    "403 Forbidden - Requires Israeli IP" : rawErrorMessage;
+                const hasSourcePrefix = /^\[[^\]]+\]/.test(normalizedErrorMessage);
+                const displayErrorMessage = hasSourcePrefix ?
+                    normalizedErrorMessage : `[${sourceName}] ${normalizedErrorMessage}`;
+
+                // Keep one visible entry per unique message.
+                if (errorLogs.findIndex(item => item.error === displayErrorMessage) === -1) {
+                    incrementErrorCount(displayErrorMessage);
+
+                    if (!pikudHaorefError) {
+                        pikudHaorefError = true;
+                        $("#error_counter").show();
+                    }
+
+                    $("#pikud_haoref_error_messages").prepend("<li>" + displayErrorMessage + "</li>");
+                }
+
+                return rawErrorMessage;
+            }
+
             // Refreshes advanced summary metrics derived from rockets/drones/early warnings.
             function updateAdvancedSummaryStats () {
                 const totalThreatAlerts = rocketAlertCounter + droneAlertCounter;
@@ -1457,29 +1487,9 @@
                         // --- Error response handler ---
                         // The server returns { error: '...' } when the Pikud HaOref fetch fails.
                         if (alert.error) {
-                            pikudHaorefErrorCounter++
+                            const rawErrorMessage = recordError(alert.error, "pikudHaorefPoll");
 
-                            // Reveal the error counter row only on the first error
-                            if (!pikudHaorefError) {
-                                pikudHaorefError = true;
-                                $("#error_counter, #error_message").show();
-                            }
-
-                            $("#pikud_haoref_error_counter").text(pikudHaorefErrorCounter);
-
-                            // Only append unique error messages to the modal list
-                            if (errorLogs.findIndex(item => item.error === alert.error) === -1) {
-                                // 403 usually means the server is not running behind an Israeli IP
-                                if (alert.error.indexOf("Request failed with status code 403") > -1) {
-                                    $("#pikud_haoref_error_messages").prepend("<li>403 Forbidden - Requires Israeli IP</li>");
-                                } else {
-                                    $("#pikud_haoref_error_messages").prepend("<li>" + alert.error + "</li>");
-                                }
-                            }
-
-                            incrementErrorCount(alert.error); // Track occurrence count in errorLogs
-
-                            console.log("Pikud HaOref Error: " + alert.error);
+                            console.log("Pikud HaOref Error: " + rawErrorMessage);
                         } else {
                             // alert is an array when there is at least one active alert
                             if (alert.length) {
@@ -1793,7 +1803,9 @@
                         }
                     }
                 } catch (error) {
+                    const rawErrorMessage = recordError(error, "pikudHaorefPoll");
                     console.error("Error in Pikud HaOref Polling:", error);
+                    console.error("Pikud HaOref Polling error message:", rawErrorMessage);
 
                 } finally {
                     // Schedule the next poll regardless of success or failure to ensure continuous operation
@@ -1846,6 +1858,7 @@
                     const news = await ajaxHandler("rss", feed.url);
 
                     if (!news || news.error) {
+                        recordError(news?.error || "RSS feed request failed", "rss");
                         return;
                     }
 
@@ -1896,6 +1909,7 @@
                         feed: feed?.codename || null,
                         url: feed?.url || null
                     });
+                    recordError(error, "rss");
                 }
             }
 

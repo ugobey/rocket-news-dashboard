@@ -263,7 +263,7 @@
                 <!-- ==================== NEWS + MAP ==================== -->
                 <div id="newsMapTile" class="col-12 col-md-12 col-lg-4 col-xl-5">
                     <!-- News -->
-                    <div id="newsHeader" class="card table-card header-success text-white mb-3">
+                    <div id="newsHeader" class="card table-card header-dark text-white mb-3">
                         <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#newsBody" style="cursor: pointer">
                             <span class="section-header"><i class="fa-solid fa-newspaper me-2"></i>News Updates</span>
                             <div class="d-flex align-items-center gap-2">
@@ -584,6 +584,39 @@
             const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
             const recentlyAlertedLocations = {}; // Dedup cache: location → Unix timestamp of last alert row added
 
+            function getErrorMessage (error, fallback = "Unknown error") {
+                if (!error) {
+                    return fallback;
+                }
+
+                if (typeof error === "string") {
+                    return error;
+                }
+
+                if (error instanceof Error && error.message) {
+                    return error.message;
+                }
+
+                if (error.message) {
+                    return String(error.message);
+                }
+
+                return fallback;
+            }
+
+            function logClientError (context, error, details) {
+                const message = getErrorMessage(error);
+                if (details) {
+                    console.error(`[${context}] ${message}`, {
+                        error,
+                        details
+                    });
+                    return;
+                }
+
+                console.error(`[${context}] ${message}`, error);
+            }
+
 
             // ==================== AJAX HANDLER ====================
             // Wraps fetch in a Promise so callers can use async/await.
@@ -592,44 +625,56 @@
             //   rssFeedURL - RSS feed URL forwarded to the server (only used when service='rss')
             // The current testmode flag is always sent so the server can return mock data when needed.
             async function ajaxHandler (service, rssFeedURL) {
-                return new Promise((resolve, reject) => {
-                    const requestBody = new URLSearchParams({
-                        service: service,
-                        rssfeed: rssFeedURL || "",
-                        testmode: testmode || "" // Tells the server to use hardcoded test data
+                const requestBody = new URLSearchParams({
+                    service: service,
+                    rssfeed: rssFeedURL || "",
+                    testmode: testmode || "" // Tells the server to use hardcoded test data
+                });
+
+                const requestTimeoutMs = 15000;
+                const abortController = typeof AbortController !== "undefined" ? new AbortController() : null;
+                const timeoutId = abortController ? setTimeout(() => abortController.abort(), requestTimeoutMs) : null;
+
+                try {
+                    const response = await fetch("/ajax", {
+                        method: "POST",
+                        body: requestBody,
+                        signal: abortController ? abortController.signal : undefined
                     });
 
-                    fetch("/ajax", {
-                            method: "POST",
-                            body: requestBody
-                        })
-                        .then(async (response) => {
-                            if (!response.ok) {
-                                const responseText = await response.text().catch(() => "");
-                                const requestLike = {
-                                    status: response.status,
-                                    statusText: response.statusText,
-                                    responseText: responseText
-                                };
-                                const textStatus = response.statusText || "error";
-                                const errorThrown = response.statusText || `HTTP ${response.status}`;
+                    const responseText = await response.text().catch(() => "");
 
-                                console.log(requestLike, textStatus, errorThrown);
-                                reject(errorThrown || textStatus || "Fetch error");
-                                return;
-                            }
+                    if (!response.ok) {
+                        const httpError = new Error(response.statusText || `HTTP ${response.status}`);
+                        httpError.status = response.status;
+                        httpError.statusText = response.statusText;
+                        httpError.responseText = responseText;
+                        throw httpError;
+                    }
 
-                            const result = await response.json();
-                            resolve(result); // Resolve with the parsed JSON response
-                        })
-                        .catch((error) => {
-                            const textStatus = error?.name || "error";
-                            const errorThrown = error?.message || textStatus;
+                    if (!responseText) {
+                        return {};
+                    }
 
-                            console.log(error, textStatus, errorThrown);
-                            reject(errorThrown || textStatus || "Fetch error"); // Reject with an error message (try to get the most specific one available)
-                        });
-                });
+                    try {
+                        return JSON.parse(responseText);
+                    } catch (parseError) {
+                        const invalidJsonError = new Error("Invalid JSON response received from /ajax");
+                        invalidJsonError.responseText = responseText;
+                        invalidJsonError.cause = parseError;
+                        throw invalidJsonError;
+                    }
+                } catch (error) {
+                    logClientError("ajaxHandler", error, {
+                        service,
+                        rssFeedURL: rssFeedURL || null
+                    });
+                    throw new Error(getErrorMessage(error, "Fetch error"));
+                } finally {
+                    if (timeoutId !== null) {
+                        clearTimeout(timeoutId);
+                    }
+                }
             }
 
 
@@ -1266,7 +1311,7 @@
             // It is the full list of recognised Israeli cities/locations with IDs, names,
             // zone info, coordinates, and shelter countdown values.
             //Pikud HaOref service
-            const locationsJSON = <%- cities %>;
+            const locationsJSON = Array.isArray(<%- cities %>) ? <%- cities %> : [];
 
             const input = document.getElementById('citySearch');
             const suggestionsList = document.getElementById('city_suggestions');
@@ -1286,9 +1331,13 @@
                 }
 
                 // Case-insensitive substring match against the English city name
-                const filtered = locationsJSON.filter(city =>
-                    city.name_en.toLowerCase().includes(query)
-                );
+                const filtered = locationsJSON.filter((city) => {
+                    if (!city || typeof city.name_en !== "string") {
+                        return false;
+                    }
+
+                    return city.name_en.toLowerCase().includes(query);
+                });
 
                 if (filtered.length === 0) {
                     suggestionsList.style.display = 'none';
@@ -1789,14 +1838,26 @@
             // Fetches and displays articles from a single feed entry; shared by the
             // initial bulk load and the regular round-robin poll.
             async function fetchAndDisplayFeed (feed) {
-                const news = await ajaxHandler("rss", feed.url);
+                try {
+                    if (!feed || !feed.url) {
+                        throw new Error("Invalid RSS feed configuration");
+                    }
 
-                if (news && !news.error) {
+                    const news = await ajaxHandler("rss", feed.url);
 
+                    if (!news || news.error) {
+                        return;
+                    }
+
+                    const items = Array.isArray(news?.feed?.items) ? news.feed.items : [];
                     let reversedArray = [];
 
                     // Extract only the fields needed for display
-                    news.feed.items.forEach((item) => {
+                    items.forEach((item) => {
+                        if (!item || !item.published || !item.title || !item.url) {
+                            return;
+                        }
+
                         reversedArray.push({
                             published: item.published, // Used as the dedup key in newsArray
                             title: item.title,
@@ -1830,35 +1891,48 @@
                             }
                         }
                     });
+                } catch (error) {
+                    logClientError("fetchAndDisplayFeed", error, {
+                        feed: feed?.codename || null,
+                        url: feed?.url || null
+                    });
                 }
             }
 
             const rssPoll = async function () {
-                // Capture the current feed before advancing the index, so
-                // the feed stays in sync for this tick's request.
-                const feed = rssFeeds[currentRssFeedIndex];
+                try {
+                    // Capture the current feed before advancing the index, so
+                    // the feed stays in sync for this tick's request.
+                    const feed = rssFeeds[currentRssFeedIndex];
 
-                // Advance the round-robin index; wrap back to 0 after the last feed
-                currentRssFeedIndex++;
-                if (currentRssFeedIndex === rssFeeds.length) {
-                    currentRssFeedIndex = 0;
+                    // Advance the round-robin index; wrap back to 0 after the last feed
+                    currentRssFeedIndex++;
+                    if (currentRssFeedIndex === rssFeeds.length) {
+                        currentRssFeedIndex = 0;
+                    }
+
+                    await fetchAndDisplayFeed(feed);
+                } catch (error) {
+                    logClientError("rssPoll", error);
+                } finally {
+                    // Always schedule the next tick, even when this run fails.
+                    setTimeout(rssPoll, rssInterval);
                 }
-
-                await fetchAndDisplayFeed(feed);
-
-                // Schedule the next poll BEFORE the async fetch (same pattern as pikudHaorefPoll)
-                setTimeout(rssPoll, rssInterval);
             };
 
             // First run: fetch all feeds immediately before starting the round-robin loop
             (async function rssInitialFetch () {
-                for (const feed of rssFeeds) {
-                    await fetchAndDisplayFeed(feed);
+                try {
+                    for (const feed of rssFeeds) {
+                        await fetchAndDisplayFeed(feed);
+                    }
+                } catch (error) {
+                    logClientError("rssInitialFetch", error);
+                } finally {
+                    setTimeout(() => {
+                        rssPoll(); // Kick off the regular round-robin polling
+                    }, rssInterval);
                 }
-
-                setTimeout(() => {
-                    rssPoll(); // Kick off the regular round-robin polling
-                }, rssInterval);
             })();
 
 
@@ -1979,6 +2053,10 @@
             }
 
             function getCityKey (city) {
+                if (!city || typeof city !== "object") {
+                    return "invalid-city";
+                }
+
                 if (city.id !== undefined && city.id !== null) {
                     return String(city.id);
                 }
@@ -1987,7 +2065,7 @@
                     return String(city.name).toLowerCase();
                 }
 
-                return `${city.lat},${city.lng}`;
+                return `${city.lat || ""},${city.lng || ""}`;
             }
 
             function removeCityFromActiveList (cityKey) {
@@ -2012,100 +2090,102 @@
             // Add new city markers without removing existing ones.
             // Already-active cities are ignored until their per-city duration expires.
             async function addCitiesToMap (cities) {
-                // Wait until map is ready
-                if (!map) {
-                    await waitForMap();
-                }
-
-                const incomingCities = Array.isArray(cities) ? cities : [];
-
-                // Load the marker library and get AdvancedMarkerElement
-                const {
-                    AdvancedMarkerElement
-                } = await google.maps.importLibrary("marker");
-
-                const {
-                    PinElement
-                } = await google.maps.importLibrary("marker");
-
-                incomingCities.forEach((city) => {
-                    const cityKey = getCityKey(city);
-
-                    // Skip if this city is already active on the map.
-                    if (alertedCitiesState.activeByKey[cityKey]) {
-                        return;
+                try {
+                    // Wait until map is ready
+                    if (!map) {
+                        await waitForMap();
                     }
 
-                    const type = city.type;
+                    const incomingCities = Array.isArray(cities) ? cities : [];
 
-                    let backgroundColor = '#1064e2'; // Default
-                    if (type === 'missiles') {
-                        backgroundColor = '#FF0000'; // Red for missiles
-                    } else if (type === 'hostileAircraftIntrusion') {
-                        backgroundColor = '#fd7e14'; // Orange for hostile aircraft intrusion
-                    }
+                    const {
+                        PinElement
+                    } = await google.maps.importLibrary("marker");
 
-                    // Then create marker:
-                    const pin = new PinElement({
-                        background: backgroundColor, // fill color (any hex)
-                        borderColor: '#000000',
-                        glyphColor: '#FFFFFF', // White color of the letter/icon inside
-                        scale: 1.2,
-                    });
+                    incomingCities.forEach((city) => {
+                        if (!city || !Number.isFinite(Number(city.lat)) || !Number.isFinite(Number(city.lng))) {
+                            return;
+                        }
 
-                    // Start transparent so we can fade in
-                    pin.style.opacity = '0';
+                        const cityKey = getCityKey(city);
 
-                    const marker = new google.maps.marker.AdvancedMarkerElement({
-                        position: {
-                            lat: city.lat,
-                            lng: city.lng
-                        },
-                        map: map,
-                        content: pin
-                    });
+                        // Skip if this city is already active on the map.
+                        if (alertedCitiesState.activeByKey[cityKey]) {
+                            return;
+                        }
 
-                    // Fade the marker in after it is placed on the map
-                    addMarkerWithFade(marker);
+                        const type = city.type;
 
-                    // Store it globally so we can track it
-                    allMarkers.push(marker);
+                        let backgroundColor = '#1064e2'; // Default
+                        if (type === 'missiles') {
+                            backgroundColor = '#FF0000'; // Red for missiles
+                        } else if (type === 'hostileAircraftIntrusion') {
+                            backgroundColor = '#fd7e14'; // Orange for hostile aircraft intrusion
+                        }
 
-                    // Optional: InfoWindow
-                    const infoWindow = new google.maps.InfoWindow({
-                        content: `<h3>${city.name}</h3>`
-                    });
-                    marker.addEventListener('gmp-click', () => {
-                        infoWindow.open(map, marker);
-                    });
-
-                    let duration = 10000; // Default duration of 10 seconds
-                    if (!testmode) {
-                        duration = Number(city.duration) > 0 ? Number(city.duration) : duration;
-                    }
-
-                    // Store active city record so repeated API cycles can ignore duplicates.
-                    const activeRecord = {
-                        cityKey,
-                        city,
-                        marker,
-                        createdAt: Date.now(),
-                        expiresAt: Date.now() + duration
-                    };
-
-                    alertedCitiesState.activeByKey[cityKey] = activeRecord;
-                    alertedCitiesState.activeList.push(activeRecord);
-
-                    // On timeout: fade marker, then remove from active state so city can alert again.
-                    setTimeout(() => {
-                        removeMarkerWithFade(marker, () => {
-                            cleanupExpiredCity(cityKey, marker);
+                        const pin = new PinElement({
+                            background: backgroundColor, // fill color (any hex)
+                            borderColor: '#000000',
+                            glyphColor: '#FFFFFF', // White color of the letter/icon inside
+                            scale: 1.2,
                         });
-                    }, duration);
-                });
 
-                // Fit map to all currently active markers, not only this batch.
-                fitMapToActiveMarkers();
+                        // Start transparent so we can fade in
+                        pin.style.opacity = '0';
+
+                        const marker = new google.maps.marker.AdvancedMarkerElement({
+                            position: {
+                                lat: Number(city.lat),
+                                lng: Number(city.lng)
+                            },
+                            map: map,
+                            content: pin
+                        });
+
+                        // Fade the marker in after it is placed on the map
+                        addMarkerWithFade(marker);
+
+                        // Store it globally so we can track it
+                        allMarkers.push(marker);
+
+                        // Optional: InfoWindow
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: `<h3>${city.name || "Unknown location"}</h3>`
+                        });
+                        marker.addEventListener('gmp-click', () => {
+                            infoWindow.open(map, marker);
+                        });
+
+                        let duration = 10000; // Default duration of 10 seconds
+                        if (!testmode) {
+                            duration = Number(city.duration) > 0 ? Number(city.duration) : duration;
+                        }
+
+                        // Store active city record so repeated API cycles can ignore duplicates.
+                        const activeRecord = {
+                            cityKey,
+                            city,
+                            marker,
+                            createdAt: Date.now(),
+                            expiresAt: Date.now() + duration
+                        };
+
+                        alertedCitiesState.activeByKey[cityKey] = activeRecord;
+                        alertedCitiesState.activeList.push(activeRecord);
+
+                        // On timeout: fade marker, then remove from active state so city can alert again.
+                        setTimeout(() => {
+                            removeMarkerWithFade(marker, () => {
+                                cleanupExpiredCity(cityKey, marker);
+                            });
+                        }, duration);
+                    });
+
+                    // Fit map to all currently active markers, not only this batch.
+                    fitMapToActiveMarkers();
+                } catch (error) {
+                    logClientError("addCitiesToMap", error);
+                }
             }
 
             // Smooth fade-in when a marker first appears
@@ -2175,6 +2255,12 @@
                             resolve();
                         }
                     }, 100); // check every 100ms
+
+                    // Failsafe to avoid waiting forever if map init never completes.
+                    setTimeout(() => {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }, 10000);
                 });
             }
 

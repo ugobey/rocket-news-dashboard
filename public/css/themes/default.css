@@ -224,6 +224,12 @@ a:hover {
     /* Green — News Updates panel */
 }
 
+.header-dark {
+    background:  #0f172a;
+    /* Dark — News Updates panel */
+}
+
+
 /* ==================== CLOCK & STAT DISPLAY ====================
                .live-clock  — pill badge in the alert panel header showing HH:MM:SS
                .stat-number — large bold number used in the Summary counter table */

@@ -12,14 +12,18 @@ const pikudHaoref = require("pikud-haoref-api");
 let HttpsProxyAgent;
 
 async function main() {
-    ({ HttpsProxyAgent } = await import("https-proxy-agent"));
+    try {
+        ({ HttpsProxyAgent } = await import("https-proxy-agent"));
+    } catch (err) {
+        console.error(service_name, "Failed to load https-proxy-agent:", err.message || err);
+    }
 }
 
 main();
 
 const { parseFeed } = require("@rowanmanning/feed-parser");
 
-const { exec } = require("node:child_process");
+const { execFile } = require("node:child_process");
 
 const pkg = require("../package.json");
 const localAppVersion = pkg.version;
@@ -150,6 +154,8 @@ function generateRandomEarlyWarningAlert() {
             },
         ];
     }
+
+    return [];
 }
 
 function generateRandomNonMissileUAVAlert() {
@@ -208,18 +214,23 @@ router.use("/", async function (req, res) {
                     alert = generateRandomEarlyWarningAlert();
                 } else if (testmode === "nonMissileUAV") {
                     alert = generateRandomNonMissileUAVAlert();
+                } else {
+                    res.statusCode = 400;
+                    res.write(JSON.stringify({ error: `Unknown test mode: ${testmode}` }));
+                    res.end();
+                    return;
                 }
 
                 res.statusCode = 200;
-                res.write(JSON.stringify(alert));
+                res.write(JSON.stringify(alert ?? []));
                 res.end();
             } else {
                 pikudHaoref.getActiveAlerts(function (err, alert) {
                     if (err) {
-                        console.log(service_name, err);
+                        console.error(service_name, "pikud_haoref error:", err);
 
                         res.statusCode = 200;
-                        res.write(JSON.stringify({ error: err.toString() }));
+                        res.write(JSON.stringify({ error: err.message || err.toString() }));
                         res.end();
                         return;
                     }
@@ -234,34 +245,69 @@ router.use("/", async function (req, res) {
 
             let response = {};
 
-            if (rssFeed) {
-                const fetchFeed = await fetch(rssFeed);
-                const responseText = await fetchFeed.text();
-
-                try {
-                    const feed = parseFeed(responseText);
-
-                    response = { feed: feed };
-                } catch (error) {
-                    response = { error: "INVALID_FEED" };
-                }
-            } else {
+            if (!rssFeed) {
                 response = { error: "Missing RSS URL" };
+            } else {
+                let parsedUrl = null;
+                try {
+                    parsedUrl = new URL(rssFeed);
+                } catch {
+                    parsedUrl = null;
+                }
+
+                if (!parsedUrl || (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:")) {
+                    response = { error: "Invalid RSS URL" };
+                } else {
+                    const rssAbortController = new AbortController();
+                    const rssTimeoutId = setTimeout(() => rssAbortController.abort(), 10000);
+
+                    try {
+                        const fetchFeed = await fetch(rssFeed, { signal: rssAbortController.signal });
+
+                        if (!fetchFeed.ok) {
+                            response = { error: `RSS fetch failed with status ${fetchFeed.status}` };
+                        } else {
+                            const responseText = await fetchFeed.text();
+
+                            try {
+                                const feed = parseFeed(responseText);
+                                response = { feed: feed };
+                            } catch (parseError) {
+                                response = { error: "INVALID_FEED" };
+                            }
+                        }
+                    } catch (fetchError) {
+                        const msg = fetchError.name === "AbortError" ? "RSS fetch timed out" : (fetchError.message || "RSS fetch failed");
+                        response = { error: msg };
+                    } finally {
+                        clearTimeout(rssTimeoutId);
+                    }
+                }
             }
 
             res.statusCode = 200;
             res.write(JSON.stringify(response));
             res.end();
         } else if (getService === "version_check") {
-            exec("npm view " + config.gitRepo + " version", (error, stdout, stderr) => {
+            // Use execFile with separate arguments to eliminate any shell injection risk.
+            execFile("npm", ["view", config.gitRepo, "version"], (error, stdout, stderr) => {
                 if (error) {
+                    console.error(service_name, "version_check exec error:", error.message || error);
                     res.statusCode = 500;
-                    res.write(JSON.stringify({ error: error.toString() }));
+                    res.write(JSON.stringify({ error: error.message || error.toString() }));
                     res.end();
                     return;
                 }
 
                 const latestVersion = stdout.trim();
+
+                if (!latestVersion) {
+                    console.error(service_name, "version_check: empty version returned", { stderr });
+                    res.statusCode = 500;
+                    res.write(JSON.stringify({ error: "Could not determine latest version" }));
+                    res.end();
+                    return;
+                }
 
                 if (localAppVersion !== latestVersion) {
                     res.statusCode = 200;
@@ -279,10 +325,13 @@ router.use("/", async function (req, res) {
             res.end();
         }
     } catch (err) {
-        console.log(service_name + " ERROR", err);
-        res.statusCode = 500;
-        res.write(JSON.stringify({ error: err.toString() }));
-        res.end();
+        console.error(service_name + " ERROR:", err);
+
+        if (!res.headersSent) {
+            res.statusCode = 500;
+            res.write(JSON.stringify({ error: err.message || err.toString() }));
+            res.end();
+        }
     }
 });
 

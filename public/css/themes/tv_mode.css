@@ -301,6 +301,12 @@ a:hover {
     /* Green — News Updates panel */
 }
 
+.header-dark {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 54%, #334155 100%);
+    /* Neutral slate — low-emphasis utility panels */
+}
+
+
 /* ==================== CLOCK & STAT DISPLAY ====================
                .live-clock  — pill badge in the alert panel header showing HH:MM:SS
                .stat-number — large bold number used in the Summary counter table */

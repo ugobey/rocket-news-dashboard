@@ -1019,11 +1019,13 @@
                 settingsModal.hide();
             });
 
-            const storedCssTheme = localStorage.getItem("cssTheme");
-            const initialCssTheme = storedCssTheme === null ? "graphite" : storedCssTheme;
-            if (storedCssTheme === null) {
-                localStorage.setItem("cssTheme", initialCssTheme);
-            }
+            const themeStorageKey = "cssTheme";
+            const supportedCssThemes = ["command_center", "graphite", "graphite_small"];
+            const storedCssTheme = localStorage.getItem(themeStorageKey);
+            const initialCssTheme = supportedCssThemes.includes(storedCssTheme) ? storedCssTheme : "graphite";
+
+            // Persist only cssTheme and remove the deprecated key if present.
+            localStorage.setItem(themeStorageKey, initialCssTheme);
 
             // Auto-scroll toggle handlers
             // Track which auto-scrollers are enabled and their interval IDs for stopping
@@ -1223,7 +1225,7 @@
 
             $("#css_style_theme").on("change", function () {
                 settingStates.cssTheme = $(this).val();
-                localStorage.setItem("cssTheme", settingStates.cssTheme);
+                localStorage.setItem(themeStorageKey, settingStates.cssTheme);
                 applyDashboardTheme(settingStates.cssTheme);
             });
 

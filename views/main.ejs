@@ -504,6 +504,14 @@
                                 </tr>
                                 <tr>
                                     <td class="align-middle">
+                                        <span class="text-white fw-medium">Persist Alert History</span>
+                                    </td>
+                                    <td colspan="2">
+                                        <input class="form-check-input" type="checkbox" id="toggle_persist_history" checked />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle">
                                         <span class="text-white fw-medium">Test Mode Type</span>
                                     </td>
                                     <td colspan="2">
@@ -1047,7 +1055,8 @@
                 preventMapAutoMaximization: localStorage.getItem("preventMapAutoMaximization") === "true",
                 testModeType: initialTestModeType,
                 soundAlertsEnabled: localStorage.getItem("soundAlertsEnabled") === "true",
-                cssTheme: initialCssTheme
+                cssTheme: initialCssTheme,
+                persistHistory: localStorage.getItem("persistHistory") !== "false"
             };
 
             soundAlertsEnabled = settingStates.soundAlertsEnabled;
@@ -1090,6 +1099,7 @@
                 $("#toggle_prevent_map_auto_maximization").prop("checked", settingStates.preventMapAutoMaximization);
                 $("#test_mode_type").val(settingStates.testModeType);
                 $("#css_style_theme").val(settingStates.cssTheme);
+                $("#toggle_persist_history").prop("checked", settingStates.persistHistory);
             });
 
             // Stop functions for each autoscroller
@@ -1237,6 +1247,15 @@
                 applyDashboardTheme(settingStates.cssTheme);
             });
 
+            $("#toggle_persist_history").on("change", function () {
+                settingStates.persistHistory = $(this).is(":checked");
+                localStorage.setItem("persistHistory", settingStates.persistHistory);
+
+                if (!settingStates.persistHistory) {
+                    localStorage.removeItem(pikudHaorefHistoryStorageKey);
+                }
+            });
+
 
             // ==================== ALERT HELPER FUNCTIONS ====================
 
@@ -1353,7 +1372,9 @@
             }
 
             function buildPikudHaorefAlertRowMarkup (entry, options = {}) {
-                const { includeHighlight = false } = options;
+                const {
+                    includeHighlight = false
+                } = options;
                 const time = escapeHtml(entry?.time || "");
                 const typeText = escapeHtml(entry?.typeText || "Alert");
                 const typeIcon = escapeHtml(entry?.typeIcon || "fa-triangle-exclamation");
@@ -1514,6 +1535,10 @@
             }
 
             function persistPikudHaorefHistoryState () {
+                if (!settingStates.persistHistory) {
+                    return;
+                }
+
                 try {
                     const historyState = {
                         version: 1,

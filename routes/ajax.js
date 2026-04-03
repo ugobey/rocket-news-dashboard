@@ -272,9 +272,7 @@ router.use(
             }, options);
 
             return;
-        }
-
-        if (getService === "rss") {
+        } else if (getService === "rss") {
             const rssFeed = req.body.rssfeed;
 
             if (!rssFeed) {
@@ -321,9 +319,12 @@ router.use(
             }
 
             return;
-        }
+        } else if (getService === "version_check") {
+            if (process.platform === "win32") {
+                sendJson(res, 501, { error: "Version check is not supported on Windows" });
+                return;
+            }
 
-        if (getService === "version_check") {
             // Use execFile with separate arguments to eliminate any shell injection risk.
             execFile("npm", ["view", config.gitRepo, "version"], (error, stdout, stderr) => {
                 if (error) {

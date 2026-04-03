@@ -521,9 +521,9 @@
                                     </td>
                                     <td colspan="2">
                                         <select class="form-select" id="css_style_theme">
-                                            <option value="default">Command Center</option>
+                                            <option value="command_center">Command Center</option>
                                             <option value="graphite">Graphite Pro (Default)</option>
-                                            <option value="tv_mode">TV Mode</option>
+                                            <option value="graphite_small">Graphite Pro (Small)</option>
                                         </select>
                                     </td>
                                 </tr>
@@ -1045,10 +1045,9 @@
             setSoundAlertsUI(soundAlertsEnabled);
 
             const themeStylesheetMap = {
-                default: "/css/themes/default.css",
-                ocean: "/css/themes/ocean.css",
+                command_center: "/css/themes/command_center.css",
                 graphite: "/css/themes/graphite.css",
-                tv_mode: "/css/themes/tv_mode.css"
+                graphite_small: "/css/themes/graphite_small.css"
             };
 
             function applyDashboardTheme (themeName) {

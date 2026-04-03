@@ -1825,6 +1825,69 @@
             // Cycles through a list of RSS feeds (one per poll tick) and prepends
             // new articles to the news table, deduplicating by published timestamp.
 
+            let rssUpdatePopupTimeoutHandle = null;
+
+            function ensureRssUpdatePopupElement () {
+                let popup = document.getElementById("rssUpdatesPopup");
+
+                if (popup) {
+                    return popup;
+                }
+
+                popup = document.createElement("div");
+                popup.id = "rssUpdatesPopup";
+                popup.className = "position-fixed top-0 start-50 translate-middle-x mt-3 px-3 py-2 shadow-sm border border-primary-subtle bg-light text-primary fw-semibold";
+                popup.style.zIndex = "1080";
+                popup.style.display = "none";
+                popup.style.pointerEvents = "none";
+                popup.innerHTML = '<i class="fa-solid fa-newspaper me-2"></i><span id="rssUpdatesPopupText">News update</span>';
+
+                document.body.appendChild(popup);
+                return popup;
+            }
+
+            function hideRssUpdatesPopup () {
+                const popup = document.getElementById("rssUpdatesPopup");
+
+                if (popup) {
+                    popup.style.display = "none";
+                }
+
+                if (rssUpdatePopupTimeoutHandle !== null) {
+                    clearTimeout(rssUpdatePopupTimeoutHandle);
+                    rssUpdatePopupTimeoutHandle = null;
+                }
+            }
+
+            // True only when the map has been auto-maximized due to active alerts.
+            function isAlertMapAutoMaximizedLayout () {
+                return alertsActive && $("#newsHeader").is(":hidden") && $("#newsBody").is(":hidden") && $("#mapHeader").is(":hidden");
+            }
+
+            function showRssUpdatesPopup (headline) {
+                if (!isAlertMapAutoMaximizedLayout()) {
+                    return;
+                }
+
+                const popup = ensureRssUpdatePopupElement();
+                const popupText = document.getElementById("rssUpdatesPopupText");
+                const safeHeadline = typeof headline === "string" ? headline.trim() : "";
+
+                if (popupText) {
+                    popupText.textContent = safeHeadline || "News update";
+                }
+
+                popup.style.display = "block";
+
+                if (rssUpdatePopupTimeoutHandle !== null) {
+                    clearTimeout(rssUpdatePopupTimeoutHandle);
+                }
+
+                rssUpdatePopupTimeoutHandle = setTimeout(() => {
+                    hideRssUpdatesPopup();
+                }, 30000);
+            }
+
             const newsArray = []; // Published timestamps already shown; prevents duplicate rows across polls
             const rssInterval = 10000; // Fetch one feed every 10 seconds
             let currentRssFeedIndex = 0; // Pointer into rssFeeds — advances round-robin each poll
@@ -1905,6 +1968,8 @@
                                 </tr>
                             `);
 
+                            showRssUpdatesPopup(item.title);
+
                             if (rssScroller) {
                                 rssScroller.reset();
                             }
@@ -1940,6 +2005,7 @@
                 }
             };
 
+
             // First run: fetch all feeds immediately before starting the round-robin loop
             (async function rssInitialFetch () {
                 try {
@@ -1954,6 +2020,7 @@
                     }, rssInterval);
                 }
             })();
+
 
 
 
@@ -2038,6 +2105,7 @@
             function restoreDefaultMapLayout () {
                 $("#locationsZoneTile, #summaryLastAlertedTimesTile, #newsHeader, #newsBody, #mapHeader").show();
                 $("#newsMapTile").removeClass("col-lg-9 col-xl-9").addClass("col-lg-4 col-xl-5");
+                hideRssUpdatesPopup();
             }
 
             document.addEventListener("keydown", function (event) {
@@ -2058,11 +2126,7 @@
 
                     armIdleAutoCenter();
                     resetMapToDefaultIfIdle();
-
-                    if (alertsActive) {
-                        alertsActive = false; // Set the global flag indicating that no alerts are currently active
-                        restoreDefaultMapLayout();
-                    }
+                    restoreDefaultMapLayout();
 
                     return;
                 }

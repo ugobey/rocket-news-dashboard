@@ -1389,15 +1389,16 @@
                 const hasCoordinates = lat !== "" && lng !== "";
                 const href = hasCoordinates ?
                     `https://www.google.com/maps/search/${encodeURIComponent(String(lat))},${encodeURIComponent(String(lng))}` : "";
+                const highlightedCellClasses = includeHighlight ? "newRow text-dark" : "";
                 const locationCell = hasCoordinates ?
-                    `<a href="${href}" target="_blank" class="newRow text-dark">${location}</a>` : location;
+                    `<a href="${href}" target="_blank" class="${highlightedCellClasses}">${location}</a>` : location;
 
                 return `
                     <tr class="${rowClasses}">
                         <td><font class='text-info'>${time}</font></td>
                         <td><i class="fa-solid ${typeIcon} collapse-icon" title="${typeText}"></i></td>
                         <td>${locationCell}</td>
-                        <td class="newRow text-dark">${zone}</td>
+                        <td class="${highlightedCellClasses}">${zone}</td>
                     </tr>
                 `;
             }

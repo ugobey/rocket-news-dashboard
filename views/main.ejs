@@ -1960,8 +1960,8 @@
             let map;
             let allMarkers = []; // Keeps all active markers
             const defaultMapCenter = {
-                lat: 31.5326,
-                lng: 35.0998
+                lat: 31.765352,
+                lng: 34.988067
             };
             const defaultMapZoom = 9;
             const minMapZoom = 8;
@@ -2034,6 +2034,17 @@
                 hasAutoCenteredIdleMap = true;
             }
 
+            function restoreDefaultMapLayout () {
+                $("#locationsZoneTile, #summaryLastAlertedTimesTile, #newsHeader, #newsBody, #mapHeader").show();
+                $("#newsMapTile").removeClass("col-lg-9 col-xl-9").addClass("col-lg-4 col-xl-5");
+            }
+
+            document.addEventListener("keydown", function (event) {
+                if (event.key === "Escape") {
+                    restoreDefaultMapLayout();
+                }
+            });
+
             // Keeps all active markers visible as markers are added/removed.
             function fitMapToActiveMarkers () {
                 if (!map) {
@@ -2049,9 +2060,7 @@
 
                     if (alertsActive) {
                         alertsActive = false; // Set the global flag indicating that no alerts are currently active
-
-                        $("#locationsZoneTile, #summaryLastAlertedTimesTile, #newsHeader, #newsBody, #mapHeader").show();
-                        $("#newsMapTile").removeClass("col-lg-9 col-xl-9").addClass("col-lg-4 col-xl-5");
+                        restoreDefaultMapLayout();
                     }
 
                     return;

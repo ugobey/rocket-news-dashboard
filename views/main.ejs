@@ -204,25 +204,25 @@
                                     <tr>
                                         <td><span>Sound Alerts</span></td>
                                         <td class="text-end">
-                                            <i id="sound_alerts_toggle" class="fa-solid fa-bell fa-xl text-light" title="Turn off Sound Alerts" style="cursor: pointer"></i>
+                                            <i id="sound_alerts_icon" class="fa-solid fa-bell fa-xl text-light" title="Turn off Sound Alerts" style="cursor: pointer"></i>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td><span>Fullscreen</span></td>
                                         <td class="text-end">
-                                            <i id="fullscreen" class="fa-solid fa-expand fa-xl text-light" title="Enter Fullscreen"></i>
+                                            <i id="fullscreen_icon" class="fa-solid fa-expand fa-xl text-light" title="Enter Fullscreen"></i>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td><span>Settings</span></td>
                                         <td class="text-end">
-                                            <i id="open_settings" class="fa-solid fa-gear fa-xl text-light" title="Open Settings"></i>
+                                            <i id="open_settings_icon" class="fa-solid fa-gear fa-xl text-light" title="Open Settings"></i>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td><span>Test Mode</span></td>
                                         <td class="text-end">
-                                            <i id="test_mode" class="fa-solid fa-play fa-xl text-light" title="Turn ON Test Mode"></i>
+                                            <i id="test_mode_icon" class="fa-solid fa-play fa-xl text-light" title="Turn ON Test Mode"></i>
                                         </td>
                                     </tr>
                                     <tr>
@@ -232,7 +232,7 @@
                                     <tr id="update_app_version" style="display: none">
                                         <td><span>App Update Available</span></td>
                                         <td class="text-end">
-                                            <i class="fa-solid fa-cloud-arrow-up fa-xl text-warning" title="Update it on your server"></i>
+                                            <i id="update_app_version_icon" class="fa-solid fa-cloud-arrow-up fa-xl text-warning" title="Update it on your server"></i>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -812,7 +812,7 @@
             }
 
             function updateFullscreenToggleUI () {
-                const icon = $("#fullscreen");
+                const icon = $("#fullscreen_icon");
 
                 if (!icon.length) {
                     return;
@@ -828,7 +828,7 @@
             }
 
             function setSoundAlertsUI (enabled) {
-                const icon = $("#sound_alerts_toggle");
+                const icon = $("#sound_alerts_icon");
 
                 if (!icon.length) {
                     return;
@@ -897,7 +897,7 @@
                 }
             }
 
-            $("#fullscreen").on("click", async function () {
+            $("#fullscreen_icon").on("click", async function () {
                 try {
                     if (!isFullscreenActive()) {
                         const rootElement = document.documentElement;
@@ -932,11 +932,11 @@
 
             function setTestModeUI (enabled) {
                 if (enabled) {
-                    $("#test_mode").attr("title", "Turn off Test Mode");
-                    $("#test_mode").removeClass("fa-play text-light").addClass("fa-stop text-danger");
+                    $("#test_mode_icon").attr("title", "Turn off Test Mode");
+                    $("#test_mode_icon").removeClass("fa-play text-light").addClass("fa-stop text-danger");
                 } else {
-                    $("#test_mode").attr("title", "Turn on Test Mode");
-                    $("#test_mode").removeClass("fa-stop text-danger").addClass("fa-play text-light");
+                    $("#test_mode_icon").attr("title", "Turn on Test Mode");
+                    $("#test_mode_icon").removeClass("fa-stop text-danger").addClass("fa-play text-light");
                 }
             }
 
@@ -967,7 +967,7 @@
 
             // Test-mode toggle: flips the testmode boolean and swaps the icon between
             // fa-play (grey, inactive) and fa-stop (green, active).
-            $("#test_mode").on("click", function () {
+            $("#test_mode_icon").on("click", function () {
                 if (testmode) {
                     disableTestMode();
                 } else {
@@ -997,7 +997,7 @@
             });
 
             // Pre-fill the city search input with the user's previously saved city before opening settings
-            $("#open_settings").on("click", function () {
+            $("#open_settings_icon").on("click", function () {
                 const savedCity = localStorage.getItem("earlyWarningCity");
                 if (savedCity) {
                     $("#citySearch").val(savedCity);

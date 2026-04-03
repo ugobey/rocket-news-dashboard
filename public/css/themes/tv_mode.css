@@ -306,7 +306,6 @@ a:hover {
     /* Neutral slate — low-emphasis utility panels */
 }
 
-
 /* ==================== CLOCK & STAT DISPLAY ====================
                .live-clock  — pill badge in the alert panel header showing HH:MM:SS
                .stat-number — large bold number used in the Summary counter table */
@@ -389,25 +388,31 @@ a:hover {
                 Test Mode, Fullscreen, and Settings icons in the Summary panel get
                 a more pronounced hover effect to indicate they're clickable. */
 
-#test_mode:hover {
+#sound_alerts_icon:hover {
     transform: scale(1.15);
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-#fullscreen:hover {
+#test_mode_icon:hover {
     transform: scale(1.15);
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-#open_settings:hover {
+#fullscreen_icon:hover {
+    transform: scale(1.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#open_settings_icon:hover {
     transform: scale(1.15) rotate(20deg);
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-#update_app_version:hover {
+#update_app_version_icon:hover {
     transform: scale(1.15) rotate(20deg);
     cursor: pointer;
     transition: all 0.3s ease;

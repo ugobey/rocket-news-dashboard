@@ -938,6 +938,7 @@
                 } else {
                     $("#test_mode_icon").attr("title", "Turn on Test Mode");
                     $("#test_mode_icon").removeClass("fa-stop text-danger").addClass("fa-play text-light");
+                    alertsActive = false; // Reset this so that when test mode is re-enabled, the first alert will trigger all the usual "first alert" behaviors (map auto-maximization, early warning modal, etc)
                 }
             }
 

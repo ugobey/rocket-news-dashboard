@@ -182,8 +182,43 @@ function generateRandomNonMissileUAVAlert() {
     ];
 }
 
-router.use("/", async function (req, res) {
-    try {
+function logError(context, err) {
+    console.error(`${service_name} ERROR [${context}]`, {
+        message: err?.message,
+        stack: err?.stack,
+    });
+}
+
+function sendJson(res, statusCode, payload) {
+    if (res.headersSent) {
+        return;
+    }
+
+    res.status(statusCode).json(payload);
+}
+
+function sendJsonError(res, statusCode, err, context) {
+    if (err) {
+        logError(context, err);
+    }
+
+    const message = err?.message || "Internal Server Error";
+    sendJson(res, statusCode, { error: message });
+}
+
+function asyncHandler(fn, context) {
+    return async function wrappedAsyncHandler(req, res, next) {
+        try {
+            await fn(req, res, next);
+        } catch (err) {
+            sendJsonError(res, 500, err, context);
+        }
+    };
+}
+
+router.use(
+    "/",
+    asyncHandler(async function ajaxRouteHandler(req, res) {
         const forwardedPortHeader = req.headers["x-forwarded-port"];
         const forwardedPort = Array.isArray(forwardedPortHeader) ? forwardedPortHeader[0] : forwardedPortHeader;
         const requestPort = Number.parseInt((forwardedPort || "").toString().split(",")[0], 10) || req.socket.localPort;
@@ -215,124 +250,107 @@ router.use("/", async function (req, res) {
                 } else if (testmode === "nonMissileUAV") {
                     alert = generateRandomNonMissileUAVAlert();
                 } else {
-                    res.statusCode = 400;
-                    res.write(JSON.stringify({ error: `Unknown test mode: ${testmode}` }));
-                    res.end();
+                    sendJson(res, 400, { error: `Unknown test mode: ${testmode}` });
                     return;
                 }
 
-                res.statusCode = 200;
-                res.write(JSON.stringify(alert ?? []));
-                res.end();
-            } else {
-                pikudHaoref.getActiveAlerts(function (err, alert) {
-                    if (err) {
-                        console.error(service_name, "pikud_haoref error:", err);
+                sendJson(res, 200, alert ?? []);
+                return;
+            }
 
-                        res.statusCode = 200;
-                        res.write(JSON.stringify({ error: err.message || err.toString() }));
-                        res.end();
+            pikudHaoref.getActiveAlerts(function (err, alert) {
+                try {
+                    if (err) {
+                        sendJsonError(res, 500, err, "pikud_haoref.getActiveAlerts");
                         return;
                     }
 
-                    res.statusCode = 200;
-                    res.write(JSON.stringify(alert));
-                    res.end();
-                }, options);
-            }
-        } else if (getService === "rss") {
+                    sendJson(res, 200, alert);
+                } catch (callbackErr) {
+                    sendJsonError(res, 500, callbackErr, "pikud_haoref.getActiveAlerts.callback");
+                }
+            }, options);
+
+            return;
+        }
+
+        if (getService === "rss") {
             const rssFeed = req.body.rssfeed;
 
-            let response = {};
-
             if (!rssFeed) {
-                response = { error: "Missing RSS URL" };
-            } else {
-                let parsedUrl = null;
-                try {
-                    parsedUrl = new URL(rssFeed);
-                } catch {
-                    parsedUrl = null;
-                }
-
-                if (!parsedUrl || (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:")) {
-                    response = { error: "Invalid RSS URL" };
-                } else {
-                    const rssAbortController = new AbortController();
-                    const rssTimeoutId = setTimeout(() => rssAbortController.abort(), 10000);
-
-                    try {
-                        const fetchFeed = await fetch(rssFeed, { signal: rssAbortController.signal });
-
-                        if (!fetchFeed.ok) {
-                            response = { error: `RSS fetch failed with status ${fetchFeed.status}` };
-                        } else {
-                            const responseText = await fetchFeed.text();
-
-                            try {
-                                const feed = parseFeed(responseText);
-                                response = { feed: feed };
-                            } catch (parseError) {
-                                response = { error: "INVALID_FEED" };
-                            }
-                        }
-                    } catch (fetchError) {
-                        const msg = fetchError.name === "AbortError" ? "RSS fetch timed out" : (fetchError.message || "RSS fetch failed");
-                        response = { error: msg };
-                    } finally {
-                        clearTimeout(rssTimeoutId);
-                    }
-                }
+                sendJson(res, 400, { error: "Missing RSS URL" });
+                return;
             }
 
-            res.statusCode = 200;
-            res.write(JSON.stringify(response));
-            res.end();
-        } else if (getService === "version_check") {
+            let parsedUrl = null;
+            try {
+                parsedUrl = new URL(rssFeed);
+            } catch {
+                parsedUrl = null;
+            }
+
+            if (!parsedUrl || (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:")) {
+                sendJson(res, 400, { error: "Invalid RSS URL" });
+                return;
+            }
+
+            const rssAbortController = new AbortController();
+            const rssTimeoutId = setTimeout(() => rssAbortController.abort(), 10000);
+
+            try {
+                const fetchFeed = await fetch(rssFeed, { signal: rssAbortController.signal });
+
+                if (!fetchFeed.ok) {
+                    sendJson(res, 502, { error: `RSS fetch failed with status ${fetchFeed.status}` });
+                    return;
+                }
+
+                const responseText = await fetchFeed.text();
+
+                try {
+                    const feed = parseFeed(responseText);
+                    sendJson(res, 200, { feed });
+                } catch (parseError) {
+                    sendJsonError(res, 422, parseError, "rss.parseFeed");
+                }
+            } catch (fetchError) {
+                const msg = fetchError.name === "AbortError" ? "RSS fetch timed out" : fetchError.message || "RSS fetch failed";
+                sendJson(res, 502, { error: msg });
+            } finally {
+                clearTimeout(rssTimeoutId);
+            }
+
+            return;
+        }
+
+        if (getService === "version_check") {
             // Use execFile with separate arguments to eliminate any shell injection risk.
             execFile("npm", ["view", config.gitRepo, "version"], (error, stdout, stderr) => {
                 if (error) {
-                    console.error(service_name, "version_check exec error:", error.message || error);
-                    res.statusCode = 500;
-                    res.write(JSON.stringify({ error: error.message || error.toString() }));
-                    res.end();
+                    sendJsonError(res, 500, error, "version_check.execFile");
                     return;
                 }
 
                 const latestVersion = stdout.trim();
 
                 if (!latestVersion) {
+                    logError("version_check.emptyVersion", new Error("Could not determine latest version"));
                     console.error(service_name, "version_check: empty version returned", { stderr });
-                    res.statusCode = 500;
-                    res.write(JSON.stringify({ error: "Could not determine latest version" }));
-                    res.end();
+                    sendJson(res, 500, { error: "Could not determine latest version" });
                     return;
                 }
 
-                if (localAppVersion !== latestVersion) {
-                    res.statusCode = 200;
-                    res.write(JSON.stringify({ updateAvailable: true, latestVersion: latestVersion }));
-                    res.end();
-                } else {
-                    res.statusCode = 200;
-                    res.write(JSON.stringify({ updateAvailable: false, latestVersion: latestVersion }));
-                    res.end();
-                }
+                sendJson(res, 200, {
+                    updateAvailable: localAppVersion !== latestVersion,
+                    latestVersion,
+                });
             });
-        } else {
-            res.statusCode = 200;
-            res.write(JSON.stringify({ error: "No RSS Service Selected" }));
-            res.end();
-        }
-    } catch (err) {
-        console.error(service_name + " ERROR:", err);
 
-        if (!res.headersSent) {
-            res.statusCode = 500;
-            res.write(JSON.stringify({ error: err.message || err.toString() }));
-            res.end();
+            return;
         }
-    }
-});
+
+        sendJson(res, 400, { error: "No service selected" });
+    }, "ajaxRouteHandler"),
+);
 
 module.exports = router;

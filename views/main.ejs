@@ -14,7 +14,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
 
-        <link id="dashboardThemeStylesheet" href="/css/themes/graphite.css" rel="stylesheet" />
+        <link id="dashboardThemeStylesheet" href="/css/themes/graphite.css?<%=randomKey%>" rel="stylesheet" />
 
         <script src="/js/jquery-3.7.1.min.js"></script>
         <script src="/js/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
@@ -1072,9 +1072,9 @@
             setSoundAlertsUI(soundAlertsEnabled);
 
             const themeStylesheetMap = {
-                command_center: "/css/themes/command_center.css",
-                graphite: "/css/themes/graphite.css",
-                graphite_small: "/css/themes/graphite_small.css"
+                command_center: "/css/themes/command_center.css?<%=randomKey%>",
+                graphite: "/css/themes/graphite.css?<%=randomKey%>",
+                graphite_small: "/css/themes/graphite_small.css?<%=randomKey%>"
             };
 
             function applyDashboardTheme (themeName) {

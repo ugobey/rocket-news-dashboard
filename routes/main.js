@@ -46,6 +46,7 @@ function buildMainViewModel() {
             cities: JSON.stringify(pikudHaorefCitiesJSON),
             rssFeeds: JSON.stringify(Array.isArray(config.rssFeeds) ? config.rssFeeds : []),
             googleMapsApiKey: config.googleMapsApiKey,
+            randomKey: Math.random().toString(36).substring(2, 15), // To force reload of static assets
         };
     } catch (err) {
         logError("buildMainViewModel", err);

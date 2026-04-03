@@ -25,7 +25,14 @@ All configuration is stored in `config.json` at the project root:
     "proxyUrl": "http://...",
     "webServerPort": 8080,
     "gitRepo": "git@github.com:...",
-    "googleMapsApiKey": "YOUR_API_KEY"
+    "googleMapsApiKey": "YOUR_API_KEY",
+    "rssFeeds": [
+        {
+            "codename": "RSSarutz7",
+            "realname": "Arutz 7",
+            "url": "https://www.israelnationalnews.com/Rss.aspx"
+        }
+    ]
 }
 ```
 
@@ -35,6 +42,9 @@ All configuration is stored in `config.json` at the project root:
 | `webServerPort` | Port the web server listens on (default: `8080`) |
 | `gitRepo` | SSH URL of the Git repository |
 | `googleMapsApiKey` | Google Maps API key used for the map view |
+| `rssFeeds` | Array of RSS feed sources used by the news poller (`codename`, `realname`, `url`) |
+
+The RSS source list is now configured in `config.json` (and injected into the dashboard view), instead of being hardcoded in `views/main.ejs`.
 
 ## .env support
 

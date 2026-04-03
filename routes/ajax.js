@@ -23,11 +23,6 @@ main();
 
 const { parseFeed } = require("@rowanmanning/feed-parser");
 
-const { execFile } = require("node:child_process");
-
-const pkg = require("../package.json");
-const localAppVersion = pkg.version;
-
 const locations = require("../locations_by_zone");
 
 const arava = locations.arava;
@@ -317,35 +312,6 @@ router.use(
             } finally {
                 clearTimeout(rssTimeoutId);
             }
-
-            return;
-        } else if (getService === "version_check") {
-            if (process.platform === "win32") {
-                sendJson(res, 501, { error: "Version check is not supported on Windows" });
-                return;
-            }
-
-            // Use execFile with separate arguments to eliminate any shell injection risk.
-            execFile("npm", ["view", config.gitRepo, "version"], (error, stdout, stderr) => {
-                if (error) {
-                    sendJsonError(res, 500, error, "version_check.execFile");
-                    return;
-                }
-
-                const latestVersion = stdout.trim();
-
-                if (!latestVersion) {
-                    logError("version_check.emptyVersion", new Error("Could not determine latest version"));
-                    console.error(service_name, "version_check: empty version returned", { stderr });
-                    sendJson(res, 500, { error: "Could not determine latest version" });
-                    return;
-                }
-
-                sendJson(res, 200, {
-                    updateAvailable: localAppVersion !== latestVersion,
-                    latestVersion,
-                });
-            });
 
             return;
         }

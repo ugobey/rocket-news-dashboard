@@ -230,12 +230,6 @@
                                         <td><span>App Version</span></td>
                                         <td class="text-end"><span id="appVersion" class="stat-number"><%= appVersion %></span></td>
                                     </tr>
-                                    <tr id="update_app_version" style="display: none">
-                                        <td><span>App Update Available</span></td>
-                                        <td class="text-end">
-                                            <i id="update_app_version_icon" class="fa-solid fa-cloud-arrow-up fa-xl text-warning" title="Update it on your server"></i>
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -2902,33 +2896,6 @@
             }
 
             allowMapAutoMaximization = localStorage.getItem("allowMapAutoMaximization") !== "false";
-
-
-            // ==================== APP VERSION CHECK ====================
-            // Calls the version_check service which runs `npm outdated` server-side
-            // and compares the local package version against the latest on the registry.
-            // If a newer version exists, the upgrade icon is revealed in the Summary table.
-            async function checkAppVersion () {
-                try {
-                    const versionCheck = await ajaxHandler("version_check");
-
-                    if (versionCheck && versionCheck.updateAvailable) {
-                        const latestVersion = versionCheck.latestVersion; // Available for display if needed
-
-                        $("#update_app_version").show(); // Reveal the upgrade-available row
-                    } else {
-                        $("#update_app_version").hide();
-                    }
-                } catch (error) {
-                    console.error("Error checking app version:", error);
-                }
-            }
-
-            checkAppVersion(); // Run immediately on page load
-
-            setInterval(() => {
-                checkAppVersion();
-            }, 600000); // Re-check every 10 minutes
 
         </script>
     </body>

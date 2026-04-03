@@ -551,6 +551,7 @@
             let earlyWarningLocations = []; // Cities currently under an active early-warning (newsFlash)
             let alertedCitiesObj = []; // Cities that have received alerts this session
             let lastAlertedTimes = []; // Last unique times when alerts occurred (HH:mm format)
+            let pikudHaorefAlertHistory = []; // Newest-first list of rows shown in pikud_haoref_alerts
 
             // Summary counters reflected in the Alerts Summary table
             let rocketAlertCounter = 0; // Missile alert rows received
@@ -584,6 +585,8 @@
             const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
             const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
             const recentlyAlertedLocations = {}; // Dedup cache: location → Unix timestamp of last alert row added
+            const pikudHaorefHistoryStorageKey = "pikudHaorefHistoryV1";
+            const maxPersistedPikudRows = 500;
 
             function getErrorMessage (error, fallback = "Unknown error") {
                 if (!error) {
@@ -1325,6 +1328,7 @@
                     $("#pikud_haoref_error_messages").prepend("<li>" + displayErrorMessage + "</li>");
                 }
 
+                persistPikudHaorefHistoryState();
                 return rawErrorMessage;
             }
 
@@ -1337,6 +1341,259 @@
 
                 $("#rocketShareCounter").text(rocketShare);
                 $("#droneShareCounter").text(droneShare);
+            }
+
+            function escapeHtml (value) {
+                return String(value ?? "")
+                    .replaceAll("&", "&amp;")
+                    .replaceAll("<", "&lt;")
+                    .replaceAll(">", "&gt;")
+                    .replaceAll('"', "&quot;")
+                    .replaceAll("'", "&#39;");
+            }
+
+            function buildPikudHaorefAlertRowMarkup (entry, options = {}) {
+                const { includeHighlight = false } = options;
+                const time = escapeHtml(entry?.time || "");
+                const typeText = escapeHtml(entry?.typeText || "Alert");
+                const typeIcon = escapeHtml(entry?.typeIcon || "fa-triangle-exclamation");
+                const location = escapeHtml(entry?.location || "Unknown");
+                const zone = escapeHtml(entry?.zone || "Unknown");
+                const lat = entry?.lat ?? "";
+                const lng = entry?.lng ?? "";
+                const rowClasses = includeHighlight ?
+                    "animate__animated animate__fadeInDown animate__faster alertNewRow table-light" : "";
+                const hasCoordinates = lat !== "" && lng !== "";
+                const href = hasCoordinates ?
+                    `https://www.google.com/maps/search/${encodeURIComponent(String(lat))},${encodeURIComponent(String(lng))}` : "";
+                const locationCell = hasCoordinates ?
+                    `<a href="${href}" target="_blank">${location}</a>` : location;
+
+                return `
+                    <tr class="${rowClasses}">
+                        <td><font class='text-info'>${time}</font></td>
+                        <td><i class="fa-solid ${typeIcon} collapse-icon" title="${typeText}"></i></td>
+                        <td>${locationCell}</td>
+                        <td>${zone}</td>
+                    </tr>
+                `;
+            }
+
+            function renderAlertedLocationsCounterTable (resetScroller = false) {
+                $("#alerted_locations_counter").html("");
+
+                const sortedAlertedLocations = alertedLocations.toSorted((a, b) => {
+                    if (b.counter !== a.counter) {
+                        return b.counter - a.counter;
+                    }
+
+                    return a.location.localeCompare(b.location);
+                });
+
+                for (let i = 0; i < sortedAlertedLocations.length; i++) {
+                    const location = sortedAlertedLocations[i].location;
+                    const counter = sortedAlertedLocations[i].counter;
+
+                    $("#alerted_locations_counter").append(`
+                        <tr>
+                            <td width="95%"><font class='text-white'>${location}</font></td>
+                            <td>${counter}</td>
+                        </tr>
+                    `);
+                }
+
+                $("#totalLocationsCounter").text(sortedAlertedLocations.length);
+
+                if (resetScroller && alertLocationsScroller) {
+                    alertLocationsScroller.reset();
+                }
+            }
+
+            function renderAlertedZonesCounterTable (resetScroller = false) {
+                $("#alerted_zones_counter").html("");
+
+                const sortedAlertedZones = alertedZones.toSorted((a, b) => {
+                    if (b.counter !== a.counter) {
+                        return b.counter - a.counter;
+                    }
+
+                    return a.zone.localeCompare(b.zone);
+                });
+
+                for (let i = 0; i < sortedAlertedZones.length; i++) {
+                    const zone = sortedAlertedZones[i].zone;
+                    const counter = sortedAlertedZones[i].counter;
+
+                    $("#alerted_zones_counter").append(`
+                        <tr>
+                            <td width="95%"><font class='text-white'>${zone}</font></td>
+                            <td>${counter}</td>
+                        </tr>
+                    `);
+                }
+
+                $("#totalZonesCounter").text(sortedAlertedZones.length);
+
+                if (resetScroller && alertZonesScroller) {
+                    alertZonesScroller.reset();
+                }
+            }
+
+            function renderLastAlertedTimesTable (resetScroller = false) {
+                $("#last_alerted_times").html("");
+
+                for (let i = lastAlertedTimes.length - 1; i >= 0; i--) {
+                    const displayTime = escapeHtml(lastAlertedTimes[i]);
+
+                    $("#last_alerted_times").append(`
+                        <tr>
+                            <td><span class="text-white">${displayTime}</span></td>
+                        </tr>
+                    `);
+                }
+
+                if (resetScroller && lastAlertedTimesScroller) {
+                    lastAlertedTimesScroller.reset();
+                }
+            }
+
+            function syncAlertSummaryCountersToDom () {
+                $("#rocketAlertCounter").text(rocketAlertCounter);
+                $("#droneAlertCounter").text(droneAlertCounter);
+                $("#generalAlertCounter").text(generalAlertCounter);
+                $("#earthquakeAlertCounter").text(earthquakeAlertCounter);
+                $("#radiologicalEventAlertCounter").text(radiologicalEventAlertCounter);
+                $("#tsunamiAlertCounter").text(tsunamiAlertCounter);
+                $("#hazardousMaterialsAlertCounter").text(hazardousMaterialsAlertCounter);
+                $("#terroristInfiltrationAlertCounter").text(terroristInfiltrationAlertCounter);
+                $("#totalAlertsCounter").text(rocketAlertCounter + droneAlertCounter);
+                $("#totalEarlyWarningsAllCounter").text(totalEarlyWarningsAllCounter);
+                $("#totalEarlyWarningsSpecificCounter").text(totalEarlyWarningsSpecificCounter);
+                $("#pikud_haoref_error_counter").text(pikudHaorefErrorCounter);
+                $("#totalUnmatchedCitiesCounter").text(totalUnmatchedCitiesCounter);
+
+                if (generalAlertCounter > 0) {
+                    $("#total_general_alerts_counter").show();
+                }
+
+                if (earthquakeAlertCounter > 0) {
+                    $("#total_earthquake_alerts_counter").show();
+                }
+
+                if (radiologicalEventAlertCounter > 0) {
+                    $("#total_radiological_event_alerts_counter").show();
+                }
+
+                if (tsunamiAlertCounter > 0) {
+                    $("#total_tsunami_alerts_counter").show();
+                }
+
+                if (hazardousMaterialsAlertCounter > 0) {
+                    $("#total_hazardous_materials_alerts_counter").show();
+                }
+
+                if (terroristInfiltrationAlertCounter > 0) {
+                    $("#total_terrorist_infiltration_alerts_counter").show();
+                }
+
+                if (totalEarlyWarningsSpecificCounter > 0) {
+                    $("#total_early_warnings_specific_counter").show();
+                }
+
+                if (totalUnmatchedCitiesCounter > 0) {
+                    unmatchedCitiesFlag = true;
+                    $("#unmatched_cities_counter, #unmatched_cities").show();
+                }
+
+                if (pikudHaorefErrorCounter > 0) {
+                    pikudHaorefError = true;
+                    $("#error_counter, #error_message").show();
+                }
+
+                updateAdvancedSummaryStats();
+            }
+
+            function persistPikudHaorefHistoryState () {
+                try {
+                    const historyState = {
+                        version: 1,
+                        pikudHaorefAlertHistory: pikudHaorefAlertHistory.slice(0, maxPersistedPikudRows),
+                        alertedLocations,
+                        alertedZones,
+                        lastAlertedTimes,
+                        counters: {
+                            rocketAlertCounter,
+                            droneAlertCounter,
+                            generalAlertCounter,
+                            earthquakeAlertCounter,
+                            radiologicalEventAlertCounter,
+                            tsunamiAlertCounter,
+                            hazardousMaterialsAlertCounter,
+                            terroristInfiltrationAlertCounter,
+                            totalEarlyWarningsAllCounter,
+                            totalEarlyWarningsSpecificCounter
+                        }
+                    };
+
+                    localStorage.setItem(pikudHaorefHistoryStorageKey, JSON.stringify(historyState));
+                } catch (error) {
+                    logClientError("persistPikudHaorefHistoryState", error);
+                }
+            }
+
+            function restorePikudHaorefHistoryState () {
+                const rawState = localStorage.getItem(pikudHaorefHistoryStorageKey);
+
+                if (!rawState) {
+                    return;
+                }
+
+                try {
+                    const parsedState = JSON.parse(rawState);
+                    const counters = parsedState?.counters || {};
+
+                    const parsedRows = Array.isArray(parsedState?.pikudHaorefAlertHistory) ? parsedState.pikudHaorefAlertHistory : [];
+                    pikudHaorefAlertHistory = parsedRows.slice(0, maxPersistedPikudRows).map((entry) => ({
+                        time: String(entry?.time || ""),
+                        typeText: String(entry?.typeText || "Alert"),
+                        typeIcon: String(entry?.typeIcon || "fa-triangle-exclamation"),
+                        location: String(entry?.location || "Unknown"),
+                        zone: String(entry?.zone || "Unknown"),
+                        lat: entry?.lat ?? "",
+                        lng: entry?.lng ?? ""
+                    }));
+
+                    alertedLocations = Array.isArray(parsedState?.alertedLocations) ? parsedState.alertedLocations : [];
+                    alertedZones = Array.isArray(parsedState?.alertedZones) ? parsedState.alertedZones : [];
+                    lastAlertedTimes = Array.isArray(parsedState?.lastAlertedTimes) ? parsedState.lastAlertedTimes : [];
+
+                    rocketAlertCounter = Number.isFinite(counters.rocketAlertCounter) ? counters.rocketAlertCounter : 0;
+                    droneAlertCounter = Number.isFinite(counters.droneAlertCounter) ? counters.droneAlertCounter : 0;
+                    generalAlertCounter = Number.isFinite(counters.generalAlertCounter) ? counters.generalAlertCounter : 0;
+                    earthquakeAlertCounter = Number.isFinite(counters.earthquakeAlertCounter) ? counters.earthquakeAlertCounter : 0;
+                    radiologicalEventAlertCounter = Number.isFinite(counters.radiologicalEventAlertCounter) ? counters.radiologicalEventAlertCounter : 0;
+                    tsunamiAlertCounter = Number.isFinite(counters.tsunamiAlertCounter) ? counters.tsunamiAlertCounter : 0;
+                    hazardousMaterialsAlertCounter = Number.isFinite(counters.hazardousMaterialsAlertCounter) ? counters.hazardousMaterialsAlertCounter : 0;
+                    terroristInfiltrationAlertCounter = Number.isFinite(counters.terroristInfiltrationAlertCounter) ? counters.terroristInfiltrationAlertCounter : 0;
+                    totalEarlyWarningsAllCounter = Number.isFinite(counters.totalEarlyWarningsAllCounter) ? counters.totalEarlyWarningsAllCounter : 0;
+                    totalEarlyWarningsSpecificCounter = Number.isFinite(counters.totalEarlyWarningsSpecificCounter) ? counters.totalEarlyWarningsSpecificCounter : 0;
+
+                    $("#pikud_haoref_alerts").html(pikudHaorefAlertHistory.map((entry) => buildPikudHaorefAlertRowMarkup(entry)).join(""));
+                    renderAlertedLocationsCounterTable();
+                    renderAlertedZonesCounterTable();
+                    renderLastAlertedTimesTable();
+
+                    const now = Math.floor(Date.now() / 1000);
+                    pikudHaorefAlertHistory.forEach((entry) => {
+                        if (entry.location) {
+                            recentlyAlertedLocations[entry.location] = now;
+                        }
+                    });
+
+                    syncAlertSummaryCountersToDom();
+                } catch (error) {
+                    logClientError("restorePikudHaorefHistoryState", error);
+                }
             }
 
             updateAdvancedSummaryStats();
@@ -1481,6 +1738,11 @@
                     // during long sessions with many incoming alerts.
                     if (pikud_haoref_alerts.children.length > 500) {
                         $('#pikud_haoref_alerts tr:last').remove(); // Remove the oldest (bottom) row
+
+                        if (pikudHaorefAlertHistory.length > 0) {
+                            pikudHaorefAlertHistory.pop();
+                            persistPikudHaorefHistoryState();
+                        }
                     }
 
                     const alert = await ajaxHandler("pikud_haoref");
@@ -1538,6 +1800,7 @@
                                             totalEarlyWarningsAllCounter++
                                             $("#totalEarlyWarningsAllCounter").text(totalEarlyWarningsAllCounter);
                                             updateAdvancedSummaryStats();
+                                            persistPikudHaorefHistoryState();
                                         }
 
                                         earlyWarningActive = true;
@@ -1688,8 +1951,8 @@
                                                         const time = timeStamp.slice(0, -3);
 
                                                         // Only add if this time hasn't been recorded yet
-                                                        if (!lastAlertedTimes.includes(dayOrdinal + " " + time)) {
-                                                            lastAlertedTimes.push(dayOrdinal + " " + time);
+                                                        if (!lastAlertedTimes.includes(dayOrdinal + " - " + time)) {
+                                                            lastAlertedTimes.push(dayOrdinal + " - " + time);
 
                                                             $('#last_alerted_times').prepend(`
                                                                 <tr>
@@ -1708,14 +1971,25 @@
                                                 // animate__fadeInDown gives a visual entry cue; alertNewRow and table-light
                                                 // trigger the 5-second highlight fade set up in the cleanup interval above.
                                                 // The location name links to Google Maps using the alert's coordinates.
-                                                $("#pikud_haoref_alerts").prepend(`
-                                                    <tr class="animate__animated animate__fadeInDown animate__faster alertNewRow table-light">
-                                                        <td><font class='text-info'>${timeStamp}</font></td>
-                                                        <td><i class="fa-solid ${alertTypeIcon} collapse-icon" title="${alertTypeText}"></i></td>
-                                                        <td><a href="https://www.google.com/maps/search/${lat},${lng}" target="_blank">${location}</a></td>
-                                                        <td>${zone_en}</td>
-                                                    </tr>
-                                                `);
+                                                const alertHistoryEntry = {
+                                                    time: timeStamp,
+                                                    typeText: alertTypeText,
+                                                    typeIcon: alertTypeIcon,
+                                                    location,
+                                                    zone: zone_en,
+                                                    lat,
+                                                    lng
+                                                };
+
+                                                pikudHaorefAlertHistory.unshift(alertHistoryEntry);
+
+                                                if (pikudHaorefAlertHistory.length > maxPersistedPikudRows) {
+                                                    pikudHaorefAlertHistory.length = maxPersistedPikudRows;
+                                                }
+
+                                                $("#pikud_haoref_alerts").prepend(buildPikudHaorefAlertRowMarkup(alertHistoryEntry, {
+                                                    includeHighlight: true
+                                                }));
 
 
                                                 if (pikudHaorefScroller) {
@@ -1732,69 +2006,8 @@
                                         // Only these two types update the counters; other alert types (earthquakes, etc.)
                                         // are intentionally excluded because they don't have the same location semantics.
                                         if (alertType === "missiles" || alertType === "hostileAircraftIntrusion") {
-                                            // --- Rebuild Alert Locations Counter ---
-                                            $("#alerted_locations_counter").html(""); // Clear existing rows before re-rendering
-
-                                            // Sort: highest count first; within the same count, sort alphabetically
-                                            const sortalertedLocations = alertedLocations.toSorted((a, b) => {
-                                                // First compare by counter (descending)
-                                                if (b.counter !== a.counter) {
-                                                    return b.counter - a.counter;
-                                                }
-
-                                                // If counters are equal → compare locations alphabetically (ascending)
-                                                return a.location.localeCompare(b.location);
-                                            });
-
-                                            for (let i = 0; i < sortalertedLocations.length; i++) {
-                                                const location = sortalertedLocations[i].location
-                                                const counter = sortalertedLocations[i].counter;
-
-                                                $("#alerted_locations_counter").append(`
-                                                    <tr>
-                                                        <td width="95%"><font class='text-white'>${location}</font></td>
-                                                        <td>${counter}</td>
-                                                    </tr>
-                                                `);
-                                            }
-
-                                            if (alertLocationsScroller) {
-                                                alertLocationsScroller.reset();
-                                            }
-
-                                            $("#totalLocationsCounter").text(sortalertedLocations.length);
-
-                                            // --- Rebuild Alert Zones Counter ---
-                                            $("#alerted_zones_counter").html(""); // Clear existing rows before re-rendering
-
-                                            // Same sort logic: count desc, then zone name asc
-                                            const sortalertedZones = alertedZones.toSorted((a, b) => {
-                                                // First compare by counter (descending)
-                                                if (b.counter !== a.counter) {
-                                                    return b.counter - a.counter;
-                                                }
-
-                                                // If counters are equal → compare zones alphabetically (ascending)
-                                                return a.zone.localeCompare(b.zone);
-                                            });
-
-                                            for (let i = 0; i < sortalertedZones.length; i++) {
-                                                const zone = sortalertedZones[i].zone
-                                                const counter = sortalertedZones[i].counter;
-
-                                                $("#alerted_zones_counter").append(`
-                                                    <tr>
-                                                        <td width="95%"><font class='text-white'>${zone}</font></td>
-                                                        <td>${counter}</td>
-                                                    </tr>
-                                                `);
-                                            }
-
-                                            $("#totalZonesCounter").text(sortalertedZones.length);
-
-                                            if (alertZonesScroller) {
-                                                alertZonesScroller.reset();
-                                            }
+                                            renderAlertedLocationsCounterTable(true);
+                                            renderAlertedZonesCounterTable(true);
                                         }
 
                                         if (allowMapAutoMaximization && !alertsActive) {
@@ -1803,6 +2016,8 @@
                                             $("#locationsZoneTile, #summaryLastAlertedTimesTile, #newsHeader, #newsBody, #mapHeader").hide();
                                             $("#newsMapTile").removeClass("col-lg-4 col-xl-5").addClass("col-lg-9 col-xl-9");
                                         }
+
+                                        persistPikudHaorefHistoryState();
                                     }
                                 }
                             }
@@ -1819,6 +2034,7 @@
                 }
             };
 
+            restorePikudHaorefHistoryState();
             pikudHaorefPoll(); // Kick off the polling loop
 
             // ==================== RSS NEWS FEED SERVICE ====================

@@ -1023,9 +1023,13 @@
             const supportedCssThemes = ["command_center", "graphite", "graphite_small"];
             const storedCssTheme = localStorage.getItem(themeStorageKey);
             const initialCssTheme = supportedCssThemes.includes(storedCssTheme) ? storedCssTheme : "graphite";
+            const supportedTestModeTypes = ["alertByCity", "alertByRegion", "earlyWarning", "nonMissileUAV"];
+            const storedTestModeType = localStorage.getItem("testModeType");
+            const initialTestModeType = supportedTestModeTypes.includes(storedTestModeType) ? storedTestModeType : "alertByCity";
 
             // Persist only cssTheme and remove the deprecated key if present.
             localStorage.setItem(themeStorageKey, initialCssTheme);
+            localStorage.setItem("testModeType", initialTestModeType);
 
             // Auto-scroll toggle handlers
             // Track which auto-scrollers are enabled and their interval IDs for stopping
@@ -1037,7 +1041,7 @@
                 rss: localStorage.getItem("autoScrollRss") === "true",
                 earlyWarning: localStorage.getItem("autoScrollEarlyWarning") !== "false",
                 preventMapAutoMaximization: localStorage.getItem("preventMapAutoMaximization") === "true",
-                testModeType: localStorage.getItem("testModeType") || "alertByCity",
+                testModeType: initialTestModeType,
                 soundAlertsEnabled: localStorage.getItem("soundAlertsEnabled") === "true",
                 cssTheme: initialCssTheme
             };

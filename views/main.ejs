@@ -233,7 +233,7 @@
                                     <tr id="update_app_version" style="display: none">
                                         <td><span>App Update Available</span></td>
                                         <td class="text-end">
-                                            <i id="update_app_version_icon" class="fa-solid fa-cloud-arrow-up fa-xl text-warning" title="Update it on your server"></i>
+                                            <i id="update_app_version_icon" class="fa-solid fa-arrows-rotate fa-xl text-warning" title="Reload with new version"></i>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -1012,6 +1012,10 @@
                     $("#citySearch").val(savedCity);
                 }
                 settingsModal.show();
+            });
+
+            $("#update_app_version_icon").on("click", function () {
+                window.document.location.reload(true);
             });
 
             // Persist the selected city to localStorage; remove the key if the field is cleared

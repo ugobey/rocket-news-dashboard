@@ -2947,12 +2947,22 @@
             // and compares the local package version against the latest on the registry.
             // If a newer version exists, the upgrade icon is revealed in the Summary table.
             const currentAppVersion = "<%= appVersion %>"; // Injected from server-side template
+            let newVersionAvailable = false; // Tracks whether a newer version is available for conditional UI behavior
 
             async function checkAppVersion () {
                 try {
                     const versionCheck = await ajaxHandler("version_check");
+                    const latestVersion = versionCheck.latestVersion;
+                    const serverAppVersion = versionCheck.serverAppVersion;
 
-                    if (versionCheck && versionCheck.latestVersion && versionCheck.latestVersion !== currentAppVersion) {
+                    if (serverAppVersion === latestVersion && serverAppVersion !== currentAppVersion) {
+                        // Local version is behind the server version, which may be behind the registry version.
+                        // This can occur when the server was updated but the client still has an old cached version.
+                        // In this case we consider an update to be available, to prompt the user to refresh their cache.
+                        newVersionAvailable = true;
+                    } 
+
+                    if (newVersionAvailable) {
                         $("#update_app_version").show(); // Reveal the upgrade-available row
                     } else {
                         $("#update_app_version").hide();
@@ -2966,7 +2976,7 @@
 
             setInterval(() => {
                 checkAppVersion();
-            }, 600000); // Re-check every 10 minutes
+            }, 10000); // Re-check every 10 minutes
 
         </script>
     </body>

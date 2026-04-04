@@ -557,7 +557,6 @@
             let errorLogs = []; // Unique Pikud HaOref error messages with occurrence counts
             let unmatchedCitiesLogs = []; // Location names that couldn't be found in locationMap
             let earlyWarningLocations = []; // Cities currently under an active early-warning (newsFlash)
-            let alertedCitiesObj = []; // Cities that have received alerts this session
             let lastAlertedTimes = []; // Last unique times when alerts occurred (HH:mm format)
             let pikudHaorefAlertHistory = []; // Newest-first list of rows shown in pikud_haoref_alerts
 
@@ -587,14 +586,14 @@
             let alertAudioContext = null;
             let lastAlertSoundAtMs = 0;
 
-            // Early warning countdown uses a fixed 5-minute duration
-            const earlyWarningDurationMS = 5 * 60 * 1000;
-
+            const earlyWarningDurationMS = 5 * 60 * 1000; // Early warning countdown uses a fixed 5-minute duration
             const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
-            const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
+            const markerDurationMs = 65000; // Map markers for alerted locations last for 60 seconds before automatically disappearing
+            const testModeDurationMs = 190000; // Keep test mode enabled for 90 seconds max
+            const testModeMarkersDurationMs = 65000; // Keep test mode enabled for 60 seconds max      
             const recentlyAlertedLocations = {}; // Dedup cache: location → Unix timestamp of last alert row added
             const pikudHaorefHistoryStorageKey = "pikudHaorefHistoryV1";
-            const maxPersistedPikudRows = 500;
+            const maxPersistedPikudRows = 250;
 
             function getErrorMessage (error, fallback = "Unknown error") {
                 if (!error) {
@@ -721,7 +720,7 @@
             // ==================== BOOTSTRAP MODAL INSTANCES ====================
             // Pre-instantiating modals avoids creation overhead on first show.
             const earlyWarningModalEnter = new bootstrap.Modal('#earlyWarningModalEnter'); // Red danger — active missile warning
-            //const earlyWarningModalExit = new bootstrap.Modal('#earlyWarningModalExit'); // Green success — all-clear signal
+            const earlyWarningModalExit = new bootstrap.Modal('#earlyWarningModalExit'); // Green success — all-clear signal
             const errorMessagesModal = new bootstrap.Modal('#errorMessagesModal'); // List of unique Pikud HaOref fetch errors
             const unmatchedCitiesModal = new bootstrap.Modal('#unmatchedCitiesModal'); // Locations the app couldn't map to locationMap
             const settingsModal = new bootstrap.Modal('#settingsModal'); // User preferences (city selection)
@@ -755,7 +754,6 @@
                     $("#earlyWarningLocations").text("");
                 }
 
-                /*
                 if (showExitModal) {
                     if (!earlyWarningModalExit._isShown) {
                         earlyWarningModalExit.show();
@@ -767,7 +765,6 @@
                         }
                     }, 10000);
                 }
-                */
             }
 
             function startEarlyWarningTimer () {
@@ -811,8 +808,6 @@
                     earlyWarningCountdownInterval = null;
                 }
             }
-
-
 
             // ==================== EVENT HANDLERS ====================
             function isFullscreenActive () {
@@ -1837,12 +1832,10 @@
 
                                         earlyWarningActive = true;
 
-                                        /*
                                         // Make sure the all-clear modal is not overlapping the danger modal
                                         if (earlyWarningModalExit._isShown) {
                                             earlyWarningModalExit.hide();
                                         }
-                                        */
 
                                         // Append newly affected cities to the modal's location list (no duplicates)
                                         for (let i = 0; i < alertCities.length; i++) {
@@ -1886,6 +1879,23 @@
                                             playAlertSound();
                                         }
 
+                                        // Refresh map marker durations only for locations that pass
+                                        // the 60-second dedup gate used by extractNewLocations.
+                                        const mapCitiesForRefresh = locations.map((locationId) => {
+                                            const cityKey = String(locationId).replace("''", "'");
+                                            const location = locationMap[cityKey]?.name_en || String(locationId);
+                                            const lat = locationMap[cityKey]?.lat || "";
+                                            const lng = locationMap[cityKey]?.lng || "";
+
+                                            return {
+                                                name: location,
+                                                lat,
+                                                lng,
+                                                duration: markerDurationMs,
+                                                type: alertType
+                                            };
+                                        });
+
                                         let alertedTimesAdded = false; // Flag to ensure we only update lastAlertedTimes once per alert, even if multiple new locations
 
                                         for (let i = 0; i < locations.length; i++) {
@@ -1900,14 +1910,6 @@
                                             const zone_en = locationMap[locationKey]?.zone_en || "Unknown";
                                             const lat = locationMap[locationKey]?.lat || "";
                                             const lng = locationMap[locationKey]?.lng || "";
-
-                                            alertedCitiesObj.push({
-                                                name: location,
-                                                lat: lat,
-                                                lng: lng,
-                                                duration: 60000,
-                                                type: alertType
-                                            });
 
                                             if (location) {
                                                 // Increment the type-specific counter (rockets vs. drones)
@@ -2030,9 +2032,7 @@
                                             }
                                         }
 
-                                        addCitiesToMap(alertedCitiesObj); // Add new cities to the map with popups, one at a time
-
-                                        alertedCitiesObj = []; // Clear the batch array after processing
+                                        addCitiesToMap(mapCitiesForRefresh); // Add new cities to the map and refresh duration for already-active ones
 
                                         // Rebuild the Locations and Zones counter tables after each missile/drone alert.
                                         // Only these two types update the counters; other alert types (earthquakes, etc.)
@@ -2260,7 +2260,7 @@
                 lng: 34.988067
             };
             const defaultMapZoom = 9;
-            const minMapZoom = 8;
+            const minMapZoom = 9;
             const maxMapZoom = 12;
 
             let shouldAutoCenterIdleMap = false;
@@ -2395,11 +2395,33 @@
             }
 
             function cleanupExpiredCity (cityKey, marker) {
+                const activeRecord = alertedCitiesState.activeByKey[cityKey];
+                if (activeRecord?.timeoutHandle) {
+                    clearTimeout(activeRecord.timeoutHandle);
+                }
+
                 marker.map = null;
                 allMarkers = allMarkers.filter(m => m !== marker);
                 delete alertedCitiesState.activeByKey[cityKey];
                 removeCityFromActiveList(cityKey);
                 fitMapToActiveMarkers();
+            }
+
+            function scheduleActiveMarkerExpiry (activeRecord, duration) {
+                if (!activeRecord) {
+                    return;
+                }
+
+                if (activeRecord.timeoutHandle) {
+                    clearTimeout(activeRecord.timeoutHandle);
+                }
+
+                activeRecord.expiresAt = Date.now() + duration;
+                activeRecord.timeoutHandle = setTimeout(() => {
+                    removeMarkerWithFade(activeRecord.marker, () => {
+                        cleanupExpiredCity(activeRecord.cityKey, activeRecord.marker);
+                    });
+                }, duration);
             }
 
             // Returns only cities that are not currently active on the map.
@@ -2429,10 +2451,18 @@
                             return;
                         }
 
+                        let duration = testModeMarkersDurationMs; // Default duration for test mode markers
+                        if (!testmode) {
+                            duration = Number(city.duration) > 0 ? Number(city.duration) : duration;
+                        }
+
                         const cityKey = getCityKey(city);
 
-                        // Skip if this city is already active on the map.
+                        // Refresh expiry if the city is already active on the map.
                         if (alertedCitiesState.activeByKey[cityKey]) {
+                            const activeRecord = alertedCitiesState.activeByKey[cityKey];
+                            activeRecord.city = city;
+                            scheduleActiveMarkerExpiry(activeRecord, duration);
                             return;
                         }
 
@@ -2478,29 +2508,21 @@
                             infoWindow.open(map, marker);
                         });
 
-                        let duration = 10000; // Default duration of 10 seconds
-                        if (!testmode) {
-                            duration = Number(city.duration) > 0 ? Number(city.duration) : duration;
-                        }
-
                         // Store active city record so repeated API cycles can ignore duplicates.
                         const activeRecord = {
                             cityKey,
                             city,
                             marker,
                             createdAt: Date.now(),
-                            expiresAt: Date.now() + duration
+                            expiresAt: Date.now() + duration,
+                            timeoutHandle: null
                         };
 
                         alertedCitiesState.activeByKey[cityKey] = activeRecord;
                         alertedCitiesState.activeList.push(activeRecord);
 
                         // On timeout: fade marker, then remove from active state so city can alert again.
-                        setTimeout(() => {
-                            removeMarkerWithFade(marker, () => {
-                                cleanupExpiredCity(cityKey, marker);
-                            });
-                        }, duration);
+                        scheduleActiveMarkerExpiry(activeRecord, duration);
                     });
 
                     // Fit map to all currently active markers, not only this batch.
@@ -2559,6 +2581,12 @@
 
             // Optional: Clear everything if needed
             function clearAllMarkers () {
+                alertedCitiesState.activeList.forEach((item) => {
+                    if (item?.timeoutHandle) {
+                        clearTimeout(item.timeoutHandle);
+                    }
+                });
+
                 allMarkers.forEach(marker => {
                     marker.map = null;
                 });

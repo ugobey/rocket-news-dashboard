@@ -84,8 +84,8 @@ function generateRandomAlertByCity() {
     // Return a simulated alert object with the randomly selected type, cities, and instructions. In a real implementation, this would be the actual response from the API.
     return [
         {
-            type: randomType,
-            cities: randomCities,
+            type: "missiles",
+            cities: dromHashfela,
             instructions: "ירי רקטות וטילים",
             id: Date.now().toString(),
         },

@@ -25,9 +25,6 @@ const { parseFeed } = require("@rowanmanning/feed-parser");
 
 const { execFile } = require("node:child_process");
 
-const pkg = require("../package.json");
-const localAppVersion = pkg.version;
-
 const locations = require("../locations_by_zone");
 
 const arava = locations.arava;
@@ -342,7 +339,6 @@ router.use(
                 }
 
                 sendJson(res, 200, {
-                    updateAvailable: localAppVersion !== latestVersion,
                     latestVersion,
                 });
             });

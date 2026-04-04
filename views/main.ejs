@@ -2941,13 +2941,13 @@
             // Calls the version_check service which runs `npm outdated` server-side
             // and compares the local package version against the latest on the registry.
             // If a newer version exists, the upgrade icon is revealed in the Summary table.
+            const currentAppVersion = "<%= appVersion %>"; // Injected from server-side template
+
             async function checkAppVersion () {
                 try {
                     const versionCheck = await ajaxHandler("version_check");
 
-                    if (versionCheck && versionCheck.updateAvailable) {
-                        const latestVersion = versionCheck.latestVersion; // Available for display if needed
-
+                    if (versionCheck && versionCheck.latestVersion && versionCheck.latestVersion !== currentAppVersion) {
                         $("#update_app_version").show(); // Reveal the upgrade-available row
                     } else {
                         $("#update_app_version").hide();

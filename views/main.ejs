@@ -53,7 +53,7 @@
                     </div>
 
                     <div id="pikudBody" class="collapse show">
-                        <div class="card table-responsive tile" id="pikud_haoref_feed" style="max-height: 93vh; overflow-y: auto;">
+                        <div class="card table-responsive tile" id="pikud_haoref_feed" style="overflow-y: auto;">
                             <table class=" table table-dark table-sm mb-0">
                                 <thead>
                                     <tr>
@@ -94,7 +94,7 @@
                         </div>
                     </div>
                     <div id="zonesBody" class="collapse show">
-                        <div class="card table-responsive tile" id="zones_feed" style="max-height: 46vh; overflow-y: auto;">
+                        <div class="card table-responsive tile" id="zones_feed" style="overflow-y: auto;">
                             <table class=" table table-dark table-sm mb-0">
                                 <tbody id="alerted_zones_counter"></tbody>
                             </table>
@@ -251,7 +251,7 @@
                     </div>
 
                     <div id="lastAlertedTimesBody" class="collapse show">
-                        <div class="card table-responsive tile" id="last_alerted_times_feed" style="max-height: 46vh; overflow-y: auto;">
+                        <div class="card table-responsive tile" id="last_alerted_times_feed" style="overflow-y: auto;">
                             <table class=" table table-dark table-sm mb-0">
                                 <tbody id="last_alerted_times">
 
@@ -589,11 +589,13 @@
             const earlyWarningDurationMS = 5 * 60 * 1000; // Early warning countdown uses a fixed 5-minute duration
             const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
             const markerDurationMs = 65000; // Map markers for alerted locations last for 60 seconds before automatically disappearing
-            const testModeDurationMs = 190000; // Keep test mode enabled for 90 seconds max
+            const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
             const testModeMarkersDurationMs = 65000; // Keep test mode enabled for 60 seconds max      
             const recentlyAlertedLocations = {}; // Dedup cache: location → Unix timestamp of last alert row added
             const pikudHaorefHistoryStorageKey = "pikudHaorefHistoryV1";
             const maxPersistedPikudRows = 250;
+
+            const checkAppVersionMs = 120000; // Check for new app version every 2 minutes
 
             function getErrorMessage (error, fallback = "Unknown error") {
                 if (!error) {
@@ -2376,6 +2378,7 @@
                     right: 30,
                     bottom: 20,
                     left: 30,
+                    maxZoom: 12,
                 });
             }
 
@@ -2635,6 +2638,68 @@
             };
 
 
+            // ==================== GENERIC FEED SIZING ====================
+            // Dynamically constrains any feed element to fit the viewport without extending below the page.
+            // Shared across all feed panels to avoid code duplication.
+            const feedSizeConfig = {
+                pikud_haoref_feed: {
+                    bodyId: 'pikudBody',
+                    minHeight: 200
+                },
+                zones_feed: {
+                    bodyId: 'zonesBody',
+                    minHeight: 150
+                },
+                last_alerted_times_feed: {
+                    bodyId: 'lastAlertedTimesBody',
+                    minHeight: 150
+                }
+            };
+
+            const feedRafIds = {}; // Debounce tracking for each feed
+
+            function fitFeedToViewport (feedId) {
+                const config = feedSizeConfig[feedId];
+                if (!config) return; // Unknown feed ID
+
+                const feed = document.getElementById(feedId);
+                const bodyElement = document.getElementById(config.bodyId);
+
+                // Skip if the feed doesn't exist or is collapsed
+                if (!feed || !bodyElement || !bodyElement.classList.contains('show')) {
+                    return;
+                }
+
+                const rect = feed.getBoundingClientRect(); // Live position relative to viewport
+                const viewportBottomGap = 15; // Leave a small breathing room at the bottom of the screen
+
+                // availableHeight = distance from the feed's top edge to the viewport bottom, minus the gap
+                const availableHeight = Math.max(config.minHeight, Math.floor(window.innerHeight - rect.top - viewportBottomGap));
+
+                // Apply the computed height as max-height so the feed doesn't exceed the page
+                feed.style.maxHeight = `${availableHeight}px`;
+            }
+
+            // Generic debounce helper
+            function scheduleFitFeedToViewport (feedId) {
+                if (feedRafIds[feedId] !== null && feedRafIds[feedId] !== undefined) {
+                    cancelAnimationFrame(feedRafIds[feedId]);
+                }
+
+                feedRafIds[feedId] = requestAnimationFrame(() => {
+                    feedRafIds[feedId] = null;
+                    fitFeedToViewport(feedId);
+                });
+            }
+
+            // Convenience wrappers for backward compatibility
+            const fitPikudFeedToViewport = () => fitFeedToViewport('pikud_haoref_feed');
+            const scheduleFitPikudFeedToViewport = () => scheduleFitFeedToViewport('pikud_haoref_feed');
+            const fitZonesFeedToViewport = () => fitFeedToViewport('zones_feed');
+            const scheduleFitZonesFeedToViewport = () => scheduleFitFeedToViewport('zones_feed');
+            const fitLastAlertedTimesFeedToViewport = () => fitFeedToViewport('last_alerted_times_feed');
+            const scheduleFitLastAlertedTimesFeedToViewport = () => scheduleFitFeedToViewport('last_alerted_times_feed');
+
             // ==================== MAP SIZING ====================
             // Dynamically stretches the map iframe to fill whatever vertical
             // space remains between its top edge and the bottom of the viewport.
@@ -2651,7 +2716,7 @@
                 const mapCard = mapBody.find('.card')[0];
                 const rect = mapBody[0].getBoundingClientRect(); // Live position relative to viewport
                 const viewportBottomGap = 15; // Leave a small breathing room at the bottom of the screen
-                const minHeight = 280; // Never shrink the map below this height (px)
+                const minHeight = 150; // Never shrink the map below this height (px)
                 // availableHeight = distance from the section's top edge to the viewport bottom, minus the gap
                 const availableHeight = Math.max(minHeight, Math.floor(window.innerHeight - rect.top - viewportBottomGap));
 
@@ -2686,6 +2751,81 @@
 
             const mapBodyElement = $('#mapBody');
             const newsBodyElement = $('#newsBody');
+            const pikudBodyElement = $('#pikudBody');
+            const zonesBodyElement = $('#zonesBody');
+            const lastAlertedTimesBodyElement = $('#lastAlertedTimesBody');
+
+            // Re-size the pikud feed whenever the pikud panel is expanded ('shown') or collapsed ('hidden').
+            // On 'hidden' we reset the max-height so the panel collapses fully to zero.
+            if (pikudBodyElement.length) {
+                pikudBodyElement.on('shown.bs.collapse', scheduleFitPikudFeedToViewport);
+                pikudBodyElement.on('hidden.bs.collapse', () => {
+                    const pikudFeed = document.getElementById('pikud_haoref_feed');
+                    if (pikudFeed) pikudFeed.style.maxHeight = ''; // Clear inline max-height so CSS collapse transition works
+                });
+            }
+
+            // Watch the pikud alerts table body for new rows being added (via MutationObserver)
+            // and resize the feed when they appear.
+            const pikudAlertsElement = document.getElementById('pikud_haoref_alerts');
+            if (pikudAlertsElement) {
+                const pikudMutationObserver = new MutationObserver(() => {
+                    scheduleFitPikudFeedToViewport();
+                });
+
+                pikudMutationObserver.observe(pikudAlertsElement, {
+                    childList: true, // Detect added/removed rows
+                    subtree: true // Include any nested changes
+                });
+            }
+
+            // Re-size the zones feed whenever the zones panel is expanded ('shown') or collapsed ('hidden').
+            // On 'hidden' we reset the max-height so the panel collapses fully to zero.
+            if (zonesBodyElement.length) {
+                zonesBodyElement.on('shown.bs.collapse', scheduleFitZonesFeedToViewport);
+                zonesBodyElement.on('hidden.bs.collapse', () => {
+                    const zonesFeed = document.getElementById('zones_feed');
+                    if (zonesFeed) zonesFeed.style.maxHeight = ''; // Clear inline max-height so CSS collapse transition works
+                });
+            }
+
+            // Watch the zones counter table body for new rows being added (via MutationObserver)
+            // and resize the feed when they appear.
+            const zonesCounterElement = document.getElementById('alerted_zones_counter');
+            if (zonesCounterElement) {
+                const zonesMutationObserver = new MutationObserver(() => {
+                    scheduleFitZonesFeedToViewport();
+                });
+
+                zonesMutationObserver.observe(zonesCounterElement, {
+                    childList: true, // Detect added/removed rows
+                    subtree: true // Include any nested changes
+                });
+            }
+
+            // Re-size the last alerted times feed whenever the panel is expanded ('shown') or collapsed ('hidden').
+            // On 'hidden' we reset the max-height so the panel collapses fully to zero.
+            if (lastAlertedTimesBodyElement.length) {
+                lastAlertedTimesBodyElement.on('shown.bs.collapse', scheduleFitLastAlertedTimesFeedToViewport);
+                lastAlertedTimesBodyElement.on('hidden.bs.collapse', () => {
+                    const lastAlertedTimesFeed = document.getElementById('last_alerted_times_feed');
+                    if (lastAlertedTimesFeed) lastAlertedTimesFeed.style.maxHeight = ''; // Clear inline max-height so CSS collapse transition works
+                });
+            }
+
+            // Watch the last alerted times table body for new rows being added (via MutationObserver)
+            // and resize the feed when they appear.
+            const lastAlertedTimesElement = document.getElementById('last_alerted_times');
+            if (lastAlertedTimesElement) {
+                const lastAlertedTimesMutationObserver = new MutationObserver(() => {
+                    scheduleFitLastAlertedTimesFeedToViewport();
+                });
+
+                lastAlertedTimesMutationObserver.observe(lastAlertedTimesElement, {
+                    childList: true, // Detect added/removed rows
+                    subtree: true // Include any nested changes
+                });
+            }
 
             // Re-size the map whenever the map panel is expanded ('shown') or collapsed ('hidden').
             // On 'hidden' we reset the explicit height so the panel collapses fully to zero.
@@ -2728,10 +2868,27 @@
                 }
             }
 
-            $(window).on('resize', scheduleFitMapBodyToViewport); // Re-size on browser window resize
-            $(window).on('load', scheduleFitMapBodyToViewport); // Run once all resources have loaded
+            // Resize map, pikud feed, zones feed, and last alerted times feed on window resize
+            $(window).on('resize', () => {
+                scheduleFitMapBodyToViewport();
+                scheduleFitPikudFeedToViewport();
+                scheduleFitZonesFeedToViewport();
+                scheduleFitLastAlertedTimesFeedToViewport();
+            });
 
-            scheduleFitMapBodyToViewport(); // Initial call on script execution
+            // Run initial sizing once all resources have loaded
+            $(window).on('load', () => {
+                scheduleFitMapBodyToViewport();
+                scheduleFitPikudFeedToViewport();
+                scheduleFitZonesFeedToViewport();
+                scheduleFitLastAlertedTimesFeedToViewport();
+            });
+
+            // Initial calls on script execution
+            scheduleFitMapBodyToViewport();
+            scheduleFitPikudFeedToViewport();
+            scheduleFitZonesFeedToViewport();
+            scheduleFitLastAlertedTimesFeedToViewport();
 
 
 
@@ -2960,7 +3117,7 @@
                         // This can occur when the server was updated but the client still has an old cached version.
                         // In this case we consider an update to be available, to prompt the user to refresh their cache.
                         newVersionAvailable = true;
-                    } 
+                    }
 
                     if (newVersionAvailable) {
                         $("#update_app_version").show(); // Reveal the upgrade-available row
@@ -2976,7 +3133,7 @@
 
             setInterval(() => {
                 checkAppVersion();
-            }, 10000); // Re-check every 10 minutes
+            }, checkAppVersionMs);
 
         </script>
     </body>

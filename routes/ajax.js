@@ -65,6 +65,48 @@ const allCities = [...arava, ...beitSheanValley, ...beitShemesh, ...bikaa, ...ce
 const regions = [arava, beitSheanValley, beitShemesh, bikaa, centerNegev, confrontationLine, dan, deadSea, dromHashfela, eilat, gazaEnvelope, golan, haifa, haShfela, hefer, hofHaCarmel, jerusalem, katzrin, krayot, lachish, lowerGalilee, menashe, sharon, shomron, southNegev, tavor, upperGalilee, wadiAra, westLachish, westNegev, yarkon, yearotHaCarmel, yehuda];
 const alertTypes = ["missiles", "hostileAircraftIntrusion", "newsFlash"];
 
+function normalizeFeedItemDate(value) {
+    if (!value) {
+        return null;
+    }
+
+    if (value instanceof Date) {
+        return Number.isNaN(value.getTime()) ? null : value;
+    }
+
+    const normalizedDate = new Date(value);
+    return Number.isNaN(normalizedDate.getTime()) ? null : normalizedDate;
+}
+
+function isDateToday(date) {
+    const now = new Date();
+
+    return date.getFullYear() === now.getFullYear()
+        && date.getMonth() === now.getMonth()
+        && date.getDate() === now.getDate();
+}
+
+function filterFeedItemsToToday(feed) {
+    if (!feed || !Array.isArray(feed.items)) {
+        return feed;
+    }
+
+    return {
+        ...feed,
+        items: feed.items.filter((item) => {
+            const itemDate = normalizeFeedItemDate(
+                item?.published
+                || item?.updated
+                || item?.pubDate
+                || item?.isoDate
+                || item?.date,
+            );
+
+            return itemDate ? isDateToday(itemDate) : false;
+        }),
+    };
+}
+
 function generateRandomAlertByCity() {
     // Randomly select an alert type for testing purposes. In a real scenario, the API would provide the actual alert type.
 
@@ -304,7 +346,8 @@ router.use(
 
                 try {
                     const feed = parseFeed(responseText);
-                    sendJson(res, 200, { feed });
+                    const todaysFeed = filterFeedItemsToToday(feed);
+                    sendJson(res, 200, { feed: todaysFeed });
                 } catch (parseError) {
                     sendJsonError(res, 422, parseError, "rss.parseFeed");
                 }

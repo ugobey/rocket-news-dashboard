@@ -2168,9 +2168,14 @@
                             return;
                         }
 
+                        const title = String(item.title);
+                        if (title.includes("🟠") || title.includes("🔴")) {
+                            return;
+                        }
+
                         reversedArray.push({
                             published: item.published, // Used as the dedup key in newsArray
-                            title: item.title,
+                            title,
                             idpublished: item.id,
                             url: item.url
                         });

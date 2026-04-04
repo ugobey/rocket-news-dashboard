@@ -205,7 +205,7 @@
                                     <tr>
                                         <td><span>Sound Alerts</span></td>
                                         <td class="text-end">
-                                            <i id="sound_alerts_icon" class="fa-solid fa-bell fa-xl text-light" title="Turn off Sound Alerts" style="cursor: pointer"></i>
+                                            <i id="sound_alerts_icon" class="fa-solid fa-bell fa-xl" style="cursor: pointer"></i>
                                         </td>
                                     </tr>
                                     <tr>
@@ -218,6 +218,12 @@
                                         <td><span>Settings</span></td>
                                         <td class="text-end">
                                             <i id="open_settings_icon" class="fa-solid fa-gear fa-xl text-light" title="Open Settings"></i>
+                                        </td>
+                                    </tr>
+                                    <tr id="clear_pikud_history_row" style="display: none;">
+                                        <td><span>Clear Alert History</span></td>
+                                        <td class="text-end">
+                                             <i id="clear_pikud_history_icon" class="fa-solid fa-trash-can fa-xl text-light"></i>
                                         </td>
                                     </tr>
                                     <tr>
@@ -841,11 +847,27 @@
 
                 if (enabled) {
                     icon.attr("title", "Turn off Sound Alerts");
-                    icon.removeClass("fa-bell-slash text-danger").addClass("fa-bell text-light");
+                    icon.removeClass("fa-bell-slash text-light").addClass("fa-bell text-danger");
                 } else {
                     icon.attr("title", "Turn on Sound Alerts");
-                    icon.removeClass("fa-bell text-light").addClass("fa-bell-slash text-danger");
+                    icon.removeClass("fa-bell text-danger").addClass("fa-bell-slash text-light");
                 }
+            }
+
+            function setClearPikudHistoryButtonVisibility (isVisible) {
+                $("#clear_pikud_history_row").toggle(Boolean(isVisible));
+            }
+
+            function syncClearPikudHistoryIconState () {
+                const icon = $("#clear_pikud_history_icon");
+
+                if (!icon.length) {
+                    return;
+                }
+
+                const hasPersistedHistory = localStorage.getItem(pikudHaorefHistoryStorageKey) !== null;
+                icon.toggleClass("text-danger", hasPersistedHistory);
+                icon.toggleClass("text-light", !hasPersistedHistory);
             }
 
             function ensureAlertAudioContext () {
@@ -1028,6 +1050,12 @@
                 settingsModal.hide();
             });
 
+            $("#clear_pikud_history_icon").on("click", function () {
+                localStorage.removeItem(pikudHaorefHistoryStorageKey);
+                syncClearPikudHistoryIconState();
+                window.location.reload();
+            });
+
             const themeStorageKey = "cssTheme";
             const supportedCssThemes = ["command_center", "graphite", "graphite_small"];
             const storedCssTheme = localStorage.getItem(themeStorageKey);
@@ -1071,6 +1099,8 @@
             soundAlertsEnabled = settingStates.soundAlertsEnabled;
             allowMapAutoMaximization = settingStates.allowMapAutoMaximization;
             setSoundAlertsUI(soundAlertsEnabled);
+            setClearPikudHistoryButtonVisibility(settingStates.persistHistory);
+            syncClearPikudHistoryIconState();
 
             const themeStylesheetMap = {
                 command_center: "/css/themes/command_center.css?<%=randomKey%>",
@@ -1253,10 +1283,13 @@
             $("#toggle_persist_history").on("change", function () {
                 settingStates.persistHistory = $(this).is(":checked");
                 localStorage.setItem("persistHistory", settingStates.persistHistory);
+                setClearPikudHistoryButtonVisibility(settingStates.persistHistory);
 
                 if (!settingStates.persistHistory) {
                     localStorage.removeItem(pikudHaorefHistoryStorageKey);
                 }
+
+                syncClearPikudHistoryIconState();
             });
 
 
@@ -1565,6 +1598,7 @@
                     };
 
                     localStorage.setItem(pikudHaorefHistoryStorageKey, JSON.stringify(historyState));
+                    syncClearPikudHistoryIconState();
                 } catch (error) {
                     logClientError("persistPikudHaorefHistoryState", error);
                 }

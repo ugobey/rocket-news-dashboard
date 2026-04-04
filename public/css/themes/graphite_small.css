@@ -412,6 +412,12 @@ a:hover {
     transition: all 0.3s ease;
 }
 
+#clear_pikud_history_icon:hover {
+    transform: scale(1.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
 #update_app_version_icon:hover {
     transform: scale(1.15) rotate(20deg);
     cursor: pointer;

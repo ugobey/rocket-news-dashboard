@@ -68,6 +68,48 @@ const allCities = [...arava, ...beitSheanValley, ...beitShemesh, ...bikaa, ...ce
 const regions = [arava, beitSheanValley, beitShemesh, bikaa, centerNegev, confrontationLine, dan, deadSea, dromHashfela, eilat, gazaEnvelope, golan, haifa, haShfela, hefer, hofHaCarmel, jerusalem, katzrin, krayot, lachish, lowerGalilee, menashe, sharon, shomron, southNegev, tavor, upperGalilee, wadiAra, westLachish, westNegev, yarkon, yearotHaCarmel, yehuda];
 const alertTypes = ["missiles", "hostileAircraftIntrusion", "newsFlash"];
 
+function parseFeedItemDate(value) {
+    if (!value) {
+        return null;
+    }
+
+    if (value instanceof Date) {
+        return Number.isNaN(value.getTime()) ? null : value;
+    }
+
+    const parsedDate = new Date(value);
+    return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+}
+
+function isSameLocalDay(dateA, dateB) {
+    return dateA.getFullYear() === dateB.getFullYear()
+        && dateA.getMonth() === dateB.getMonth()
+        && dateA.getDate() === dateB.getDate();
+}
+
+function filterFeedItemsToToday(feed) {
+    if (!feed || !Array.isArray(feed.items)) {
+        return feed;
+    }
+
+    const today = new Date();
+
+    return {
+        ...feed,
+        items: feed.items.filter((item) => {
+            const itemDate = parseFeedItemDate(
+                item?.published
+                || item?.updated
+                || item?.pubDate
+                || item?.isoDate
+                || item?.date,
+            );
+
+            return itemDate ? isSameLocalDay(itemDate, today) : false;
+        }),
+    };
+}
+
 function randomItem(items) {
     return items[Math.floor(Math.random() * items.length)];
 }
@@ -285,7 +327,7 @@ router.use(
 
                 try {
                     const feed = parseFeed(responseText);
-                    sendJson(res, 200, { feed });
+                    sendJson(res, 200, { feed: filterFeedItemsToToday(feed) });
                 } catch (parseError) {
                     sendJsonError(res, 422, parseError, "rss.parseFeed");
                 }

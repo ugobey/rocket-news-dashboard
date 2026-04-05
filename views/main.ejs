@@ -597,7 +597,7 @@
             const alertedLocationsDedupSeconds = 65; // When a location receives an alert, ignore new alerts for the same location for 65 seconds to prevent spamming (Pikud HaOref can be noisy with repeated alerts for the same location)
             const markerDurationMs = 70000; // Map markers for alerted locations last for 70 seconds before automatically disappearing
             const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
-            const testModeMarkersDurationMs = 70000; // Test mode markers last for 70 seconds
+            const testModeMarkersDurationMs = 10000; // Test mode markers last for 10 seconds
             const recentlyAlertedLocations = {}; // Dedup cache: location → Unix timestamp of last alert row added
             const pikudHaorefHistoryStorageKey = "pikudHaorefHistoryV1";
             const maxPersistedPikudRows = 250;

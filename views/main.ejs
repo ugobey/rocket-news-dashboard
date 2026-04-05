@@ -1061,7 +1061,9 @@
             });
 
             const themeStorageKey = "cssTheme";
-            const supportedCssThemes = ["command_center", "graphite", "graphite_small"];
+            const supportedCssThemes = Array.from(document.querySelectorAll("#css_style_theme option"))
+                .map((option) => option.value)
+                .filter(Boolean);
             const storedCssTheme = localStorage.getItem(themeStorageKey);
             const initialCssTheme = supportedCssThemes.includes(storedCssTheme) ? storedCssTheme : "graphite";
             const supportedTestModeTypes = ["alertByCity", "alertByRegion", "earlyWarning", "nonMissileUAV"];
@@ -1106,21 +1108,12 @@
             setClearPikudHistoryButtonVisibility(settingStates.persistHistory);
             syncClearPikudHistoryIconState();
 
-            const themeStylesheetMap = {
-                apex_terminal: "/css/themes/apex_terminal.css?<%=randomKey%>",
-                command_center: "/css/themes/command_center.css?<%=randomKey%>",
-                graphite: "/css/themes/graphite.css?<%=randomKey%>",
-                graphite_small: "/css/themes/graphite_small.css?<%=randomKey%>",
-                market_terminal: "/css/themes/market_terminal.css?<%=randomKey%>",
-                stripe_edition: "/css/themes/stripe_edition.css?<%=randomKey%>"
-            };
-
             function applyDashboardTheme (themeName) {
-                const selectedTheme = themeStylesheetMap[themeName] ? themeName : "graphite";
+                const selectedTheme = "/css/themes/" + themeName + ".css?<%=randomKey%>";
                 const themeStylesheet = document.getElementById("dashboardThemeStylesheet");
 
                 if (themeStylesheet) {
-                    themeStylesheet.setAttribute("href", themeStylesheetMap[selectedTheme]);
+                    themeStylesheet.setAttribute("href", selectedTheme);
                 }
             }
 

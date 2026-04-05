@@ -1,0 +1,483 @@
+/* ==================== MARKET TERMINAL THEME ====================
+   Trading-terminal–style dense analytics dashboard (desktop/tablet).
+   Palette: pure black, Bloomberg orange, trading green, alert red.     */
+
+:root {
+    --bg-0: #000000;
+    --bg-1: #030303;
+    --bg-2: #060606;
+    --panel: #080808;
+    --panel-2: #0c0c0c;
+    --panel-border: #1e1e1e;
+    --ink-main: #e0e0e0;
+    --ink-muted: #606060;
+    --accent-orange: #ff8c00;
+    --accent-green: #00e676;
+    --accent-red: #ff1744;
+    --accent-cyan: #00e5ff;
+    --radius-xl: 2px;
+    --radius-lg: 1px;
+    --radius-md: 0px;
+    --font-body: "Space Grotesk", "Segoe UI", sans-serif;
+    --font-display: "Space Grotesk", "Segoe UI", sans-serif;
+    --font-mono: "Consolas", "SF Mono", "Cascadia Code", "Courier New", monospace;
+}
+
+html {
+    font-size: 1.08rem;
+    scrollbar-width: thin;
+}
+
+/* CRT scan-line texture over pure black */
+body {
+    min-height: 100vh;
+    margin: 0;
+    color: var(--ink-main);
+    font-family: var(--font-body);
+    letter-spacing: 0.01em;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0.28) 0,
+            rgba(0, 0, 0, 0.28) 1px,
+            transparent 1px,
+            transparent 3px
+        ),
+        linear-gradient(180deg, #010204 0%, #000000 100%);
+    overflow-x: hidden;
+}
+
+.container-fluid {
+    position: relative;
+    z-index: 1;
+}
+
+a {
+    color: #00aaff;
+    text-decoration: none;
+    transition: color 0.1s ease;
+}
+
+a:hover {
+    color: #33ccff;
+}
+
+#map {
+    height: 100%;
+    border-radius: 0;
+}
+
+/* Flat panels — no gradient, no shadow */
+.card {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-xl);
+    box-shadow: none;
+    overflow: hidden;
+    transition: border-color 0.12s ease;
+}
+
+.card:hover {
+    border-color: #2e2e2e;
+    box-shadow: none;
+}
+
+.card-header {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--panel-border);
+    background: var(--panel-2);
+}
+
+.section-header {
+    text-wrap: balance;
+}
+
+.table-card {
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+}
+
+.table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table thead tr {
+    background: #040404;
+}
+
+/* Orange column headers — Bloomberg signature */
+.table th {
+    color: var(--accent-orange);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 9px 12px;
+    border: none;
+    border-bottom: 1px solid var(--panel-border);
+    background: #060606;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+/* Monospace data cells — tabular number alignment */
+.table td {
+    color: var(--ink-main);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    padding: 7px 12px;
+    border-top: 1px solid #141414;
+    border-bottom: none;
+    vertical-align: middle;
+}
+
+.table-dark {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.02);
+    --bs-table-hover-bg: rgba(255, 140, 0, 0.06);
+    --bs-table-color: var(--ink-main);
+}
+
+.table-dark tr:hover {
+    background: rgba(255, 140, 0, 0.06) !important;
+}
+
+.table tbody tr:first-child td:first-child {
+    border-top-left-radius: var(--radius-lg);
+}
+
+.table tbody tr:first-child td:last-child {
+    border-top-right-radius: var(--radius-lg);
+}
+
+.table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: var(--radius-lg);
+}
+
+.table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: var(--radius-lg);
+}
+
+/* Section header cards — colored left border accent, dark tinted bg */
+.header-danger {
+    background: #0d0303;
+    border: 1px solid #250808;
+    border-left: 3px solid #ff1744;
+}
+
+.header-primary {
+    background: #020d14;
+    border: 1px solid #071c28;
+    border-left: 3px solid #00e5ff;
+}
+
+.header-success {
+    background: #020d07;
+    border: 1px solid #071c0e;
+    border-left: 3px solid #00e676;
+}
+
+.header-dark {
+    background: #080600;
+    border: 1px solid #1c1605;
+    border-left: 3px solid #ff8c00;
+}
+
+/* Inner card-header is transparent so parent bg shows */
+.header-danger .card-header,
+.header-primary .card-header,
+.header-success .card-header,
+.header-dark .card-header {
+    background: transparent;
+    border-bottom: none;
+}
+
+/* Live clock — Bloomberg orange, monospace */
+.live-clock {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.06em;
+    border-radius: 1px;
+    border: 1px solid rgba(255, 140, 0, 0.55);
+    background: rgba(12, 6, 0, 0.9);
+    color: #ff8c00;
+    padding: 3px 9px;
+}
+
+/* Stat numbers — trading green, monospace */
+.stat-number {
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #00e676;
+    letter-spacing: 0;
+}
+
+/* Orange scrollbar — trading terminal feel */
+.tile {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 140, 0, 0.45) #050505;
+}
+
+.tile::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tile::-webkit-scrollbar-thumb {
+    background: rgba(255, 140, 0, 0.45);
+    border-radius: 0;
+}
+
+.icon-btn,
+#sound_alerts_icon,
+#test_mode_icon,
+#fullscreen_icon,
+#open_settings_icon,
+#clear_pikud_history_icon,
+#update_app_version_icon {
+    transition: transform 0.12s ease, color 0.12s ease;
+}
+
+.icon-btn:hover,
+#sound_alerts_icon:hover,
+#test_mode_icon:hover,
+#fullscreen_icon:hover,
+#clear_pikud_history_icon:hover {
+    transform: scale(1.11);
+    cursor: pointer;
+}
+
+#open_settings_icon:hover,
+#update_app_version_icon:hover {
+    transform: scale(1.11) rotate(10deg);
+    cursor: pointer;
+}
+
+.collapse-icon {
+    transition: transform 0.2s ease;
+}
+
+.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+}
+
+.modal-content {
+    color: var(--ink-main);
+    background: #070707;
+    border: 1px solid #282828;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 0 0 1px #333, 0 24px 48px rgba(0, 0, 0, 0.9);
+}
+
+.glass-modal {
+    background: #050505;
+    border: 1px solid #222222;
+    border-radius: var(--radius-xl);
+}
+
+.glass-inner {
+    background: #0a0a0a;
+    border: 1px solid #1e1e1e;
+}
+
+#city_suggestions .list-group-item {
+    background: #0c0c0c;
+    color: var(--ink-main);
+    border: none;
+    border-bottom: 1px solid #1a1a1a;
+    padding: 8px 11px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+}
+
+#city_suggestions .list-group-item:hover {
+    background: #141414;
+    color: #ff8c00;
+}
+
+.form-control,
+.form-select {
+    background-color: #0a0a0a;
+    border: 1px solid #282828;
+    color: var(--ink-main);
+    border-radius: 1px;
+    font-family: var(--font-mono);
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: #0e0e0e;
+    color: #ffffff;
+    border-color: #ff8c00;
+    box-shadow: 0 0 0 0.12rem rgba(255, 140, 0, 0.18);
+}
+
+/* Buttons — orange outline, terminal ghost style */
+.btn {
+    border-radius: 1px;
+    font-weight: 700;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.btn-primary {
+    border: 1px solid #ff8c00;
+    background: transparent;
+    color: #ff8c00;
+    box-shadow: none;
+}
+
+.btn-primary:hover {
+    background: rgba(255, 140, 0, 0.12);
+    color: #ffaa33;
+    border-color: #ffaa33;
+}
+
+.adv-marker {
+    --marker-color: #ff1744;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    background: var(--marker-color);
+    border: 2px solid #ffffff;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+}
+
+.adv-marker::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    transform: translate(-50%, -50%) rotate(45deg);
+    border-radius: 50%;
+    background: #ffffff;
+}
+
+.adv-marker--missiles {
+    --marker-color: #ff1744;
+}
+
+.adv-marker--hostileAircraftIntrusion {
+    --marker-color: #00e5ff;
+}
+
+.adv-marker--default {
+    --marker-color: #ff1744;
+}
+
+#earlyWarningModalEnter {
+    --bs-modal-margin: 0;
+}
+
+#earlyWarningModalEnter .modal-dialog {
+    position: fixed;
+    bottom: 0.9rem;
+    left: 0.9rem;
+    width: min(42rem, calc(100vw - 1.8rem));
+    max-width: none;
+    margin: 0;
+    transform: none;
+}
+
+#earlyWarningModalEnter .modal-content {
+    max-height: calc(100vh - 0.9rem);
+    overflow: hidden;
+    min-height: 0;
+}
+
+#earlyWarningModalEnter .modal-body {
+    overflow: hidden;
+}
+
+#earlyWarningModalEnter .glass-inner {
+    max-height: calc(100vh - 11rem);
+    overflow: hidden;
+}
+
+#earlyWarningLocations {
+    max-height: min(42vh, 760px);
+    overflow-y: auto;
+    padding-right: 0.35rem;
+    word-break: break-word;
+}
+
+#earlyWarningModalExit {
+    --bs-modal-margin: 0;
+}
+
+#earlyWarningModalExit .modal-dialog {
+    position: fixed;
+    bottom: 0.9rem;
+    left: 0.9rem;
+    width: min(42rem, calc(100vw - 1.8rem));
+    max-width: none;
+    margin: 0;
+    transform: none;
+}
+
+#earlyWarningModalExit .modal-content {
+    min-height: 0;
+}
+
+.text-general-alerts {
+    color: #00e5ff !important;
+}
+
+.text-orange {
+    color: #ff8c00 !important;
+}
+
+@media (max-width: 991.98px) {
+    html {
+        font-size: 1rem;
+    }
+
+    .card-header {
+        padding: 9px 11px;
+        font-size: 0.84rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 7px 10px;
+    }
+
+    .stat-number {
+        font-size: 1.1rem;
+    }
+
+    #earlyWarningModalEnter .modal-dialog,
+    #earlyWarningModalExit .modal-dialog {
+        bottom: 0.7rem;
+        left: 0.7rem;
+        width: calc(100vw - 1.4rem);
+    }
+
+    #earlyWarningModalEnter .glass-inner {
+        max-height: calc(100vh - 10.2rem);
+    }
+
+    #earlyWarningLocations {
+        max-height: 40vh;
+    }
+}

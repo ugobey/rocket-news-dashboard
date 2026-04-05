@@ -223,7 +223,7 @@
                                     <tr id="clear_pikud_history_row" style="display: none;">
                                         <td><span>Clear Alert History</span></td>
                                         <td class="text-end">
-                                             <i id="clear_pikud_history_icon" class="fa-solid fa-trash-can fa-xl text-light"></i>
+                                            <i id="clear_pikud_history_icon" class="fa-solid fa-trash-can fa-xl text-light"></i>
                                         </td>
                                     </tr>
                                     <tr>
@@ -535,9 +535,12 @@
                                     </td>
                                     <td colspan="2">
                                         <select class="form-select" id="css_style_theme">
+                                            <option value="apex_terminal">Apex Terminal</option>
                                             <option value="command_center">Command Center</option>
                                             <option value="graphite">Graphite Pro (Default)</option>
                                             <option value="graphite_small">Graphite Pro (Small)</option>
+                                            <option value="market_terminal">Market Terminal</option>
+                                            <option value="stripe_edition">Stripe Edition</option>
                                         </select>
                                     </td>
                                 </tr>
@@ -1104,9 +1107,12 @@
             syncClearPikudHistoryIconState();
 
             const themeStylesheetMap = {
+                apex_terminal: "/css/themes/apex_terminal.css?<%=randomKey%>",
                 command_center: "/css/themes/command_center.css?<%=randomKey%>",
                 graphite: "/css/themes/graphite.css?<%=randomKey%>",
-                graphite_small: "/css/themes/graphite_small.css?<%=randomKey%>"
+                graphite_small: "/css/themes/graphite_small.css?<%=randomKey%>",
+                market_terminal: "/css/themes/market_terminal.css?<%=randomKey%>",
+                stripe_edition: "/css/themes/stripe_edition.css?<%=randomKey%>"
             };
 
             function applyDashboardTheme (themeName) {

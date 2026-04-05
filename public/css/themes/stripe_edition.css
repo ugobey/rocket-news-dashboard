@@ -1,0 +1,589 @@
+/* ==================== STRIPE EDITION — DEFAULT THEME ====================
+   Stripe-inspired light analytics dashboard (desktop/tablet).
+   Palette: #f7f5ff page, #ffffff cards, #635bff purple, #1a1f36 navy.   */
+
+:root {
+    --panel: #ffffff;
+    --panel-2: #fafafe;
+    --panel-border: #e3e8ef;
+    --ink-main: #1a1f36;
+    --ink-muted: #4f566b;
+    --accent: #635bff;
+    --radius-xl: 12px;
+    --radius-lg: 8px;
+    --radius-md: 6px;
+    --font-body: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+    --font-display: "Space Grotesk", "Segoe UI", sans-serif;
+    --font-mono: "Consolas", "SF Mono", "Cascadia Code", "Courier New", monospace;
+}
+
+html {
+    font-size: 1.08rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 91, 255, 0.3) #f0eefc;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    color: var(--ink-main);
+    font-family: var(--font-body);
+    background: linear-gradient(160deg, #f7f5ff 0%, #eeecff 35%, #f5f3ff 70%, #fafafe 100%);
+    overflow-x: hidden;
+}
+
+.container-fluid {
+    position: relative;
+    z-index: 1;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.12s ease;
+}
+
+a:hover {
+    color: #4f46e5;
+}
+
+#map {
+    height: 100%;
+    border-radius: var(--radius-md);
+}
+
+.card {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 2px 6px rgba(50, 50, 93, 0.06), 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.card:hover {
+    box-shadow: 0 6px 18px rgba(50, 50, 93, 0.1), 0 2px 6px rgba(0, 0, 0, 0.07);
+    border-color: #cbc8f5;
+}
+
+.card-header {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--panel-border);
+    background: var(--panel-2);
+    color: var(--ink-main);
+}
+
+.section-header {
+    text-wrap: balance;
+}
+
+.table-card {
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+}
+
+.table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Purple column headers — Stripe signature */
+.table th {
+    color: var(--accent);
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    padding: 9px 12px;
+    border: none;
+    border-bottom: 2px solid var(--panel-border);
+    background: var(--panel-2);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.table td {
+    color: var(--ink-main);
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    padding: 7px 12px;
+    border-top: 1px solid #f0eeff;
+    border-bottom: none;
+    vertical-align: middle;
+}
+
+/* Override Bootstrap table-dark → light Stripe */
+.table-dark {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: #f9f8ff;
+    --bs-table-striped-color: #1a1f36;
+    --bs-table-hover-bg: #eeedff;
+    --bs-table-hover-color: #1a1f36;
+    --bs-table-color: #1a1f36;
+    --bs-table-border-color: #e3e8ef;
+    --bs-table-active-bg: #eeedff;
+    --bs-table-active-color: #1a1f36;
+    color: #1a1f36 !important;
+    background-color: transparent !important;
+}
+
+.table-dark tr:hover {
+    background: #eeedff !important;
+}
+
+.table tbody tr:first-child td:first-child { border-top-left-radius: var(--radius-lg); }
+.table tbody tr:first-child td:last-child  { border-top-right-radius: var(--radius-lg); }
+.table tbody tr:last-child td:first-child  { border-bottom-left-radius: var(--radius-lg); }
+.table tbody tr:last-child td:last-child   { border-bottom-right-radius: var(--radius-lg); }
+
+/* Section header cards — solid Stripe-palette colors, white text via HTML class */
+.header-danger {
+    background: #e53935;
+    border-color: #c62828;
+}
+
+.header-primary {
+    background: #635bff;
+    border-color: #4f46e5;
+}
+
+.header-success {
+    background: #0b8f65;
+    border-color: #097a56;
+}
+
+.header-dark {
+    background: #1a1f36;
+    border-color: #0a0e1e;
+}
+
+/* Inner card-header inherits parent section color */
+.header-danger .card-header,
+.header-primary .card-header,
+.header-success .card-header,
+.header-dark .card-header {
+    background: transparent;
+    border-bottom: none;
+    color: #ffffff;
+}
+
+/* Live clock — white pill on colored header */
+.live-clock {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    padding: 3px 9px;
+}
+
+/* Stat numbers — Stripe purple, monospace */
+.stat-number {
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #635bff;
+}
+
+/* Purple scrollbar */
+.tile {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 91, 255, 0.35) #f0eefc;
+}
+
+.tile::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tile::-webkit-scrollbar-thumb {
+    background: rgba(99, 91, 255, 0.35);
+    border-radius: 999px;
+}
+
+.icon-btn,
+#sound_alerts_icon,
+#test_mode_icon,
+#fullscreen_icon,
+#open_settings_icon,
+#clear_pikud_history_icon,
+#update_app_version_icon {
+    transition: transform 0.12s ease, color 0.12s ease;
+}
+
+.icon-btn:hover,
+#sound_alerts_icon:hover,
+#test_mode_icon:hover,
+#fullscreen_icon:hover,
+#clear_pikud_history_icon:hover {
+    transform: scale(1.12);
+    cursor: pointer;
+}
+
+#open_settings_icon:hover,
+#update_app_version_icon:hover {
+    transform: scale(1.12) rotate(10deg);
+    cursor: pointer;
+}
+
+.collapse-icon {
+    transition: transform 0.2s ease;
+}
+
+.collapsed .collapse-icon {
+    transform: rotate(-90deg);
+}
+
+/* ==================== MODALS ==================== */
+
+/* Base modal — light Stripe */
+.modal-content {
+    color: var(--ink-main);
+    background: #ffffff;
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 24px 64px rgba(50, 50, 93, 0.22), 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.glass-modal {
+    background: #ffffff !important;
+    border: 1px solid var(--panel-border) !important;
+    border-radius: var(--radius-xl);
+    color: var(--ink-main) !important;
+}
+
+/* Settings / error / unmatched-cities modals: override bg-dark → white */
+.glass-modal.bg-dark {
+    background: #ffffff !important;
+}
+
+.glass-modal.bg-dark .text-white,
+.glass-modal.bg-dark .modal-title,
+.glass-modal.bg-dark h4 {
+    color: var(--ink-main) !important;
+}
+
+.glass-modal.bg-dark .btn-close-white {
+    filter: invert(0.8) !important;
+}
+
+.glass-modal.bg-dark .btn-outline-light {
+    border-color: var(--panel-border) !important;
+    color: var(--ink-main) !important;
+    background: transparent;
+}
+
+.glass-modal.bg-dark .btn-outline-light:hover {
+    background: #f0effe !important;
+    color: #635bff !important;
+    border-color: #cbc8f5 !important;
+}
+
+.glass-inner {
+    background: #f8f7ff;
+    border: 1px solid #e8e5ff;
+    border-radius: var(--radius-lg);
+    color: var(--ink-main);
+}
+
+/* Early warning ENTER — stay danger red */
+#earlyWarningModalEnter .modal-content {
+    background: linear-gradient(135deg, #c62828 0%, #e53935 100%) !important;
+    border-color: #c62828 !important;
+    color: #ffffff !important;
+}
+
+#earlyWarningModalEnter .glass-inner {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff;
+}
+
+#earlyWarningModalEnter .text-white,
+#earlyWarningModalEnter .modal-title,
+#earlyWarningModalEnter h4 {
+    color: #ffffff !important;
+}
+
+#earlyWarningModalEnter .text-white-50 {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+#earlyWarningModalEnter .btn-close-white {
+    filter: none !important;
+}
+
+/* Early warning EXIT — stay success green */
+#earlyWarningModalExit .modal-content {
+    background: linear-gradient(135deg, #097a56 0%, #0b8f65 100%) !important;
+    border-color: #097a56 !important;
+    color: #ffffff !important;
+}
+
+#earlyWarningModalExit .glass-inner {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff;
+}
+
+#earlyWarningModalExit .text-white,
+#earlyWarningModalExit .modal-title,
+#earlyWarningModalExit h4 {
+    color: #ffffff !important;
+}
+
+#earlyWarningModalExit .btn-close-white {
+    filter: none !important;
+}
+
+#earlyWarningModalExit .btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    color: #ffffff !important;
+}
+
+#earlyWarningModalExit .btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ==================== FORMS ==================== */
+
+#city_suggestions .list-group-item {
+    background: #ffffff;
+    color: var(--ink-main);
+    border: none;
+    border-bottom: 1px solid var(--panel-border);
+    padding: 8px 12px;
+}
+
+#city_suggestions .list-group-item:hover {
+    background: #f0effe;
+    color: #635bff;
+}
+
+.form-control,
+.form-select {
+    background-color: #ffffff !important;
+    border: 1px solid var(--panel-border);
+    color: var(--ink-main) !important;
+    border-radius: var(--radius-md);
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: #ffffff !important;
+    color: var(--ink-main) !important;
+    border-color: #635bff;
+    box-shadow: 0 0 0 3px rgba(99, 91, 255, 0.15);
+}
+
+/* RSS selector has bg-dark utility — override */
+#rssFeedSelector {
+    background-color: #ffffff !important;
+    color: var(--ink-main) !important;
+    border: 1px solid var(--panel-border) !important;
+}
+
+.btn {
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.btn-primary {
+    background: #635bff;
+    border: none;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(99, 91, 255, 0.3);
+}
+
+.btn-primary:hover {
+    background: #4f46e5;
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(99, 91, 255, 0.4);
+}
+
+.btn-outline-light {
+    border-color: var(--panel-border) !important;
+    color: var(--ink-main) !important;
+    background: transparent;
+}
+
+.btn-outline-light:hover {
+    background: #f0effe !important;
+    color: #635bff !important;
+    border-color: #cbc8f5 !important;
+}
+
+/* ==================== MAP MARKERS ==================== */
+
+.adv-marker {
+    --marker-color: #e53935;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    background: var(--marker-color);
+    border: 2px solid #ffffff;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.3);
+}
+
+.adv-marker::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    transform: translate(-50%, -50%) rotate(45deg);
+    border-radius: 50%;
+    background: #ffffff;
+}
+
+.adv-marker--missiles {
+    --marker-color: #e53935;
+}
+
+.adv-marker--hostileAircraftIntrusion {
+    --marker-color: #635bff;
+}
+
+.adv-marker--default {
+    --marker-color: #e53935;
+}
+
+/* ==================== EARLY WARNING MODAL POSITIONING ==================== */
+
+#earlyWarningModalEnter {
+    --bs-modal-margin: 0;
+}
+
+#earlyWarningModalEnter .modal-dialog {
+    position: fixed;
+    bottom: 0.9rem;
+    left: 0.9rem;
+    width: min(42rem, calc(100vw - 1.8rem));
+    max-width: none;
+    margin: 0;
+    transform: none;
+}
+
+#earlyWarningModalEnter .modal-content {
+    max-height: calc(100vh - 0.9rem);
+    overflow: hidden;
+    min-height: 0;
+}
+
+#earlyWarningModalEnter .modal-body {
+    overflow: hidden;
+}
+
+#earlyWarningModalEnter .glass-inner {
+    max-height: calc(100vh - 11rem);
+    overflow: hidden;
+}
+
+#earlyWarningLocations {
+    max-height: min(42vh, 760px);
+    overflow-y: auto;
+    padding-right: 0.35rem;
+    word-break: break-word;
+}
+
+#earlyWarningModalExit {
+    --bs-modal-margin: 0;
+}
+
+#earlyWarningModalExit .modal-dialog {
+    position: fixed;
+    bottom: 0.9rem;
+    left: 0.9rem;
+    width: min(42rem, calc(100vw - 1.8rem));
+    max-width: none;
+    margin: 0;
+    transform: none;
+}
+
+#earlyWarningModalExit .modal-content {
+    min-height: 0;
+}
+
+/* ==================== UTILITY OVERRIDES ==================== */
+
+.text-general-alerts {
+    color: #635bff !important;
+}
+
+.text-orange {
+    color: #f59e0b !important;
+}
+
+/* Keep legacy white utility classes readable on Stripe light tables */
+#alerted_locations_counter .text-white,
+#alerted_zones_counter .text-white,
+#last_alerted_times .text-white {
+    color: var(--ink-main) !important;
+}
+
+/* Summary icons use text-light in markup/JS; force dark by default on light theme */
+#alerts_summary i,
+#alerts_summary .text-light {
+    color: var(--ink-main) !important;
+}
+
+#alerts_summary .text-warning {
+    color: #f59e0b !important;
+}
+
+#alerts_summary .text-danger {
+    color: #e53935 !important;
+}
+
+@media (max-width: 991.98px) {
+    html {
+        font-size: 1rem;
+    }
+
+    .card-header {
+        padding: 9px 11px;
+        font-size: 0.84rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 7px 10px;
+    }
+
+    .stat-number {
+        font-size: 1.1rem;
+    }
+
+    #earlyWarningModalEnter .modal-dialog,
+    #earlyWarningModalExit .modal-dialog {
+        bottom: 0.7rem;
+        left: 0.7rem;
+        width: calc(100vw - 1.4rem);
+    }
+
+    #earlyWarningModalEnter .glass-inner {
+        max-height: calc(100vh - 10.2rem);
+    }
+
+    #earlyWarningLocations {
+        max-height: 40vh;
+    }
+}

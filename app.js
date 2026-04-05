@@ -29,7 +29,6 @@ try {
     // Render server pages with EJS templates.
     app.set("views", path.join(__dirname, "views"));
     app.set("view engine", "ejs");
-    app.locals.moment = require("moment");
 
     // Accept large payloads from integrations that can post bulky alert/news bodies.
     app.use(bodyParser.json({ limit: "1000mb" }));

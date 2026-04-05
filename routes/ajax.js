@@ -92,7 +92,19 @@ function generateAlert({ typeSelector, citySelector, instructionsSelector = () =
 function generateRandomAlertByCity() {
     return generateAlert({
         typeSelector: () => randomItem(alertTypes),
-        citySelector: () => [randomItem(allCities)],
+        citySelector: () => {
+            // 20% chance to return multiple cities (2-5)
+            if (Math.random() < 0.2) {
+                const numCities = Math.floor(Math.random() * 4) + 2; // 2-5 cities
+                const cities = [];
+                for (let i = 0; i < numCities; i++) {
+                    cities.push(randomItem(allCities));
+                }
+                return cities;
+            }
+            // 80% chance to return single city
+            return [randomItem(allCities)];
+        },
     });
 }
 

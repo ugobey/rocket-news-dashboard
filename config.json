@@ -6,23 +6,36 @@
     "rssFeeds": [
         {
             "codename": "RSSarutz7",
-            "realname": "Arutz 7",
-            "url": "https://www.israelnationalnews.com/Rss.aspx"
+            "realname_en": "Arutz 7",
+            "url_en": "https://www.israelnationalnews.com/Rss.aspx"
         },
         {
             "codename": "RSSbnn",
-            "realname": "BNN",
-            "url": "https://www.bernie.news/api/news/rss"
+            "realname_en": "BNN",
+            "url_en": "https://www.bernie.news/api/news/rss"
         },
         {
             "codename": "RSSjerusalemPost",
-            "realname": "JPost",
-            "url": "https://www.jpost.com/rss/rssfeedsfrontpage.aspx"
+            "realname_en": "JPost",
+            "url_en": "https://www.jpost.com/rss/rssfeedsfrontpage.aspx"
         },
         {
             "codename": "RSSynet",
-            "realname": "Ynet",
-            "url": "https://www.ynet.co.il/Integration/StoryRss3082.xml"
+            "realname_en": "Ynet",
+            "realname_he": "ynet",
+            "url_en": "https://www.ynet.co.il/3rdparty/mobile/rss/ynetnews/3089/",
+            "url_he": "https://www.ynet.co.il/Integration/StoryRss1854.xml"
+        },
+        {
+            "codename": "RSSmako",
+            "realname_en": "Mako",
+            "realname_he": "מאקו",
+            "url_he": "https://storage.googleapis.com/mako-sitemaps/rssWebSub.xml"
+        },
+        {
+            "codename": "RSSwalla",
+            "realname_he": "וואלה",
+            "url_he": "https://rss.walla.co.il/feed/22"
         }
     ]
 }

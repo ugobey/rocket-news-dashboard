@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title><%-title%></title>
 
-        <link href="/css/bootstrap-5.3.3/bootstrap.min.css" rel="stylesheet" />
+        <link id="bootstrapStylesheet" href="/css/bootstrap-5.3.3/bootstrap.min.css" rel="stylesheet" />
         <link href="/css/animate.min.css" rel="stylesheet" />
         <link href="/fonts/fontawesome-free-7.2.0/css/all.min.css" rel="stylesheet" />
 
@@ -33,7 +33,16 @@
 
         </script>
 
-        <script src="https://maps.googleapis.com/maps/api/js?callback=initMap&libraries=marker&key=<%=googleMapsApiKey%>&loading=async" async></script>
+        <script>
+            (function () {
+                const mapsLang = localStorage.getItem("uiLanguage") === "he" ? "he" : "en";
+                const s = document.createElement("script");
+                s.src = "https://maps.googleapis.com/maps/api/js?callback=initMap&libraries=marker&language=" + mapsLang + "&key=<%=googleMapsApiKey%>&loading=async";
+                s.async = true;
+                document.head.appendChild(s);
+            })();
+
+        </script>
 
     </head>
 
@@ -44,7 +53,7 @@
                 <div id="homeFrontCommandAlertsTile" class="col-12 col-md-6 col-lg-2 col-xl-3">
                     <div id="pikudHeader" class="card table-card header-danger text-white mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#pikudBody" style="cursor: pointer">
-                            <span><i class="fa-solid fa-bell me-2"></i>Alerts</span>
+                            <span><i class="fa-solid fa-bell me-2"></i><span data-i18n="alerts">Alerts</span></span>
                             <div class="d-flex align-items-center gap-2">
                                 <span id="liveClock" class="live-clock">00:00:00</span>
                                 <i class="fa-solid fa-chevron-down collapse-icon"></i>
@@ -57,10 +66,10 @@
                             <table class=" table table-dark table-sm mb-0">
                                 <thead>
                                     <tr>
-                                        <th width="10%">Time</th>
-                                        <th width="5%">Type</th>
-                                        <th>Location</th>
-                                        <th>Zone</th>
+                                        <th width="10%" data-i18n="thTime">Time</th>
+                                        <th width="5%" data-i18n="thType">Type</th>
+                                        <th data-i18n="thLocation">Location</th>
+                                        <th data-i18n="thZone">Zone</th>
                                     </tr>
                                 </thead>
                                 <tbody id="pikud_haoref_alerts" class="fw-medium"></tbody>
@@ -74,7 +83,7 @@
                     <!-- Locations -->
                     <div id="locationsHeader" class="card table-card header-danger text-white mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#locationsBody" style="cursor: pointer">
-                            <span><i class="fa-solid fa-location-dot me-2"></i>Alert Locations</span>
+                            <span><i class="fa-solid fa-location-dot me-2"></i><span data-i18n="alertLocations">Alert Locations</span></span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
                         </div>
                     </div>
@@ -89,7 +98,7 @@
                     <!-- Zones -->
                     <div id="zonesHeader" class="card table-card header-danger text-white mt-3 mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#zonesBody" style="cursor: pointer">
-                            <span><i class="fa-solid fa-map me-2"></i>Alert Zones</span>
+                            <span><i class="fa-solid fa-map me-2"></i><span data-i18n="alertZones">Alert Zones</span></span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
                         </div>
                     </div>
@@ -107,7 +116,7 @@
                     <!-- Alerts Summary -->
                     <div id="summaryHeader" class="card table-card header-primary text-white mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#summaryBody" style="cursor: pointer">
-                            <span><i class="fa-solid fa-chart-pie me-2"></i>Alerts Summary</span>
+                            <span><i class="fa-solid fa-chart-pie me-2"></i><span data-i18n="alertsSummary">Alerts Summary</span></span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
                         </div>
                     </div>
@@ -117,33 +126,33 @@
                             <table class="table table-dark table-sm mb-0">
                                 <tbody id="alerts_summary">
                                     <tr>
-                                        <td><span>Total Alerts</span></td>
+                                        <td><span data-i18n="totalAlerts">Total Alerts</span></td>
                                         <td class="text-end"><span id="totalAlertsCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <!-- These will be hidden unless one of them get triggered as the chances of them occurring are extremely low -->
                                     <!-- START -->
                                     <tr id="total_general_alerts_counter" style="display: none;">
-                                        <td><span class="text-warning">Total General Alerts</span></td>
+                                        <td><span class="text-warning" data-i18n="totalGeneralAlerts">Total General Alerts</span></td>
                                         <td class="text-end"><span id="generalAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="total_earthquake_alerts_counter" style="display: none;">
-                                        <td><span class="text-warning">Total Earthquake Alerts</span></td>
+                                        <td><span class="text-warning" data-i18n="totalEarthquakeAlerts">Total Earthquake Alerts</span></td>
                                         <td class="text-end"><span id="earthquakeAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="total_radiological_event_alerts_counter" style="display: none;">
-                                        <td><span class="text-warning">Total Radiological Event Alerts</span></td>
+                                        <td><span class="text-warning" data-i18n="totalRadiologicalAlerts">Total Radiological Event Alerts</span></td>
                                         <td class="text-end"><span id="radiologicalEventAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="total_tsunami_alerts_counter" style="display: none;">
-                                        <td><span class="text-warning">Total Tsunami Alerts</span></td>
+                                        <td><span class="text-warning" data-i18n="totalTsunamiAlerts">Total Tsunami Alerts</span></td>
                                         <td class="text-end"><span id="tsunamiAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="total_hazardous_materials_alerts_counter" style="display: none;">
-                                        <td><span class="text-warning">Total Hazardous Materials Alerts</span></td>
+                                        <td><span class="text-warning" data-i18n="totalHazardousMaterialsAlerts">Total Hazardous Materials Alerts</span></td>
                                         <td class="text-end"><span id="hazardousMaterialsAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="total_terrorist_infiltration_alerts_counter" style="display: none;">
-                                        <td><span class="text-warning">Total Terrorist Infiltration Alerts</span></td>
+                                        <td><span class="text-warning" data-i18n="totalTerroristInfiltrationAlerts">Total Terrorist Infiltration Alerts</span></td>
                                         <td class="text-end"><span id="terroristInfiltrationAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <!-- END -->
@@ -151,93 +160,93 @@
 
 
                                     <tr>
-                                        <td><span>Total Drone Alerts</span></td>
+                                        <td><span data-i18n="totalDroneAlerts">Total Drone Alerts</span></td>
                                         <td class="text-end"><span id="droneAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span>Total Rocket Alerts</span></td>
+                                        <td><span data-i18n="totalRocketAlerts">Total Rocket Alerts</span></td>
                                         <td class="text-end"><span id="rocketAlertCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span>Drone Share</span></td>
+                                        <td><span data-i18n="droneShare">Drone Share</span></td>
                                         <td class="text-end"><span id="droneShareCounter" class="stat-number">0%</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span>Rocket Share</span></td>
+                                        <td><span data-i18n="rocketShare">Rocket Share</span></td>
                                         <td class="text-end"><span id="rocketShareCounter" class="stat-number">0%</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span>Total Locations</span></td>
+                                        <td><span data-i18n="totalLocations">Total Locations</span></td>
                                         <td class="text-end"><span id="totalLocationsCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span>Total Zones</span></td>
+                                        <td><span data-i18n="totalZones">Total Zones</span></td>
                                         <td class="text-end"><span id="totalZonesCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr>
-                                        <td><span>Total Early Warnings (All)</span></td>
+                                        <td><span data-i18n="totalEarlyWarningsAll">Total Early Warnings (All)</span></td>
                                         <td class="text-end"><span id="totalEarlyWarningsAllCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="total_early_warnings_specific_counter" style="display: none">
-                                        <td><span>Total Early Warnings (Specific)</span></td>
+                                        <td><span data-i18n="totalEarlyWarningsSpecific">Total Early Warnings (Specific)</span></td>
                                         <td class="text-end"><span id="totalEarlyWarningsSpecificCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="unmatched_cities_counter" style="display: none">
-                                        <td><span>Total Unmatched Cities</span></td>
+                                        <td><span data-i18n="totalUnmatchedCities">Total Unmatched Cities</span></td>
                                         <td class="text-end"><span id="totalUnmatchedCitiesCounter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="unmatched_cities" style="display: none">
-                                        <td><span>Open Unmatched Cities</span></td>
+                                        <td><span data-i18n="openUnmatchedCities">Open Unmatched Cities</span></td>
                                         <td class="text-end">
                                             <i id="show_unmatched_cities" class="fa-solid fa-arrow-up-right-from-square fa-xl icon-btn text-warning" style="cursor: pointer" title="Show Unmatched Cities"></i>
                                         </td>
                                     </tr>
                                     <tr id="error_counter" style="display: none">
-                                        <td><span>Total Errors</span></td>
+                                        <td><span data-i18n="totalErrors">Total Errors</span></td>
                                         <td class="text-end"><span id="pikud_haoref_error_counter" class="stat-number">0</span></td>
                                     </tr>
                                     <tr id="error_message" style="display: none">
-                                        <td><span>Open Error Messages</span></td>
+                                        <td><span data-i18n="openErrorMessages">Open Error Messages</span></td>
                                         <td class="text-end">
                                             <i id="show_error_messages" class="fa-solid fa-arrow-up-right-from-square fa-xl text-warning" style="cursor: pointer" title="Show Error Messages"></i>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><span>Sound Alerts</span></td>
+                                        <td><span data-i18n="soundAlerts">Sound Alerts</span></td>
                                         <td class="text-end">
                                             <i id="sound_alerts_icon" class="fa-solid fa-bell fa-xl" style="cursor: pointer"></i>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><span>Fullscreen</span></td>
+                                        <td><span data-i18n="fullscreen">Fullscreen</span></td>
                                         <td class="text-end">
                                             <i id="fullscreen_icon" class="fa-solid fa-expand fa-xl text-light" title="Enter Fullscreen"></i>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><span>Settings</span></td>
+                                        <td><span data-i18n="settingsLabel">Settings</span></td>
                                         <td class="text-end">
                                             <i id="open_settings_icon" class="fa-solid fa-gear fa-xl text-light" title="Open Settings"></i>
                                         </td>
                                     </tr>
                                     <tr id="clear_pikud_history_row" style="display: none;">
-                                        <td><span>Clear Alert History</span></td>
+                                        <td><span data-i18n="clearAlertHistory">Clear Alert History</span></td>
                                         <td class="text-end">
                                             <i id="clear_pikud_history_icon" class="fa-solid fa-trash-can fa-xl text-light"></i>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><span>Test Mode</span></td>
+                                        <td><span data-i18n="testMode">Test Mode</span></td>
                                         <td class="text-end">
                                             <i id="test_mode_icon" class="fa-solid fa-play fa-xl text-light" title="Turn ON Test Mode"></i>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td><span>App Version</span></td>
+                                        <td><span data-i18n="appVersion">App Version</span></td>
                                         <td class="text-end"><span id="appVersion" class="stat-number"><%= appVersion %></span></td>
                                     </tr>
                                     <tr id="update_app_version" style="display: none">
-                                        <td><span>App Update Available</span></td>
+                                        <td><span data-i18n="appUpdateAvailable">App Update Available</span></td>
                                         <td class="text-end">
                                             <i id="update_app_version_icon" class="fa-solid fa-arrows-rotate fa-xl text-warning" title="Reload with new version"></i>
                                         </td>
@@ -251,7 +260,7 @@
                     <!-- Last Alerted Times -->
                     <div id="lastAlertedTimesHeader" class="card table-card header-danger text-white mt-3 mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#lastAlertedTimesBody" style="cursor: pointer">
-                            <span><i class="fa-solid fa-clock me-2"></i>Last Alerted Times</span>
+                            <span><i class="fa-solid fa-clock me-2"></i><span data-i18n="lastAlertedTimes">Last Alerted Times</span></span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
                         </div>
                     </div>
@@ -272,7 +281,7 @@
                     <!-- News -->
                     <div id="newsHeader" class="card table-card header-dark text-white mb-3">
                         <div class="card-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#newsBody" style="cursor: pointer">
-                            <span class="section-header"><i class="fa-solid fa-newspaper me-2"></i>News Updates</span>
+                            <span class="section-header"><i class="fa-solid fa-newspaper me-2"></i><span data-i18n="newsUpdates">News Updates</span></span>
                             <div class="d-flex align-items-center gap-2">
                                 <select id="rssFeedSelector" class="form-select form-select-sm bg-dark text-white border-0" style="display: none"></select>
                                 <i class="fa-solid fa-chevron-down collapse-icon"></i>
@@ -291,7 +300,7 @@
                     <!-- Map -->
                     <div id="mapHeader" class="card table-card header-danger text-white mt-3 mb-3">
                         <div class="card-header section-header d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#mapBody" style="cursor: pointer">
-                            <span><i class="fa-solid fa-map-location-dot me-2"></i>Map Alerts</span>
+                            <span><i class="fa-solid fa-map-location-dot me-2"></i><span data-i18n="mapAlerts">Map Alerts</span></span>
                             <i class="fa-solid fa-chevron-down collapse-icon"></i>
                         </div>
                     </div>
@@ -313,7 +322,7 @@
                 <div class="modal-content glass-modal bg-danger text-white border-0">
                     <!-- Header -->
                     <div class="modal-header border-0 px-4 pt-4 pb-3">
-                        <h4 class="modal-title fw-semibold text-white" id="earlyWarningModalEnterLabel"><i class="fa-solid fa-circle-exclamation me-3 text-white"></i>Early Missile Warning Alert</h4>
+                        <h4 class="modal-title fw-semibold text-white" id="earlyWarningModalEnterLabel"><i class="fa-solid fa-circle-exclamation me-3 text-white"></i><span data-i18n="earlyWarningTitle">Early Missile Warning Alert</span></h4>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
@@ -321,13 +330,13 @@
                     <div class="modal-body px-4 py-1">
                         <div class="glass-inner p-4 rounded-4">
 
-                            <span class="text-white-50 small mb-3">Alerted at <strong id="earlyWarningOpenedAt"></strong></span>
+                            <span class="text-white-50 small mb-3"><span data-i18n="alertedAt">Alerted at</span> <strong id="earlyWarningOpenedAt"></strong></span>
                             &nbsp;&middot;&nbsp;
-                            <span class="text-white-50 small mb-3">Estimated time before missile sirens: <strong id="earlyWarningCountdown"></strong></span>
+                            <span class="text-white-50 small mb-3"><span data-i18n="timeBeforeSirens">Estimated time before missile sirens:</span> <strong id="earlyWarningCountdown"></strong></span>
                             <br /><br />
-                            This message will disappear automatically when the threat is no longer active.
+                            <span data-i18n="earlyWarningAutoClose">This message will disappear automatically when the threat is no longer active.</span>
                             <br /><br />
-                            <b>The following locations are affected:</b>
+                            <b data-i18n="affectedLocations">The following locations are affected:</b>
                             <br />
 
                             <div id="earlyWarningLocations" style="width: 100%"></div>
@@ -344,22 +353,22 @@
                 <div class="modal-content glass-modal bg-success text-white border-0">
                     <!-- Header -->
                     <div class="modal-header border-0 px-4 pt-4 pb-3">
-                        <h4 class="modal-title fw-semibold text-white" id="earlyWarningModalExitLabel"><i class="fa-solid fa-circle-check me-3 text-white"></i>Safe To Exit Bomb Shelter</h4>
+                        <h4 class="modal-title fw-semibold text-white" id="earlyWarningModalExitLabel"><i class="fa-solid fa-circle-check me-3 text-white"></i><span data-i18n="safeToExitTitle">Safe To Exit Bomb Shelter</span></h4>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
                     <!-- Body -->
                     <div class="modal-body px-4 py-1">
                         <div class="glass-inner p-4 rounded-4">
-                            You can now exit the bomb shelter.
+                            <span data-i18n="safeToExitBody">You can now exit the bomb shelter.</span>
                             <br /><br />
-                            This message will disappear automatically after 10 seconds.
+                            <span data-i18n="autoCloseAfter10s">This message will disappear automatically after 10 seconds.</span>
                         </div>
                     </div>
 
                     <!-- Footer -->
                     <div class="modal-footer border-0 px-4 pb-4">
-                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal" data-i18n="close">Close</button>
                     </div>
                 </div>
             </div>
@@ -371,14 +380,14 @@
                 <div class="modal-content glass-modal bg-dark text-white border-0">
                     <!-- Header -->
                     <div class="modal-header border-0 px-4 pt-4 pb-3">
-                        <h4 class="modal-title fw-semibold text-white" id="errorMessagesModalLabel"><i class="fa-solid fa-circle-exclamation me-3"></i>Error Messages</h4>
+                        <h4 class="modal-title fw-semibold text-white" id="errorMessagesModalLabel"><i class="fa-solid fa-circle-exclamation me-3"></i><span data-i18n="errorMessagesTitle">Error Messages</span></h4>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
                     <!-- Body -->
                     <div class="modal-body px-4 py-1">
                         <div class="glass-inner p-4 rounded-4">
-                            Unique error messages received from the Pikud HaOref service.
+                            <span data-i18n="errorMessagesDesc">Unique error messages received from the Pikud HaOref service.</span>
                             <br /><br />
                             <ul id="pikud_haoref_error_messages" style="width: 100%"></ul>
                         </div>
@@ -386,7 +395,7 @@
 
                     <!-- Footer -->
                     <div class="modal-footer border-0 px-4 pb-4">
-                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal" data-i18n="close">Close</button>
                     </div>
                 </div>
             </div>
@@ -398,14 +407,14 @@
                 <div class="modal-content glass-modal bg-dark text-white border-0">
                     <!-- Header -->
                     <div class="modal-header border-0 px-4 pt-4 pb-3">
-                        <h4 class="modal-title fw-semibold text-white" id="unmatchedCitiesModalLabel"><i class="fa-solid fa-circle-exclamation me-3 text-white"></i>Unmatched Cities</h4>
+                        <h4 class="modal-title fw-semibold text-white" id="unmatchedCitiesModalLabel"><i class="fa-solid fa-circle-exclamation me-3 text-white"></i><span data-i18n="unmatchedCitiesTitle">Unmatched Cities</span></h4>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
                     <!-- Body -->
                     <div class="modal-body px-4 py-1">
                         <div class="glass-inner p-4 rounded-4">
-                            These are the unmatched cities received from the Pikud HaOref service.
+                            <span data-i18n="unmatchedCitiesDesc">These are the unmatched cities received from the Pikud HaOref service.</span>
                             <br />
                             <br />
                             <ul id="unmatched_cities_messages" style="width: 100%"></ul>
@@ -414,7 +423,7 @@
 
                     <!-- Footer -->
                     <div class="modal-footer border-0 px-4 pb-4">
-                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal" data-i18n="close">Close</button>
                     </div>
                 </div>
             </div>
@@ -426,7 +435,7 @@
                 <div class="modal-content glass-modal bg-dark">
                     <!-- Header -->
                     <div class="modal-header border-0 px-4 pt-4 pb-3">
-                        <h4 class="modal-title fw-semibold text-white" id="settingsModalLabel"><i class="fa-solid fa-sliders me-3 text-primary"></i>Settings</h4>
+                        <h4 class="modal-title fw-semibold text-white" id="settingsModalLabel"><i class="fa-solid fa-sliders me-3 text-primary"></i><span data-i18n="settingsModalTitle">Settings</span></h4>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
 
@@ -436,15 +445,15 @@
                             <table class="table table-dark table-borderless mb-0">
                                 <tr>
                                     <td width="45%" class="align-middle">
-                                        <span class="text-white fw-medium">City (Early Warning)</span>
+                                        <span class="text-white fw-medium" data-i18n="cityEarlyWarning">City (Early Warning)</span>
                                     </td>
                                     <td>
-                                        <input class="form-control" type="text" id="citySearch" autocomplete="off" placeholder="Type city name..." />
+                                        <input class="form-control" type="text" id="citySearch" autocomplete="off" placeholder="Type city name..." data-i18n-placeholder="typeCityName" />
 
                                         <ul id="city_suggestions" class="list-group position-absolute w-100 mt-2 shadow-lg rounded-3 overflow-hidden" style="display: none; max-height: 320px; overflow-y: auto; z-index: 1060"></ul>
                                     </td>
                                     <td width="20%" class="text-end align-middle">
-                                        <button class="btn btn-primary px-4 py-2 fw-semibold" id="saveCityButton"><i class="fa-solid fa-floppy-disk me-2"></i>Save</button>
+                                        <button class="btn btn-primary px-4 py-2 fw-semibold" id="saveCityButton"><i class="fa-solid fa-floppy-disk me-2"></i><span data-i18n="save">Save</span></button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -454,7 +463,7 @@
                                 </tr>
                                 <tr>
                                     <td class="align-middle">
-                                        <span class="text-white fw-medium">Pikud HaOref Auto-Scroll</span>
+                                        <span class="text-white fw-medium" data-i18n="pikudAutoScroll">Pikud HaOref Auto-Scroll</span>
                                     </td>
                                     <td colspan="2">
                                         <input class="form-check-input" type="checkbox" id="toggle_pikud_scroll" />
@@ -462,7 +471,7 @@
                                 </tr>
                                 <tr>
                                     <td class="align-middle">
-                                        <span class="text-white fw-medium">Zones Auto-Scroll</span>
+                                        <span class="text-white fw-medium" data-i18n="zonesAutoScroll">Zones Auto-Scroll</span>
                                     </td>
                                     <td colspan="2">
                                         <input class="form-check-input" type="checkbox" id="toggle_zones_scroll" />
@@ -470,7 +479,7 @@
                                 </tr>
                                 <tr>
                                     <td class="align-middle">
-                                        <span class="text-white fw-medium">Locations Auto-Scroll</span>
+                                        <span class="text-white fw-medium" data-i18n="locationsAutoScroll">Locations Auto-Scroll</span>
                                     </td>
                                     <td colspan="2">
                                         <input class="form-check-input" type="checkbox" id="toggle_locations_scroll" />
@@ -478,7 +487,7 @@
                                 </tr>
                                 <tr>
                                     <td class="align-middle">
-                                        <span class="text-white fw-medium">Last Alerted Times Auto-Scroll</span>
+                                        <span class="text-white fw-medium" data-i18n="lastAlertedTimesAutoScroll">Last Alerted Times Auto-Scroll</span>
                                     </td>
                                     <td colspan="2">
                                         <input class="form-check-input" type="checkbox" id="toggle_last_alerted_times_scroll" />
@@ -486,7 +495,7 @@
                                 </tr>
                                 <tr>
                                     <td class="align-middle">
-                                        <span class="text-white fw-medium">RSS Feed Auto-Scroll</span>
+                                        <span class="text-white fw-medium" data-i18n="rssAutoScroll">RSS Feed Auto-Scroll</span>
                                     </td>
                                     <td colspan="2">
                                         <input class="form-check-input" type="checkbox" id="toggle_rss_scroll" />
@@ -494,7 +503,7 @@
                                 </tr>
                                 <tr>
                                     <td class="align-middle">
-                                        <span class="text-white fw-medium">Early Warning Auto-Scroll</span>
+                                        <span class="text-white fw-medium" data-i18n="earlyWarningAutoScroll">Early Warning Auto-Scroll</span>
                                     </td>
                                     <td colspan="2">
                                         <input class="form-check-input" type="checkbox" id="toggle_early_warning_scroll" checked />
@@ -502,7 +511,7 @@
                                 </tr>
                                 <tr>
                                     <td class="align-middle">
-                                        <span class="text-white fw-medium">Allow Map Auto-Maximization</span>
+                                        <span class="text-white fw-medium" data-i18n="allowMapAutoMax">Allow Map Auto-Maximization</span>
                                     </td>
                                     <td colspan="2">
                                         <input class="form-check-input" type="checkbox" id="toggle_allow_map_auto_maximization" checked />
@@ -510,7 +519,7 @@
                                 </tr>
                                 <tr>
                                     <td class="align-middle">
-                                        <span class="text-white fw-medium">Persist Alert History</span>
+                                        <span class="text-white fw-medium" data-i18n="persistHistorySetting">Persist Alert History</span>
                                     </td>
                                     <td colspan="2">
                                         <input class="form-check-input" type="checkbox" id="toggle_persist_history" checked />
@@ -518,20 +527,20 @@
                                 </tr>
                                 <tr>
                                     <td class="align-middle">
-                                        <span class="text-white fw-medium">Test Mode Type</span>
+                                        <span class="text-white fw-medium" data-i18n="testModeType">Test Mode Type</span>
                                     </td>
                                     <td colspan="2">
                                         <select class="form-select" id="test_mode_type">
-                                            <option value="alertByCity">Alert by City</option>
-                                            <option value="alertByRegion">Alert by Region</option>
-                                            <option value="earlyWarning">Early Warning</option>
-                                            <option value="nonMissileUAV">Non-Missile / UAV</option>
+                                            <option value="alertByCity" data-i18n="testModeOptionAlertByCity">Alert by City</option>
+                                            <option value="alertByRegion" data-i18n="testModeOptionAlertByRegion">Alert by Region</option>
+                                            <option value="earlyWarning" data-i18n="testModeOptionEarlyWarning">Early Warning</option>
+                                            <option value="nonMissileUAV" data-i18n="testModeOptionOtherAlertsOnly">Other Alerts Only</option>
                                         </select>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="align-middle">
-                                        <span class="text-white fw-medium">Dashboard Style</span>
+                                        <span class="text-white fw-medium" data-i18n="dashboardStyle">Dashboard Style</span>
                                     </td>
                                     <td colspan="2">
                                         <select class="form-select" id="css_style_theme">
@@ -544,13 +553,24 @@
                                         </select>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td class="align-middle">
+                                        <span class="text-white fw-medium" data-i18n="language">Language</span>
+                                    </td>
+                                    <td colspan="2">
+                                        <select class="form-select" id="ui_language">
+                                            <option value="en">English</option>
+                                            <option value="he">&#x202B;עברית</option>
+                                        </select>
+                                    </td>
+                                </tr>
                             </table>
                         </div>
                     </div>
 
                     <!-- Footer -->
                     <div class="modal-footer border-0 px-4 pb-4">
-                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-outline-light px-4" data-bs-dismiss="modal" data-i18n="close">Close</button>
                     </div>
                 </div>
             </div>
@@ -604,6 +624,7 @@
             const recentlyAlertedLocations = {}; // Dedup cache: location → Unix timestamp of last alert row added
             const pikudHaorefHistoryStorageKey = "pikudHaorefHistoryV1";
             const maxPersistedPikudRows = 250;
+            const rssInterval = 10000; // Fetch one feed every 10 seconds (if multiple feeds are configured, they will be fetched in round-robin fashion)
 
             const checkAppVersionMs = 120000; // Check for new app version every 2 minutes
 
@@ -1030,9 +1051,17 @@
 
             // Pre-fill the city search input with the user's previously saved city before opening settings
             $("#open_settings_icon").on("click", function () {
-                const savedCity = localStorage.getItem("earlyWarningCity");
-                if (savedCity) {
-                    $("#citySearch").val(savedCity);
+                const savedCityEn = localStorage.getItem("earlyWarningCity");
+                if (savedCityEn) {
+                    const lang = getCurrentLang();
+                    if (lang === "he") {
+                        // Translate saved English name back to Hebrew for display
+                        const cityEntry = locationsJSON.find(c => c.name_en === savedCityEn);
+                        $("#citySearch").val(cityEntry ? cityEntry.name : savedCityEn);
+                        if ($("#citySearch")[0]) $("#citySearch")[0].dataset.cityEn = savedCityEn;
+                    } else {
+                        $("#citySearch").val(savedCityEn);
+                    }
                 }
                 settingsModal.show();
             });
@@ -1041,16 +1070,20 @@
                 window.document.location.reload(true);
             });
 
-            // Persist the selected city to localStorage; remove the key if the field is cleared
+            // Persist the selected city to localStorage; always save the English name for consistent lookup
             $("#saveCityButton").on("click", function () {
-                const city = $("#citySearch").val().trim();
+                // dataset.cityEn is set when the user selects from autocomplete in Hebrew mode
+                const cityInput = $("#citySearch");
+                const cityEn = cityInput[0]?.dataset?.cityEn;
+                const city = cityEn || cityInput.val().trim();
 
                 if (city) {
-                    localStorage.setItem("earlyWarningCity", city); // Save non-empty value
+                    localStorage.setItem("earlyWarningCity", city); // Save English name
                 } else {
                     localStorage.removeItem("earlyWarningCity"); // Clear when user blanks the field
                 }
 
+                if (cityInput[0]) cityInput[0].dataset.cityEn = ""; // Reset helper attribute
                 settingsModal.hide();
             });
 
@@ -1088,6 +1121,10 @@
 
             // Auto-scroll toggle handlers
             // Track which auto-scrollers are enabled and their interval IDs for stopping
+            const supportedLanguages = ["en", "he"];
+            const storedUiLanguage = localStorage.getItem("uiLanguage");
+            const initialUiLanguage = supportedLanguages.includes(storedUiLanguage) ? storedUiLanguage : "en";
+
             const settingStates = {
                 pikudHaoref: localStorage.getItem("autoScrollPikudHaoref") === "true",
                 zones: localStorage.getItem("autoScrollZones") === "true",
@@ -1099,7 +1136,8 @@
                 testModeType: initialTestModeType,
                 soundAlertsEnabled: localStorage.getItem("soundAlertsEnabled") === "true",
                 cssTheme: initialCssTheme,
-                persistHistory: localStorage.getItem("persistHistory") !== "false"
+                persistHistory: localStorage.getItem("persistHistory") !== "false",
+                language: initialUiLanguage
             };
 
             soundAlertsEnabled = settingStates.soundAlertsEnabled;
@@ -1139,6 +1177,8 @@
                 $("#test_mode_type").val(settingStates.testModeType);
                 $("#css_style_theme").val(settingStates.cssTheme);
                 $("#toggle_persist_history").prop("checked", settingStates.persistHistory);
+                $("#ui_language").val(settingStates.language);
+                applyLanguage(settingStates.language);
             });
 
             // Stop functions for each autoscroller
@@ -1280,6 +1320,20 @@
                 applyDashboardTheme(settingStates.cssTheme);
             });
 
+            $("#ui_language").on("change", function () {
+                const newLang = $(this).val();
+                if (!supportedLanguages.includes(newLang)) return;
+                const prevLang = settingStates.language;
+                settingStates.language = newLang;
+                localStorage.setItem("uiLanguage", newLang);
+                applyLanguage(newLang);
+                // Reload the page when the language changes so Google Maps reloads
+                // with the correct language parameter in its API URL.
+                if (newLang !== prevLang) {
+                    window.location.reload();
+                }
+            });
+
             $("#toggle_persist_history").on("change", function () {
                 settingStates.persistHistory = $(this).is(":checked");
                 localStorage.setItem("persistHistory", settingStates.persistHistory);
@@ -1315,7 +1369,7 @@
 
             // Upsert a location into alertedLocations:
             // increments its counter if it already exists, otherwise adds a new entry.
-            function updateAlertedLocation (location) {
+            function updateAlertedLocation (location, location_he) {
                 const index = alertedLocations.findIndex(item => item.location === location);
 
                 if (index !== -1) {
@@ -1323,20 +1377,22 @@
                 } else {
                     alertedLocations.push({
                         location: location,
+                        location_he: location_he || location,
                         counter: 1
                     }); // First alert for this location
                 }
             }
 
             // Upsert a zone into alertedZones (same upsert pattern as updateAlertedLocation).
-            function updateAlertedZone (zone) {
-                const index = alertedZones.findIndex(item => item.zone === zone);
+            function updateAlertedZone (zone_en, zone_he) {
+                const index = alertedZones.findIndex(item => item.zone === zone_en);
 
                 if (index !== -1) {
                     alertedZones[index].counter++;
                 } else {
                     alertedZones.push({
-                        zone: zone,
+                        zone: zone_en,
+                        zone_he: zone_he || zone_en,
                         counter: 1
                     });
                 }
@@ -1411,11 +1467,20 @@
                 const {
                     includeHighlight = false
                 } = options;
+                const lang = getCurrentLang();
                 const time = escapeHtml(entry?.time || "");
-                const typeText = escapeHtml(entry?.typeText || "Alert");
                 const typeIcon = escapeHtml(entry?.typeIcon || "fa-triangle-exclamation");
-                const location = escapeHtml(entry?.location || "Unknown");
-                const zone = escapeHtml(entry?.zone || "Unknown");
+                // Determine type text: use stored typeKey for live translation, else fall back to typeText
+                let typeText;
+                if (entry?.typeKey && alertTypeMap[entry.typeKey]) {
+                    const tm = alertTypeMap[entry.typeKey];
+                    typeText = escapeHtml((lang === "he" && tm.text_he) ? tm.text_he : tm.text);
+                } else {
+                    typeText = escapeHtml(entry?.typeText || "Alert");
+                }
+                // Use Hebrew location/zone names when Hebrew is active
+                const location = escapeHtml((lang === "he" && entry?.location_he) ? entry.location_he : (entry?.location || "Unknown"));
+                const zone = escapeHtml((lang === "he" && entry?.zone_he) ? entry.zone_he : (entry?.zone || "Unknown"));
                 const lat = entry?.lat ?? "";
                 const lng = entry?.lng ?? "";
                 const rowClasses = includeHighlight ?
@@ -1439,6 +1504,7 @@
 
             function renderAlertedLocationsCounterTable (resetScroller = false) {
                 $("#alerted_locations_counter").html("");
+                const lang = getCurrentLang();
 
                 const sortedAlertedLocations = alertedLocations.toSorted((a, b) => {
                     if (b.counter !== a.counter) {
@@ -1449,7 +1515,9 @@
                 });
 
                 for (let i = 0; i < sortedAlertedLocations.length; i++) {
-                    const location = sortedAlertedLocations[i].location;
+                    const location = lang === "he" && sortedAlertedLocations[i].location_he ?
+                        sortedAlertedLocations[i].location_he :
+                        sortedAlertedLocations[i].location;
                     const counter = sortedAlertedLocations[i].counter;
 
                     $("#alerted_locations_counter").append(`
@@ -1469,6 +1537,7 @@
 
             function renderAlertedZonesCounterTable (resetScroller = false) {
                 $("#alerted_zones_counter").html("");
+                const lang = getCurrentLang();
 
                 const sortedAlertedZones = alertedZones.toSorted((a, b) => {
                     if (b.counter !== a.counter) {
@@ -1479,7 +1548,9 @@
                 });
 
                 for (let i = 0; i < sortedAlertedZones.length; i++) {
-                    const zone = sortedAlertedZones[i].zone;
+                    const zone = lang === "he" && sortedAlertedZones[i].zone_he ?
+                        sortedAlertedZones[i].zone_he :
+                        sortedAlertedZones[i].zone;
                     const counter = sortedAlertedZones[i].counter;
 
                     $("#alerted_zones_counter").append(`
@@ -1661,6 +1732,225 @@
 
             updateAdvancedSummaryStats();
 
+
+            // ==================== I18N / LANGUAGE SUPPORT ====================
+
+            const translations = {
+                en: {
+                    alerts: "Alerts",
+                    thTime: "Time",
+                    thType: "Type",
+                    thLocation: "Location",
+                    thZone: "Zone",
+                    alertLocations: "Alert Locations",
+                    alertZones: "Alert Zones",
+                    alertsSummary: "Alerts Summary",
+                    totalAlerts: "Total Alerts",
+                    totalGeneralAlerts: "Total General Alerts",
+                    totalEarthquakeAlerts: "Total Earthquake Alerts",
+                    totalRadiologicalAlerts: "Total Radiological Event Alerts",
+                    totalTsunamiAlerts: "Total Tsunami Alerts",
+                    totalHazardousMaterialsAlerts: "Total Hazardous Materials Alerts",
+                    totalTerroristInfiltrationAlerts: "Total Terrorist Infiltration Alerts",
+                    totalDroneAlerts: "Total Drone Alerts",
+                    totalRocketAlerts: "Total Rocket Alerts",
+                    droneShare: "Drone Share",
+                    rocketShare: "Rocket Share",
+                    totalLocations: "Total Locations",
+                    totalZones: "Total Zones",
+                    totalEarlyWarningsAll: "Total Early Warnings (All)",
+                    totalEarlyWarningsSpecific: "Total Early Warnings (Specific)",
+                    totalUnmatchedCities: "Total Unmatched Cities",
+                    openUnmatchedCities: "Open Unmatched Cities",
+                    totalErrors: "Total Errors",
+                    openErrorMessages: "Open Error Messages",
+                    soundAlerts: "Sound Alerts",
+                    fullscreen: "Fullscreen",
+                    settingsLabel: "Settings",
+                    clearAlertHistory: "Clear Alert History",
+                    testMode: "Test Mode",
+                    appVersion: "App Version",
+                    appUpdateAvailable: "App Update Available",
+                    lastAlertedTimes: "Last Alerted Times",
+                    newsUpdates: "News Updates",
+                    mapAlerts: "Map Alerts",
+                    earlyWarningTitle: "Early Missile Warning Alert",
+                    alertedAt: "Alerted at",
+                    timeBeforeSirens: "Estimated time before missile sirens:",
+                    earlyWarningAutoClose: "This message will disappear automatically when the threat is no longer active.",
+                    affectedLocations: "The following locations are affected:",
+                    safeToExitTitle: "Safe To Exit Bomb Shelter",
+                    safeToExitBody: "You can now exit the bomb shelter.",
+                    autoCloseAfter10s: "This message will disappear automatically after 10 seconds.",
+                    close: "Close",
+                    errorMessagesTitle: "Error Messages",
+                    errorMessagesDesc: "Unique error messages received from the Pikud HaOref service.",
+                    unmatchedCitiesTitle: "Unmatched Cities",
+                    unmatchedCitiesDesc: "These are the unmatched cities received from the Pikud HaOref service.",
+                    settingsModalTitle: "Settings",
+                    cityEarlyWarning: "City (Early Warning)",
+                    typeCityName: "Type city name...",
+                    save: "Save",
+                    pikudAutoScroll: "Pikud HaOref Auto-Scroll",
+                    zonesAutoScroll: "Zones Auto-Scroll",
+                    locationsAutoScroll: "Locations Auto-Scroll",
+                    lastAlertedTimesAutoScroll: "Last Alerted Times Auto-Scroll",
+                    rssAutoScroll: "RSS Feed Auto-Scroll",
+                    earlyWarningAutoScroll: "Early Warning Auto-Scroll",
+                    allowMapAutoMax: "Allow Map Auto-Maximization",
+                    persistHistorySetting: "Persist Alert History",
+                    testModeType: "Test Mode Type",
+                    testModeOptionAlertByCity: "Alert by City",
+                    testModeOptionAlertByRegion: "Alert by Region",
+                    testModeOptionEarlyWarning: "Early Warning",
+                    testModeOptionOtherAlertsOnly: "Other Alerts Only",
+                    dashboardStyle: "Dashboard Style",
+                    language: "Language"
+                },
+                he: {
+                    alerts: "\u05D4\u05EA\u05E8\u05D0\u05D5\u05EA",
+                    thTime: "\u05E9\u05E2\u05D4",
+                    thType: "\u05E1\u05D5\u05D2",
+                    thLocation: "\u05DE\u05D9\u05E7\u05D5\u05DD",
+                    thZone: "\u05D0\u05D6\u05D5\u05E8",
+                    alertLocations: "\u05DE\u05D9\u05E7\u05D5\u05DE\u05D9 \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA",
+                    alertZones: "\u05D0\u05D6\u05D5\u05E8\u05D9 \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA",
+                    alertsSummary: "\u05E1\u05D9\u05DB\u05D5\u05DD \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA",
+                    totalAlerts: '\u05E1\u05D4"\u05DB \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA',
+                    totalGeneralAlerts: '\u05E1\u05D4"\u05DB \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA \u05DB\u05DC\u05DC\u05D9\u05D5\u05EA',
+                    totalEarthquakeAlerts: '\u05E1\u05D4"\u05DB \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA \u05E8\u05E2\u05D9\u05D3\u05EA \u05D0\u05D3\u05DE\u05D4',
+                    totalRadiologicalAlerts: '\u05E1\u05D4"\u05DB \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA \u05D0\u05D9\u05E8\u05D5\u05E2 \u05E8\u05D3\u05D9\u05D5\u05DC\u05D5\u05D2\u05D9',
+                    totalTsunamiAlerts: '\u05E1\u05D4"\u05DB \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA \u05E6\u05D5\u05E0\u05D0\u05DE\u05D9',
+                    totalHazardousMaterialsAlerts: '\u05E1\u05D4"\u05DB \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA \u05D7\u05D5\u05DE\u05E8\u05D9\u05DD \u05DE\u05E1\u05D5\u05DB\u05E0\u05D9\u05DD',
+                    totalTerroristInfiltrationAlerts: '\u05E1\u05D4"\u05DB \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA \u05D7\u05D3\u05D9\u05E8\u05EA \u05DE\u05D7\u05D1\u05DC\u05D9\u05DD',
+                    totalDroneAlerts: '\u05E1\u05D4"\u05DB \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA \u05DB\u05D8\u05D1"\u05DE',
+                    totalRocketAlerts: '\u05E1\u05D4"\u05DB \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA \u05D8\u05D9\u05DC\u05D9\u05DD',
+                    droneShare: '\u05D0\u05D7\u05D5\u05D6 \u05DB\u05D8\u05D1"\u05DE',
+                    rocketShare: "\u05D0\u05D7\u05D5\u05D6 \u05D8\u05D9\u05DC\u05D9\u05DD",
+                    totalLocations: '\u05E1\u05D4"\u05DB \u05DE\u05D9\u05E7\u05D5\u05DE\u05D9\u05DD',
+                    totalZones: '\u05E1\u05D4"\u05DB \u05D0\u05D6\u05D5\u05E8\u05D9\u05DD',
+                    totalEarlyWarningsAll: '\u05E1\u05D4"\u05DB \u05D0\u05D6\u05D4\u05E8\u05D5\u05EA \u05DE\u05D5\u05E7\u05D3\u05DE\u05D5\u05EA (\u05DB\u05DC\u05DC)',
+                    totalEarlyWarningsSpecific: '\u05E1\u05D4"\u05DB \u05D0\u05D6\u05D4\u05E8\u05D5\u05EA \u05DE\u05D5\u05E7\u05D3\u05DE\u05D5\u05EA (\u05E1\u05E4\u05E6\u05D9\u05E4\u05D9)',
+                    totalUnmatchedCities: '\u05E1\u05D4"\u05DB \u05E2\u05E8\u05D9\u05DD \u05DC\u05D0 \u05DE\u05DE\u05D5\u05E4\u05D5\u05EA',
+                    openUnmatchedCities: "\u05E4\u05EA\u05D7 \u05E2\u05E8\u05D9\u05DD \u05DC\u05D0 \u05DE\u05DE\u05D5\u05E4\u05D5\u05EA",
+                    totalErrors: '\u05E1\u05D4"\u05DB \u05E9\u05D2\u05D9\u05D0\u05D5\u05EA',
+                    openErrorMessages: "\u05E4\u05EA\u05D7 \u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E9\u05D2\u05D9\u05D0\u05D4",
+                    soundAlerts: "\u05D4\u05EA\u05E8\u05D0\u05D5\u05EA \u05E7\u05D5\u05DC\u05D9\u05D5\u05EA",
+                    fullscreen: "\u05DE\u05E1\u05DA \u05DE\u05DC\u05D0",
+                    settingsLabel: "\u05D4\u05D2\u05D3\u05E8\u05D5\u05EA",
+                    clearAlertHistory: "\u05DE\u05D7\u05E7 \u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D9\u05EA \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA",
+                    testMode: "\u05DE\u05E6\u05D1 \u05D1\u05D3\u05D9\u05E7\u05D4",
+                    appVersion: "\u05D2\u05E8\u05E1\u05EA \u05D0\u05E4\u05DC\u05D9\u05E7\u05E6\u05D9\u05D4",
+                    appUpdateAvailable: "\u05E2\u05D3\u05DB\u05D5\u05DF \u05D6\u05DE\u05D9\u05DF",
+                    lastAlertedTimes: "\u05D6\u05DE\u05E0\u05D9 \u05D4\u05EA\u05E8\u05D0\u05D4 \u05D0\u05D7\u05E8\u05D5\u05E0\u05D9\u05DD",
+                    newsUpdates: "\u05E2\u05D3\u05DB\u05D5\u05E0\u05D9 \u05D7\u05D3\u05E9\u05D5\u05EA",
+                    mapAlerts: "\u05DE\u05E4\u05EA \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA",
+                    earlyWarningTitle: "\u05D0\u05D6\u05D4\u05E8\u05D4 \u05DE\u05D5\u05E7\u05D3\u05DE\u05EA - \u05DE\u05EA\u05E7\u05E4\u05EA \u05D8\u05D9\u05DC\u05D9\u05DD",
+                    alertedAt: "\u05D4\u05D5\u05EA\u05E8\u05E2 \u05D1\u05E9\u05E2\u05D4",
+                    timeBeforeSirens: "\u05D6\u05DE\u05DF \u05DE\u05E9\u05D5\u05E2\u05E8 \u05E2\u05D3 \u05E6\u05E4\u05D9\u05E8\u05D4:",
+                    earlyWarningAutoClose: "\u05D4\u05D5\u05D3\u05E2\u05D4 \u05D6\u05D5 \u05EA\u05D9\u05E2\u05DC\u05DD \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA \u05DB\u05E9\u05D4\u05D0\u05D9\u05D5\u05DD \u05D9\u05E1\u05EA\u05D9\u05D9\u05DD.",
+                    affectedLocations: "\u05D4\u05DE\u05D9\u05E7\u05D5\u05DE\u05D9\u05DD \u05D4\u05D1\u05D0\u05D9\u05DD \u05DE\u05D5\u05E9\u05E4\u05E2\u05D9\u05DD:",
+                    safeToExitTitle: "\u05E0\u05D9\u05EA\u05DF \u05DC\u05E6\u05D0\u05EA \u05DE\u05D4\u05DE\u05E8\u05D7\u05D1 \u05D4\u05DE\u05D5\u05D2\u05DF",
+                    safeToExitBody: "\u05DB\u05E2\u05EA \u05E0\u05D9\u05EA\u05DF \u05DC\u05E6\u05D0\u05EA \u05DE\u05D4\u05DE\u05E8\u05D7\u05D1 \u05D4\u05DE\u05D5\u05D2\u05DF.",
+                    autoCloseAfter10s: "\u05D4\u05D5\u05D3\u05E2\u05D4 \u05D6\u05D5 \u05EA\u05D9\u05E2\u05DC\u05DD \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA \u05DC\u05D0\u05D7\u05E8 10 \u05E9\u05E0\u05D9\u05D5\u05EA.",
+                    close: "\u05E1\u05D2\u05D5\u05E8",
+                    errorMessagesTitle: "\u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E9\u05D2\u05D9\u05D0\u05D4",
+                    errorMessagesDesc: "\u05D4\u05D5\u05D3\u05E2\u05D5\u05EA \u05E9\u05D2\u05D9\u05D0\u05D4 \u05D9\u05D9\u05D7\u05D5\u05D3\u05D9\u05D5\u05EA \u05E9\u05D4\u05EA\u05E7\u05D1\u05DC\u05D5 \u05DE\u05E9\u05D9\u05E8\u05D5\u05EA \u05E4\u05D9\u05E7\u05D5\u05D3 \u05D4\u05E2\u05D5\u05E8\u05E3.",
+                    unmatchedCitiesTitle: "\u05E2\u05E8\u05D9\u05DD \u05DC\u05D0 \u05DE\u05DE\u05D5\u05E4\u05D5\u05EA",
+                    unmatchedCitiesDesc: "\u05D0\u05DC\u05D5 \u05D4\u05DF \u05D4\u05E2\u05E8\u05D9\u05DD \u05D4\u05DC\u05D0 \u05DE\u05DE\u05D5\u05E4\u05D5\u05EA \u05E9\u05D4\u05EA\u05E7\u05D1\u05DC\u05D5 \u05DE\u05E9\u05D9\u05E8\u05D5\u05EA \u05E4\u05D9\u05E7\u05D5\u05D3 \u05D4\u05E2\u05D5\u05E8\u05E3.",
+                    settingsModalTitle: "\u05D4\u05D2\u05D3\u05E8\u05D5\u05EA",
+                    cityEarlyWarning: "\u05E2\u05D9\u05E8 (\u05D0\u05D6\u05D4\u05E8\u05D4 \u05DE\u05D5\u05E7\u05D3\u05DE\u05EA)",
+                    typeCityName: "\u05D4\u05D6\u05DF \u05E9\u05DD \u05E2\u05D9\u05E8...",
+                    save: "\u05E9\u05DE\u05D5\u05E8",
+                    pikudAutoScroll: "\u05D2\u05DC\u05D9\u05DC\u05D4 \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA - \u05E4\u05D9\u05E7\u05D5\u05D3 \u05D4\u05E2\u05D5\u05E8\u05E3",
+                    zonesAutoScroll: "\u05D2\u05DC\u05D9\u05DC\u05D4 \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA - \u05D0\u05D6\u05D5\u05E8\u05D9\u05DD",
+                    locationsAutoScroll: "\u05D2\u05DC\u05D9\u05DC\u05D4 \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA - \u05DE\u05D9\u05E7\u05D5\u05DE\u05D9\u05DD",
+                    lastAlertedTimesAutoScroll: "\u05D2\u05DC\u05D9\u05DC\u05D4 \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA - \u05D6\u05DE\u05E0\u05D9 \u05D4\u05EA\u05E8\u05D0\u05D4",
+                    rssAutoScroll: "\u05D2\u05DC\u05D9\u05DC\u05D4 \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA - \u05D7\u05D3\u05E9\u05D5\u05EA",
+                    earlyWarningAutoScroll: "\u05D2\u05DC\u05D9\u05DC\u05D4 \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA - \u05D0\u05D6\u05D4\u05E8\u05D4 \u05DE\u05D5\u05E7\u05D3\u05DE\u05EA",
+                    allowMapAutoMax: "\u05D4\u05D2\u05D3\u05DC\u05D4 \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA \u05E9\u05DC \u05D4\u05DE\u05E4\u05D4",
+                    persistHistorySetting: "\u05E9\u05DE\u05D5\u05E8 \u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D9\u05EA \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA",
+                    testModeType: "\u05E1\u05D5\u05D2 \u05DE\u05E6\u05D1 \u05D1\u05D3\u05D9\u05E7\u05D4",
+                    testModeOptionAlertByCity: "\u05D4\u05EA\u05E8\u05D0\u05D4 \u05DC\u05E4\u05D9 \u05E2\u05D9\u05E8",
+                    testModeOptionAlertByRegion: "\u05D4\u05EA\u05E8\u05D0\u05D4 \u05DC\u05E4\u05D9 \u05D0\u05D6\u05D5\u05E8",
+                    testModeOptionEarlyWarning: "\u05D0\u05D6\u05D4\u05E8\u05D4 \u05DE\u05D5\u05E7\u05D3\u05DE\u05EA",
+                    testModeOptionOtherAlertsOnly: "\u05D4\u05EA\u05E8\u05D0\u05D5\u05EA \u05D0\u05D7\u05E8\u05D5\u05EA \u05D1\u05DC\u05D1\u05D3",
+                    dashboardStyle: "\u05E2\u05D9\u05E6\u05D5\u05D1 \u05DC\u05D5\u05D7",
+                    language: "\u05E9\u05E4\u05D4"
+                }
+            };
+
+            function getCurrentLang () {
+                if (typeof settingStates !== "undefined" && settingStates.language) {
+                    return settingStates.language;
+                }
+                const stored = localStorage.getItem("uiLanguage");
+                return (stored === "he") ? "he" : "en";
+            }
+
+            function applyLanguage (lang) {
+                // Update HTML lang and direction
+                document.documentElement.setAttribute("lang", lang);
+                document.documentElement.setAttribute("dir", lang === "he" ? "rtl" : "ltr");
+
+                // Swap Bootstrap RTL/LTR stylesheet
+                const bootstrapStylesheet = document.getElementById("bootstrapStylesheet");
+                if (bootstrapStylesheet) {
+                    bootstrapStylesheet.href = lang === "he" ?
+                        "/css/bootstrap-5.3.3/bootstrap.rtl.min.css" :
+                        "/css/bootstrap-5.3.3/bootstrap.min.css";
+                }
+
+                const t = translations[lang] || translations.en;
+
+                // Update all data-i18n text elements
+                document.querySelectorAll("[data-i18n]").forEach(el => {
+                    const key = el.getAttribute("data-i18n");
+                    if (t[key] !== undefined) el.textContent = t[key];
+                });
+
+                // Update all placeholder elements
+                document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+                    const key = el.getAttribute("data-i18n-placeholder");
+                    if (t[key] !== undefined) el.placeholder = t[key];
+                });
+
+                // Re-render dynamic tables with language-aware names
+                renderAlertedLocationsCounterTable();
+                renderAlertedZonesCounterTable();
+
+                // Re-render the full alert history table so type/location/zone text updates
+                const pikudTbody = document.getElementById("pikud_haoref_alerts");
+                if (pikudTbody) {
+                    pikudTbody.innerHTML = "";
+                    pikudHaorefAlertHistory.forEach(entry => {
+                        pikudTbody.innerHTML += buildPikudHaorefAlertRowMarkup(entry);
+                    });
+                    if (pikudHaorefScroller) pikudHaorefScroller.reset();
+                }
+
+                // Re-render early warning locations if a warning is active
+                if (earlyWarningActive && earlyWarningLocations.length > 0) {
+                    const locationParts = earlyWarningLocations.map(city => {
+                        return lang === "he" ?
+                            (locationMap[city]?.name_he || locationMap[city]?.name_en || city) :
+                            (locationMap[city]?.name_en || city);
+                    });
+                    $("#earlyWarningLocations").text(locationParts.reverse().join(", ") + ", ");
+                }
+
+                // Position early-warning modals to the right edge in Hebrew (RTL) mode
+                const earlyWarningModals = document.querySelectorAll("#earlyWarningModalEnter, #earlyWarningModalExit");
+                earlyWarningModals.forEach(el => {
+                    el.querySelector(".modal-dialog")?.classList.toggle("modal-dialog-end", lang === "he");
+                });
+
+                // Update settingStates if already initialised
+                if (typeof settingStates !== "undefined") {
+                    settingStates.language = lang;
+                }
+            }
+
             // ==================== LOCATION DATA & CITY AUTOCOMPLETE ====================
 
             // locationsJSON is injected server-side by EJS from the pikud-haoref-api package.
@@ -1686,13 +1976,15 @@
                     return;
                 }
 
-                // Case-insensitive substring match against the English city name
-                const filtered = locationsJSON.filter((city) => {
-                    if (!city || typeof city.name_en !== "string") {
-                        return false;
-                    }
+                const lang = getCurrentLang();
 
-                    return city.name_en.toLowerCase().includes(query);
+                // Case-insensitive substring match against city name in the active language
+                const filtered = locationsJSON.filter((city) => {
+                    if (!city) return false;
+                    if (lang === "he") {
+                        return typeof city.name === "string" && city.name.includes(query.trim());
+                    }
+                    return typeof city.name_en === "string" && city.name_en.toLowerCase().includes(query);
                 });
 
                 if (filtered.length === 0) {
@@ -1704,11 +1996,14 @@
                 filtered.forEach(city => {
                     const li = document.createElement('li');
                     li.className = 'list-group-item list-group-item-action bg-light text-dark border-secondary';
-                    li.innerHTML = `<strong>${city.name_en}</strong>`;
+                    const displayName = lang === "he" ? city.name : city.name_en;
+                    li.innerHTML = `<strong>${displayName}</strong>`;
 
                     // Selecting a suggestion fills the input and closes the dropdown
+                    // Always store English name as the canonical value for the earlyWarningCity lookup
                     li.addEventListener('click', () => {
-                        input.value = city.name_en;
+                        input.value = displayName;
+                        input.dataset.cityEn = city.name_en; // store English name for saving
                         suggestionsList.style.display = 'none';
                     });
 
@@ -1731,6 +2026,7 @@
             const locationMap = Object.fromEntries(
                 locationsJSON.map(loc => [loc.value, {
                     name_en: loc.name_en, // English city/location name
+                    name_he: loc.name, // Hebrew city/location name
                     zone: loc.zone, // Hebrew zone name (used internally)
                     zone_en: loc.zone_en, // English zone name (displayed in the table)
                     lng: loc.lng, // Longitude — used for Google Maps link
@@ -1746,38 +2042,47 @@
             const alertTypeMap = {
                 general: {
                     text: "General Alert",
+                    text_he: "\u05D4\u05EA\u05E8\u05D0\u05D4 \u05DB\u05DC\u05DC\u05D9\u05EA",
                     icon: "fa-triangle-exclamation text-general-alerts"
                 },
                 newsFlash: {
                     text: "Early Warning",
+                    text_he: "\u05D0\u05D6\u05D4\u05E8\u05D4 \u05DE\u05D5\u05E7\u05D3\u05DE\u05EA",
                     icon: "fa-triangle-exclamation text-danger"
                 },
                 missiles: {
                     text: "Rocket Alert",
+                    text_he: "\u05D4\u05EA\u05E8\u05D0\u05EA \u05D8\u05D9\u05DC\u05D9\u05DD",
                     icon: "fa-rocket text-danger"
                 },
                 hostileAircraftIntrusion: {
                     text: "Drone Alert",
+                    text_he: "\u05D4\u05EA\u05E8\u05D0\u05EA \u05DB\u05D8\u05D1\"\u05DE",
                     icon: "fa-plane-up text-orange"
                 },
                 earthQuake: {
                     text: "Earthquake Alert",
+                    text_he: "\u05D4\u05EA\u05E8\u05D0\u05EA \u05E8\u05E2\u05D9\u05D3\u05EA \u05D0\u05D3\u05DE\u05D4",
                     icon: "fa-house-chimney-crack text-general-alerts"
                 },
                 radiologicalEvent: {
                     text: "Radiological Alert",
+                    text_he: "\u05D4\u05EA\u05E8\u05D0\u05D4 \u05E8\u05D3\u05D9\u05D5\u05DC\u05D5\u05D2\u05D9\u05EA",
                     icon: "fa-radiation text-general-alerts"
                 },
                 tsunami: {
                     text: "Tsunami Alert",
+                    text_he: "\u05D4\u05EA\u05E8\u05D0\u05EA \u05E6\u05D5\u05E0\u05D0\u05DE\u05D9",
                     icon: "fa-house-tsunami text-general-alerts"
                 },
                 hazardousMaterials: {
                     text: "Hazardous Materials Alert",
+                    text_he: "\u05D4\u05EA\u05E8\u05D0\u05EA \u05D7\u05D5\u05DE\u05E8\u05D9\u05DD \u05DE\u05E1\u05D5\u05DB\u05E0\u05D9\u05DD",
                     icon: "fa-skull-crossbones text-general-alerts"
                 },
                 terroristInfiltration: {
                     text: "Terrorist Infiltration Alert",
+                    text_he: "\u05D4\u05EA\u05E8\u05D0\u05EA \u05D7\u05D3\u05D9\u05E8\u05EA \u05DE\u05D7\u05D1\u05DC\u05D9\u05DD",
                     icon: "fa-circle-exclamation text-general-alerts"
                 }
             };
@@ -1785,7 +2090,13 @@
             // Returns the display details object for a given API type code,
             // or null if the type is not recognised (prevents rendering broken rows).
             function getAlertDetailsByCategory (type) {
-                return alertTypeMap[type] || null;
+                const entry = alertTypeMap[type];
+                if (!entry) return null;
+                const lang = getCurrentLang();
+                return {
+                    text: (lang === "he" && entry.text_he) ? entry.text_he : entry.text,
+                    icon: entry.icon
+                };
             }
 
             // ==================== PIKUD HAOREF POLLING ====================
@@ -1879,8 +2190,12 @@
 
                                             if (!earlyWarningLocations.includes(city)) {
                                                 earlyWarningLocations.push(city);
-                                                // Use English name from locationMap; fall back to raw ID string if unmapped
-                                                $("#earlyWarningLocations").prepend((locationMap[city]?.name_en || city) + ", ");
+                                                // Use name appropriate for current language; fall back to raw ID string if unmapped
+                                                const cityLang = getCurrentLang();
+                                                const cityName = cityLang === "he" ?
+                                                    (locationMap[city]?.name_he || locationMap[city]?.name_en || city) :
+                                                    (locationMap[city]?.name_en || city);
+                                                $("#earlyWarningLocations").prepend(cityName + ", ");
                                             }
                                         }
 
@@ -1942,6 +2257,7 @@
                                             const locationKey = locations[i].replace("''", "'");
                                             // Resolve location details from the pre-built O(1) index; fall back to raw values
                                             const location = locationMap[locationKey]?.name_en || locationOriginal;
+                                            const location_he = locationMap[locationKey]?.name_he || locationOriginal;
                                             const zone = locationMap[locationKey]?.zone || "Unknown";
                                             const zone_en = locationMap[locationKey]?.zone_en || "Unknown";
                                             const lat = locationMap[locationKey]?.lat || "";
@@ -1987,8 +2303,8 @@
                                                     $("#totalAlertsCounter").text(rocketAlertCounter + droneAlertCounter);
                                                     updateAdvancedSummaryStats();
 
-                                                    updateAlertedLocation(location); // Upsert into locations accumulator
-                                                    updateAlertedZone(zone_en); // Upsert into zones accumulator
+                                                    updateAlertedLocation(location, location_he); // Upsert into locations accumulator
+                                                    updateAlertedZone(zone_en, zone); // Upsert into zones accumulator
 
                                                     // If zone_en is 'Unknown' the location wasn't found in locationMap.
                                                     // Log it so the operator can investigate and update the city dataset.
@@ -2043,10 +2359,13 @@
                                                 // The location name links to Google Maps using the alert's coordinates.
                                                 const alertHistoryEntry = {
                                                     time: timeStamp,
+                                                    typeKey: alertType,
                                                     typeText: alertTypeText,
                                                     typeIcon: alertTypeIcon,
                                                     location,
+                                                    location_he,
                                                     zone: zone_en,
+                                                    zone_he: zone,
                                                     lat,
                                                     lng
                                                 };
@@ -2173,12 +2492,33 @@
             }
 
             const newsArray = []; // Published timestamps already shown; prevents duplicate rows across polls
-            const rssInterval = 10000; // Fetch one feed every 10 seconds
             let currentRssFeedIndex = 0; // Pointer into rssFeeds — advances round-robin each poll
 
-            // Registered RSS feeds. Each entry alternates on successive rssPoll() calls
-            // so all four sources are refreshed roughly every 40 seconds.
-            const rssFeeds = Array.isArray(<%- rssFeeds %>) ? <%- rssFeeds %> : [];
+            // Raw RSS config from server (includes language-specific fields from config.json).
+            const rssFeedsRaw = Array.isArray(<%- rssFeeds %>) ? <%- rssFeeds %> : [];
+
+            function getLocalizedRssFeeds (lang) {
+                const useHebrew = lang === "he";
+                const nameKey = useHebrew ? "realname_he" : "realname_en";
+                const urlKey = useHebrew ? "url_he" : "url_en";
+
+                return rssFeedsRaw
+                    .filter((feed) => {
+                        const localizedName = typeof feed?.[nameKey] === "string" ? feed[nameKey].trim() : "";
+                        const localizedUrl = typeof feed?.[urlKey] === "string" ? feed[urlKey].trim() : "";
+                        // Strict rules: if chosen language name/url are missing, skip this feed.
+                        return Boolean(localizedName && localizedUrl);
+                    })
+                    .map((feed) => ({
+                        codename: feed.codename,
+                        realname: feed[nameKey].trim(),
+                        url: feed[urlKey].trim()
+                    }));
+            }
+
+            // Registered RSS feeds for the current UI language.
+            // Language is persisted and the page reloads on language change.
+            const rssFeeds = getLocalizedRssFeeds(getCurrentLang());
 
             // Fetches and displays articles from a single feed entry; shared by the
             // initial bulk load and the regular round-robin poll.
@@ -2255,6 +2595,10 @@
 
             const rssPoll = async function () {
                 try {
+                    if (rssFeeds.length === 0) {
+                        return;
+                    }
+
                     // Capture the current feed before advancing the index, so
                     // the feed stays in sync for this tick's request.
                     const feed = rssFeeds[currentRssFeedIndex];
@@ -2278,6 +2622,10 @@
             // First run: fetch all feeds immediately before starting the round-robin loop
             (async function rssInitialFetch () {
                 try {
+                    if (rssFeeds.length === 0) {
+                        return;
+                    }
+
                     for (const feed of rssFeeds) {
                         await fetchAndDisplayFeed(feed);
                     }

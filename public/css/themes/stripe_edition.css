@@ -140,10 +140,10 @@ a:hover {
     background: #eeedff !important;
 }
 
-.table tbody tr:first-child td:first-child { border-top-left-radius: var(--radius-lg); }
-.table tbody tr:first-child td:last-child  { border-top-right-radius: var(--radius-lg); }
-.table tbody tr:last-child td:first-child  { border-bottom-left-radius: var(--radius-lg); }
-.table tbody tr:last-child td:last-child   { border-bottom-right-radius: var(--radius-lg); }
+.table tbody tr:first-child td:first-child { border-start-start-radius: var(--radius-lg); }
+.table tbody tr:first-child td:last-child  { border-start-end-radius: var(--radius-lg); }
+.table tbody tr:last-child td:first-child  { border-end-start-radius: var(--radius-lg); }
+.table tbody tr:last-child td:last-child   { border-end-end-radius: var(--radius-lg); }
 
 /* Section header cards — solid Stripe-palette colors, white text via HTML class */
 .header-danger {
@@ -357,6 +357,26 @@ a:hover {
 #earlyWarningModalExit .btn-outline-light:hover {
     background: rgba(255, 255, 255, 0.2) !important;
 }
+
+/* Force early-warning modals to bottom-right in Hebrew mode.
+We use physical right/bottom anchors to avoid ambiguity with logical
+properties and Bootstrap's modal centering defaults. */
+#earlyWarningModalEnter .modal-dialog.modal-dialog-end,
+#earlyWarningModalExit .modal-dialog.modal-dialog-end {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    left: auto;
+    margin: 0;
+}
+@media (min-width: 576px) {
+    #earlyWarningModalEnter .modal-dialog.modal-dialog-end,
+    #earlyWarningModalExit .modal-dialog.modal-dialog-end {
+        right: 1.75rem;
+        bottom: 1.75rem;
+    }
+}
+
 
 /* ==================== FORMS ==================== */
 

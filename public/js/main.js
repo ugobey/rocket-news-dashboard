@@ -92,6 +92,30 @@ function sendWebsocketMessage(payload) {
     dashboardSocket.send(JSON.stringify(payload));
 }
 
+// ==================== DATE/TIME FORMATTING HELPERS ====================
+// Replaces moment.js usage with native Date methods
+function formatTimeHHmmss() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, "0");
+    const m = String(now.getMinutes()).padStart(2, "0");
+    const s = String(now.getSeconds()).padStart(2, "0");
+    return `${h}:${m}:${s}`;
+}
+
+function formatTimeHHmm() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, "0");
+    const m = String(now.getMinutes()).padStart(2, "0");
+    return `${h}:${m}`;
+}
+
+function getDateOrdinal() {
+    const now = new Date();
+    const day = now.getDate();
+    const suffix = ["st", "nd", "rd"][(((day + 90) % 10) - 3) % 3] || "th";
+    return `${day}${suffix}`;
+}
+
 // ==================== LIVE CLOCK ====================
 // Refreshes the HH:MM:SS badge in the alert panel header every second.
 function updateClock() {
@@ -1566,7 +1590,7 @@ const processPikudHaorefAlert = async function (alert) {
                         if (alertTypeDetails) {
                             const alertTypeText = alertTypeDetails.text;
                             const alertTypeIcon = alertTypeDetails.icon;
-                            const timeStamp = moment().format("HH:mm:ss");
+                            const timeStamp = formatTimeHHmmss();
 
                             // Filter out locations already shown within the last 60 seconds
                             // to avoid flooding the table with duplicate rows during sustained alerts.
@@ -1677,7 +1701,7 @@ const processPikudHaorefAlert = async function (alert) {
 
                                             // Track and display the last unique times when alerts occurred.
                                             // Only adds a time if it's not already in the list (ensures uniqueness).
-                                            const dayOrdinal = moment().format("Do");
+                                            const dayOrdinal = getDateOrdinal();
                                             const time = timeStamp.slice(0, -3);
 
                                             // Only add if this time hasn't been recorded yet
@@ -1897,7 +1921,7 @@ function renderFeedItems(feed, news) {
 
         reversedArray.forEach((item) => {
             const published = item.published;
-            const timeStamp = moment().format("HH:mm");
+            const timeStamp = formatTimeHHmm();
 
             // Only add rows for articles not yet shown (dedup by published timestamp)
             if (!newsArray.includes(published)) {

@@ -6,10 +6,9 @@ const { execFile } = require("node:child_process");
 const pkg = require("./package.json");
 const serverAppVersion = pkg.version;
 
-const locations = require("./locations_by_zone");
 
 // ── DATA ─────────────────────────────────────────────────────────────────────
-
+const locations = require("./locations_by_zone");
 const arava = locations.arava;
 const beitSheanValley = locations.beitSheanValley;
 const beitShemesh = locations.beitShemesh;
@@ -47,6 +46,11 @@ const yehuda = locations.yehuda;
 const allCities = [...arava, ...beitSheanValley, ...beitShemesh, ...bikaa, ...centerNegev, ...confrontationLine, ...dan, ...deadSea, ...dromHashfela, ...eilat, ...gazaEnvelope, ...golan, ...haifa, ...haShfela, ...hefer, ...hofHaCarmel, ...jerusalem, ...katzrin, ...krayot, ...lachish, ...lowerGalilee, ...menashe, ...sharon, ...shomron, ...southNegev, ...tavor, ...upperGalilee, ...wadiAra, ...westLachish, ...westNegev, ...yarkon, ...yearotHaCarmel, ...yehuda];
 const regions = [arava, beitSheanValley, beitShemesh, bikaa, centerNegev, confrontationLine, dan, deadSea, dromHashfela, eilat, gazaEnvelope, golan, haifa, haShfela, hefer, hofHaCarmel, jerusalem, katzrin, krayot, lachish, lowerGalilee, menashe, sharon, shomron, southNegev, tavor, upperGalilee, wadiAra, westLachish, westNegev, yarkon, yearotHaCarmel, yehuda];
 const alertTypes = ["missiles", "hostileAircraftIntrusion", "newsFlash"];
+const nonMissileUavAlertTypes = ["general", "earthQuake", "radiologicalEvent", "tsunami", "hazardousMaterials", "terroristInfiltration"];
+
+const pikudPushIntervalMs = 1000;
+const rssPushIntervalMs = 10000;
+const versionCheckIntervalMs = 120000;
 
 let earlyWarningTest = 0;
 let earlyWarningRegion;
@@ -190,8 +194,6 @@ function generateRandomEarlyWarningAlert() {
 }
 
 function generateRandomNonMissileUAVAlert() {
-    const nonMissileUavAlertTypes = ["general", "earthQuake", "radiologicalEvent", "tsunami", "hazardousMaterials", "terroristInfiltration"];
-
     return generateAlert({
         typeSelector: () => randomItem(nonMissileUavAlertTypes),
         citySelector: () => [randomItem(allCities)],
@@ -338,6 +340,25 @@ function setupWebsocketServer({ server }) {
         let rssTimeoutHandle = null;
         let versionCheckTimeoutHandle = null;
 
+        async function pushRssFeed(feedUrl, fallbackErrorMessage) {
+            try {
+                const payload = await getRssFeedData(feedUrl);
+                sendWebsocketMessage(socket, {
+                    type: "rss_feed",
+                    feedUrl,
+                    payload,
+                });
+            } catch (err) {
+                sendWebsocketMessage(socket, {
+                    type: "rss_feed",
+                    feedUrl,
+                    payload: {
+                        error: err?.message || fallbackErrorMessage,
+                    },
+                });
+            }
+        }
+
         const schedulePikudPush = async function () {
             try {
                 const payload = await getPikudHaorefAlerts(clientState.testmode);
@@ -355,7 +376,7 @@ function setupWebsocketServer({ server }) {
             } finally {
                 // Keep polling while the websocket remains open.
                 if (socket.readyState === WebSocket.OPEN) {
-                    pikudTimeoutHandle = setTimeout(schedulePikudPush, 1000);
+                    pikudTimeoutHandle = setTimeout(schedulePikudPush, pikudPushIntervalMs);
                 }
             }
         };
@@ -372,12 +393,7 @@ function setupWebsocketServer({ server }) {
                     }
 
                     if (feed?.url) {
-                        const payload = await getRssFeedData(feed.url);
-                        sendWebsocketMessage(socket, {
-                            type: "rss_feed",
-                            feedUrl: feed.url,
-                            payload,
-                        });
+                        await pushRssFeed(feed.url, "RSS push failed");
                     }
                 }
             } catch (err) {
@@ -389,7 +405,7 @@ function setupWebsocketServer({ server }) {
                 });
             } finally {
                 if (socket.readyState === WebSocket.OPEN) {
-                    rssTimeoutHandle = setTimeout(scheduleRssPush, 10000);
+                    rssTimeoutHandle = setTimeout(scheduleRssPush, rssPushIntervalMs);
                 }
             }
         };
@@ -404,23 +420,13 @@ function setupWebsocketServer({ server }) {
                     clientState.rssFeeds = incomingFeeds.filter((feed) => typeof feed?.url === "string" && feed.url.trim() !== "");
                     clientState.rssIndex = 0;
 
-                    // Immediately push all feeds in parallel so the table fills on page load.
+                    // Push feeds in configured order so the client renders top-to-bottom predictably.
                     if (clientState.rssFeeds.length > 0) {
-                        for (const feed of clientState.rssFeeds) {
-                            getRssFeedData(feed.url).then((payload) => {
-                                sendWebsocketMessage(socket, {
-                                    type: "rss_feed",
-                                    feedUrl: feed.url,
-                                    payload,
-                                });
-                            }).catch((err) => {
-                                sendWebsocketMessage(socket, {
-                                    type: "rss_feed",
-                                    feedUrl: feed.url,
-                                    payload: { error: err?.message || "RSS initial fetch failed" },
-                                });
-                            });
-                        }
+                        void (async () => {
+                            for (const feed of clientState.rssFeeds) {
+                                await pushRssFeed(feed.url, "RSS initial fetch failed");
+                            }
+                        })();
                     }
 
                     return;
@@ -474,7 +480,7 @@ function setupWebsocketServer({ server }) {
             } finally {
                 // Re-check periodically so clients can surface newly published releases.
                 if (socket.readyState === WebSocket.OPEN) {
-                    versionCheckTimeoutHandle = setTimeout(scheduleVersionCheckPush, 120000);
+                    versionCheckTimeoutHandle = setTimeout(scheduleVersionCheckPush, versionCheckIntervalMs);
                 }
             }
         };

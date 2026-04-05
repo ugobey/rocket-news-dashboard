@@ -18,7 +18,6 @@
 
         <script src="/js/jquery-3.7.1.min.js"></script>
         <script src="/js/bootstrap-5.3.3/bootstrap.bundle.min.js"></script>
-        <script src="/js/moment-2.30.1.min.js"></script>
 
         <!-- Google Tag Manager -->
         <script>
@@ -54,6 +53,7 @@
         </script>
 
         <script>
+            // Load Google Maps with the persisted UI language before client code initializes the map.
             (function () {
                 const mapsLang = localStorage.getItem("uiLanguage") === "he" ? "he" : "en";
                 const s = document.createElement("script");
@@ -153,8 +153,7 @@
                                         <td><span data-i18n="totalAlerts">Total Alerts</span></td>
                                         <td class="text-end"><span id="totalAlertsCounter" class="stat-number">0</span></td>
                                     </tr>
-                                    <!-- These will be hidden unless one of them get triggered as the chances of them occurring are extremely low -->
-                                    <!-- START -->
+                                    <!-- Rare alert types stay hidden until at least one event of that type is recorded. -->
                                     <tr id="total_general_alerts_counter" style="display: none;">
                                         <td><span class="text-warning" data-i18n="totalGeneralAlerts">Total General Alerts</span></td>
                                         <td class="text-end"><span id="generalAlertCounter" class="stat-number">0</span></td>
@@ -179,7 +178,6 @@
                                         <td><span class="text-warning" data-i18n="totalTerroristInfiltrationAlerts">Total Terrorist Infiltration Alerts</span></td>
                                         <td class="text-end"><span id="terroristInfiltrationAlertCounter" class="stat-number">0</span></td>
                                     </tr>
-                                    <!-- END -->
 
 
 
@@ -338,7 +336,7 @@
             </div>
         </div>
 
-        <!-- Modals -->
+        <!-- Modal overlays for early warnings, diagnostics, and user settings. -->
 
         <!-- Early Warning Modal - Enter -->
         <div class="modal fade" id="earlyWarningModalEnter" tabindex="-1" aria-labelledby="earlyWarningModalEnterLabel">
@@ -485,6 +483,7 @@
                                         <hr class="text-white" />
                                     </td>
                                 </tr>
+                                <!-- Dashboard behavior preferences persisted in localStorage. -->
                                 <tr>
                                     <td class="align-middle">
                                         <span class="text-white fw-medium" data-i18n="pikudAutoScroll">Pikud HaOref Auto-Scroll</span>
@@ -601,6 +600,7 @@
         </div>
 
         <script>
+            // Inject server-rendered configuration once so the static client bundle can stay framework-agnostic.
             window.__appConfig = {
                 appVersion: "<%= appVersion %>",
                 randomKey:  "<%= randomKey %>",

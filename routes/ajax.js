@@ -68,118 +68,97 @@ const allCities = [...arava, ...beitSheanValley, ...beitShemesh, ...bikaa, ...ce
 const regions = [arava, beitSheanValley, beitShemesh, bikaa, centerNegev, confrontationLine, dan, deadSea, dromHashfela, eilat, gazaEnvelope, golan, haifa, haShfela, hefer, hofHaCarmel, jerusalem, katzrin, krayot, lachish, lowerGalilee, menashe, sharon, shomron, southNegev, tavor, upperGalilee, wadiAra, westLachish, westNegev, yarkon, yearotHaCarmel, yehuda];
 const alertTypes = ["missiles", "hostileAircraftIntrusion", "newsFlash"];
 
-function generateRandomAlertByCity() {
-    // Randomly select an alert type for testing purposes. In a real scenario, the API would provide the actual alert type.
+function randomItem(items) {
+    return items[Math.floor(Math.random() * items.length)];
+}
 
-    // For testing, we can randomly select an alert type. In a real implementation, this would come from the API response.
-    const randomType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
+function generateAlert({ typeSelector, citySelector, instructionsSelector = () => "ירי רקטות וטילים", shouldSkip = (type) => type === "newsFlash" }) {
+    const type = typeSelector();
 
-    // For testing purposes, randomly select a single city from all available cities. In a real scenario, the API would provide the actual affected cities.
-    const randomCities = [allCities[Math.floor(Math.random() * allCities.length)]];
-
-    if (randomType === "newsFlash") {
+    if (shouldSkip(type)) {
         return [];
     }
 
-    // Return a simulated alert object with the randomly selected type, cities, and instructions. In a real implementation, this would be the actual response from the API.
     return [
         {
-            type: randomType,
-            cities: randomCities,
-            instructions: "ירי רקטות וטילים",
+            type,
+            cities: citySelector(type),
+            instructions: instructionsSelector(type),
             id: Date.now().toString(),
         },
     ];
 }
 
+function generateRandomAlertByCity() {
+    return generateAlert({
+        typeSelector: () => randomItem(alertTypes),
+        citySelector: () => [randomItem(allCities)],
+    });
+}
+
 function generateRandomAlertByRegion() {
-    // Randomly select an alert type for testing purposes. In a real scenario, the API would provide the actual alert type.
-    const randomType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
-
-    // Select a random region (zone) and randomize its cities
-    const randomRegion = regions[Math.floor(Math.random() * regions.length)];
-
-    if (randomType === "newsFlash") {
-        return [];
-    }
-
-    // Return a simulated alert object with the randomly selected type, cities, and instructions. In a real implementation, this would be the actual response from the API.
-    return [
-        {
-            type: randomType,
-            cities: randomRegion,
-            instructions: "ירי רקטות וטילים",
-            id: Date.now().toString(),
-        },
-    ];
+    return generateAlert({
+        typeSelector: () => randomItem(alertTypes),
+        citySelector: () => randomItem(regions),
+    });
 }
 
 let earlyWarningTest = 0;
 let earlyWarningRegion;
 
 function generateRandomEarlyWarningAlert() {
-    if (earlyWarningTest === 0) {
-        earlyWarningRegion = regions[Math.floor(Math.random() * regions.length)];
+    return new Promise((resolve, reject) => {
+        let type;
+        let instructions;
 
-        earlyWarningTest++;
+        if (earlyWarningTest === 0) {
+            earlyWarningRegion = randomItem(regions);
+            earlyWarningTest++;
+            type = "newsFlash";
+            instructions = "ירי רקטות וטילים";
 
-        return [
-            {
-                type: "newsFlash",
-                cities: earlyWarningRegion,
-                instructions: "ירי רקטות וטילים",
-                id: Date.now().toString(),
-            },
-        ];
-    } else if (earlyWarningTest === 1) {
-        earlyWarningTest = 0;
+            resolve(
+                generateAlert({
+                    typeSelector: () => type,
+                    citySelector: () => earlyWarningRegion,
+                    instructionsSelector: () => instructions,
+                    shouldSkip: () => false,
+                }),
+            );
+        } else if (earlyWarningTest === 1) {
+            earlyWarningTest++;
+            type = "missiles";
+            instructions = "ירי רקטות וטילים";
+        } else if (earlyWarningTest === 2) {
+            earlyWarningTest = 0;
+            type = "newsFlash";
+            instructions = "האירוע הסתיים";
+        } else {
+            resolve([]);
+        }
 
-        return [
-            {
-                type: "missiles",
-                cities: earlyWarningRegion,
-                instructions: "ירי רקטות וטילים",
-                id: Date.now().toString(),
-            },
-        ];
-    } else if (earlyWarningTest === 2) {
-        earlyWarningTest = 0;
-
-        return [
-            {
-                type: "newsFlash",
-                cities: earlyWarningRegion,
-                instructions: "האירוע הסתיים",
-                id: Date.now().toString(),
-            },
-        ];
-    }
-
-    return [];
+        setTimeout(() => {
+            resolve(
+                generateAlert({
+                    typeSelector: () => type,
+                    citySelector: () => earlyWarningRegion,
+                    instructionsSelector: () => instructions,
+                    shouldSkip: () => false,
+                }),
+            );
+        }, 5000);
+    });
 }
 
 function generateRandomNonMissileUAVAlert() {
-    // Randomly select an alert type for testing purposes. In a real scenario, the API would provide the actual alert type.
-    const alertTypes = ["general", "earthQuake", "radiologicalEvent", "tsunami", "hazardousMaterials", "terroristInfiltration"];
-    // For testing, we can randomly select an alert type. In a real implementation, this would come from the API response.
-    const randomType = alertTypes[Math.floor(Math.random() * alertTypes.length)];
+    const nonMissileUavAlertTypes = ["general", "earthQuake", "radiologicalEvent", "tsunami", "hazardousMaterials", "terroristInfiltration"];
 
-    // For testing purposes, randomly select a single city from all available cities. In a real scenario, the API would provide the actual affected cities.
-    const randomCities = [allCities[Math.floor(Math.random() * allCities.length)]];
-
-    // For news flash alerts, we can randomly select an instruction from a predefined list. In a real scenario, the API would provide the actual instructions.
-    // "ירי רקטות וטילים" has a 10% chance, "האירוע הסתיים" has a 90% chance.
-    let instructions = null;
-
-    // Return a simulated alert object with the randomly selected type, cities, and instructions. In a real implementation, this would be the actual response from the API.
-    return [
-        {
-            type: randomType,
-            cities: randomCities,
-            instructions: instructions,
-            id: Date.now().toString(),
-        },
-    ];
+    return generateAlert({
+        typeSelector: () => randomItem(nonMissileUavAlertTypes),
+        citySelector: () => [randomItem(allCities)],
+        instructionsSelector: () => null,
+        shouldSkip: () => false,
+    });
 }
 
 function logError(context, err) {
@@ -219,24 +198,11 @@ function asyncHandler(fn, context) {
 router.use(
     "/",
     asyncHandler(async function ajaxRouteHandler(req, res) {
-        const forwardedPortHeader = req.headers["x-forwarded-port"];
-        const forwardedPort = Array.isArray(forwardedPortHeader) ? forwardedPortHeader[0] : forwardedPortHeader;
-        const requestPort = Number.parseInt((forwardedPort || "").toString().split(",")[0], 10) || req.socket.localPort;
-
         const getService = req.body.service;
         const testmode = req.body.testmode;
 
         if (getService === "pikud_haoref") {
             let options = {};
-
-            /*
-            if (requestPort != 8080) {
-                options = {
-                    httpsAgent: new HttpsProxyAgent(config.proxyUrl),
-                    rejectUnauthorized: false,
-                };
-            }
-            */
 
             if (testmode) {
                 let alert;
@@ -246,7 +212,7 @@ router.use(
                 } else if (testmode === "alertByRegion") {
                     alert = generateRandomAlertByRegion();
                 } else if (testmode === "earlyWarning") {
-                    alert = generateRandomEarlyWarningAlert();
+                    alert = await generateRandomEarlyWarningAlert();
                 } else if (testmode === "nonMissileUAV") {
                     alert = generateRandomNonMissileUAVAlert();
                 } else {

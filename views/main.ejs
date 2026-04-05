@@ -594,9 +594,10 @@
 
             const earlyWarningDurationMS = 5 * 60 * 1000; // Early warning countdown uses a fixed 5-minute duration
             const pikudHaorefInterval = 1000; // Poll Pikud HaOref every 1 second (ms)
-            const markerDurationMs = 65000; // Map markers for alerted locations last for 60 seconds before automatically disappearing
+            const alertedLocationsDedupSeconds = 65; // When a location receives an alert, ignore new alerts for the same location for 65 seconds to prevent spamming (Pikud HaOref can be noisy with repeated alerts for the same location)
+            const markerDurationMs = 70000; // Map markers for alerted locations last for 70 seconds before automatically disappearing
             const testModeDurationMs = 60000; // Keep test mode enabled for 60 seconds max
-            const testModeMarkersDurationMs = 65000; // Keep test mode enabled for 60 seconds max      
+            const testModeMarkersDurationMs = 70000; // Test mode markers last for 70 seconds
             const recentlyAlertedLocations = {}; // Dedup cache: location → Unix timestamp of last alert row added
             const pikudHaorefHistoryStorageKey = "pikudHaorefHistoryV1";
             const maxPersistedPikudRows = 250;
@@ -1303,8 +1304,8 @@
                 const now = Math.floor(Date.now() / 1000); // Current time as Unix seconds
 
                 for (let location of alertLocations) {
-                    // Accept the location if it has never been seen, or if 60 seconds have elapsed
-                    if (!recentlyAlertedLocations[location] || recentlyAlertedLocations[location] < now - 60) {
+                    // Accept the location if it has never been seen, or if X seconds have elapsed
+                    if (!recentlyAlertedLocations[location] || recentlyAlertedLocations[location] < now - alertedLocationsDedupSeconds) {
                         newLocations.push(location);
                         recentlyAlertedLocations[location] = now; // Record the timestamp for this location
                     }
